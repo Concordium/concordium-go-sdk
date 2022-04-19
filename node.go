@@ -20,5 +20,5 @@ type NodeInfo struct {
 	ConsensusType               ConsensusType
 	ConsensusBakerCommittee     NodeInfoIsInBakingCommittee
 	ConsensusFinalizerCommittee bool
-	BakerId                     BakerId
+	ConsensusBakerId            BakerId
 }
