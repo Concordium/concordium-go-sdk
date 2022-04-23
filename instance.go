@@ -5,13 +5,6 @@ type InstanceInfo struct {
 	SourceModule ModuleRef      `json:"sourceModule"`
 	Owner        AccountAddress `json:"owner"`
 	Name         InitName       `json:"name"`
-	Model        State          `json:"model"`
+	Model        Model          `json:"model"`
 	Methods      []ReceiveName  `json:"methods"`
 }
-
-// ModuleRef base-16 encoded module reference (64 characters)
-type ModuleRef string
-
-type InitName string
-
-type ReceiveName string

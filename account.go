@@ -15,7 +15,7 @@ type AccountInfo struct {
 	AccountNonce           uint64                  `json:"accountNonce"`
 	AccountAmount          *Amount                 `json:"accountAmount"`
 	AccountReleaseSchedule *AccountReleaseSchedule `json:"accountReleaseSchedule"`
-	AccountCredentials     interface{}             `json:"accountCredentials"` // TODO
+	AccountCredentials     any                     `json:"accountCredentials"` // TODO
 	AccountThreshold       int                     `json:"accountThreshold"`
 	AccountEncryptedAmount *AccountEncryptedAmount `json:"accountEncryptedAmount"`
 	AccountEncryptionKey   EncryptionKey           `json:"accountEncryptionKey"`
