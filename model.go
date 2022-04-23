@@ -1,3 +1,3 @@
 package concordium
 
-type State []byte
+type Model string

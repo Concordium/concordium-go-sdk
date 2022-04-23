@@ -11,7 +11,7 @@ import (
 )
 
 type BaseClient interface {
-	// PeerConnect Suggest to a peer to connect to the submitted peer details.
+	// PeerConnect Suggest to w peer to connect to the submitted peer details.
 	// This, if successful, adds the peer to the list of given addresses.
 	PeerConnect(ctx context.Context, ip string, port int) (bool, error)
 
@@ -89,7 +89,7 @@ type BaseClient interface {
 	GetInstanceInfo(ctx context.Context, hash BlockHash, address *ContractAddress) (*InstanceInfo, error)
 
 	// InvokeContract see https://github.com/Concordium/concordium-node/blob/main/docs/grpc.md#invokecontract--blockhash---contractcontext---invokecontractresult
-	InvokeContract(ctx context.Context, x interface{}) ([]byte, error) // TODO
+	InvokeContract(ctx context.Context, hash BlockHash, context *ContractContext) (*InvokeContractResult, error)
 
 	// GetRewardStatus see https://github.com/Concordium/concordium-node/blob/main/docs/grpc.md#getrewardstatus-blockhash---rewardstatus
 	GetRewardStatus(ctx context.Context, hash BlockHash) (*RewardStatus, error)
@@ -495,12 +495,22 @@ func (c *baseClient) GetInstanceInfo(ctx context.Context, hash BlockHash, addres
 	return i, err
 }
 
-func (c *baseClient) InvokeContract(ctx context.Context, x interface{}) ([]byte, error) {
-	res, err := c.grpc.InvokeContract(ctx, nil)
+func (c *baseClient) InvokeContract(ctx context.Context, hash BlockHash, context *ContractContext) (*InvokeContractResult, error) {
+	b, err := json.Marshal(context)
 	if err != nil {
 		return nil, err
 	}
-	return []byte(res.Value), nil
+	res, err := c.grpc.InvokeContract(ctx, &grpc_api.InvokeContractRequest{
+		BlockHash: string(hash),
+		Context:   string(b),
+	})
+	if err != nil {
+		return nil, err
+	}
+	println(res.Value)
+	r := &InvokeContractResult{}
+	err = json.Unmarshal([]byte(res.Value), r)
+	return r, nil
 }
 
 func (c *baseClient) GetRewardStatus(ctx context.Context, hash BlockHash) (*RewardStatus, error) {
