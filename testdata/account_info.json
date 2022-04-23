@@ -5,68 +5,7 @@
     "total": "0",
     "schedule": []
   },
-  "accountCredentials": {
-    "0": {
-      "value": {
-        "contents": {
-          "ipIdentity": 0,
-          "arData": {
-            "1": {
-              "encIdCredPubShare": "86abc92db211285256cae81cb917b823de264908770f7b345ec2c02b2c66eb1abe7b2be35ecfb84aa7c2bbb82d0ef2cca2dee6daeb19805d5b737de218fe4e4a6cc24a9c55894185bb942bc9ca36ba9ace025d0f6efbbc90849d0e1b61815a1c"
-            },
-            "2": {
-              "encIdCredPubShare": "b37c52edb74fd4a7a6f68c9a64ce6790dce60e1058a33475be58a02461d7be25cba9f9d046fa938bec40a0dc2fa8cdcba846a48c121517f3edeec0c7a13e7c898808cad25ee1a6c120dd371af15864e5f9ce9bd862eb96918147b26231566bde"
-            },
-            "3": {
-              "encIdCredPubShare": "a1056b5e38cc67e4bb792b3cc11342622363b602d3e3859108ca505de5fc590afe10a6ea125262bdb96111b9dacc469aa4804cf2a0d632dbaf7fa03ef3c8626172d3d73fc4e1fbd9579c83850b496a397c706e9a4bb48aa3dad1d01d74bc4f06"
-            }
-          },
-          "revocationThreshold": 2,
-          "credId": "8b62436ed271a973b0cb294b7515e8be5d085bf89c54f6ad2c7c54c3b5b1a6c51872d80ff5953a2e8f284148351fef13",
-          "policy": {
-            "revealedAttributes": {},
-            "createdAt": "202111",
-            "validTo": "202211"
-          },
-          "commitments": {
-            "cmmPrf": "a85c60183c253ed331926001ad36f57a981a5898ecbfeed68224c795722737d865aa488ff95a351a843cee833cf808df",
-            "cmmCredCounter": "911489acdb0c9ac450b15a4c9a8599f7c6eb0679619b4e975c4b639460b19c1eb62090c5e4f0d52a61338dff82efc83a",
-            "cmmIdCredSecSharingCoeff": [
-              "9652d6332e2dd813810916748cb87851d313e33abf7b9a41467fa0b91f693c44dead2dc654497bde6e3c6d1552d62939",
-              "b026c02f8e923c8c02f7ccde940613afeb8f4a304d49d110a9ef620aefbb594bd5d41abd3a505138e4b2022f66bddef1"
-            ],
-            "cmmAttributes": {
-              "idDocNo": "8eba63665b4838458a04e8e9e04333c648ddccd4d5ad60974fa201e84c3db3d20e74bbbdf344c2835e5f7891086d5be8",
-              "nationality": "84710c65eb0b1589124f8f6024a5a9ed07d30d4dd0c5b4de722ffd676c0b976d16b34b78d03dbef14e1fd27947321239",
-              "nationalIdNo": "aa5c445fd68974312d4a1325b09ddc1733484b540e742c6d87fef0e956af23c3629858311a746bcaf36229d49745be09",
-              "lastName": "a0c1a76eb790b159c9812556d2a8931e03ea232e918a6f7cb9d1f3883e8c680edb7872af1962f2f067cebebff8e6a4c7",
-              "countryOfResidence": "89ed7194c4afa06cc6200a7b455a573642d4546f8ffc55c093aeb56ef334dc76157511e9132792ea151a6e4784548fc3",
-              "idDocIssuer": "b17ed02eb470fd9b6d3818cb622df93a20e548f5d306dddfc24e3c903cca2eba7fd8571d7126bdb36603c6a1f3197062",
-              "taxIdNo": "b73aaaf39bb4413f8d3aaa35e250bb5a31bd4a816334819f5e0576e05b3b1a9b0586f38f01c1c0f3bafd5fda02f3c51d",
-              "dob": "86bd8a5e30b1b376283c35d11e8b17b35d050ce53aafdbec7c38ce74368e7697a414aa28718bfca491cf3d0d834e41d7",
-              "idDocIssuedAt": "ac8a5b9cd3b5867ddf53e0c4c7c568f24e5bd17fa21e4539908fc7d5de6dee5e3bad84980f96d0331ee426e078a11b8f",
-              "firstName": "ab3b1bfa5c7d8cb8c539c7b112903cdf7f0c8915c7e564ba926a6af94cbbc1c38e39f9ece174ba5b9071deb01d1887ea",
-              "idDocType": "b5c24c0ddc6a103d9e39de25ceb5248cdb0bf2a049f092d8c8b9ba43342ebade5c3e5dd1265811d2b898f4c954a0a251",
-              "idDocExpiresAt": "b009f346a5720b6a685945ef8649dea6c0880a9e5744aca3b1c7cb2cb6318a796ab44a8729c0ec7da6b01f5fff1aef62",
-              "sex": "b09d54299d0eea739df52af1493182a8f5a22e0510ba233e20beb671f59cc9ea18d5f43abc3637e8e393cfa7f04665d2"
-            },
-            "cmmMaxAccounts": "ae24ca751875d4993347774d2e1c61bffd23925b0eec92b988680483dd89b5536b8a8ae7cd706b318cc5c2634f9181c5"
-          },
-          "credentialPublicKeys": {
-            "keys": {
-              "0": {
-                "verifyKey": "df7ee494412254d7970a053ef16976f7f899802746fe138dc7be6ed6bc3a396b",
-                "schemeId": "Ed25519"
-              }
-            },
-            "threshold": 1
-          }
-        },
-        "type": "normal"
-      },
-      "v": 0
-    }
-  },
+  "accountCredentials": null,
   "accountThreshold": 1,
   "accountEncryptedAmount": {
     "incomingAmounts": [],
