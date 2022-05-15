@@ -1,6 +1,7 @@
 package concordium
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/google/go-cmp/cmp"
 	"os"
@@ -8,6 +9,29 @@ import (
 	"testing"
 	"time"
 )
+
+var (
+	// TODO move to env
+	testGrpcTarget      = "35.184.87.228:10003"
+	testGrpcToken       = "rpcadmin"
+	testBlockHash       = BlockHash("4eccaca49abab6df9d24ac8f0da973d4b2dbe6180810842b15cd1cc2078d0b25")
+	testBlockHeight     = BlockHeight(88794)
+	testAccountAddress  = AccountAddress("3djqZmm3jFEfMHXj4RtuTYLfr7VJ5ZwmVGmNot8sbadxFrA5eW")
+	testContractAddress = &ContractAddress{Index: 0, SubIndex: 0}
+	testModuleRef       = ModuleRef("85a8a9242518e07617763de99e5c6bdf39d82fa534a8838929a2167655002813")
+
+	testBaseClient BaseClient
+)
+
+func TestMain(m *testing.M) {
+	var err error
+	testBaseClient, err = NewBaseClient(context.Background(), testGrpcTarget, testGrpcToken)
+	if err != nil {
+		panic(err)
+	}
+	code := m.Run()
+	os.Exit(code)
+}
 
 func testTimeMustParse(f, v string) time.Time {
 	t, err := time.Parse(f, v)

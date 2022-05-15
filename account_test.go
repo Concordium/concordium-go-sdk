@@ -14,9 +14,9 @@ var testNextAccountNonce = &NextAccountNonce{
 
 var testAccountInfo = &AccountInfo{
 	AccountNonce:  2,
-	AccountAmount: NewAmountFromMicroGTU(2166),
+	AccountAmount: NewAmountFromMicroCCD(2166),
 	AccountReleaseSchedule: &AccountReleaseSchedule{
-		Total:    NewAmountFromMicroGTU(0),
+		Total:    NewAmountFromMicroCCD(0),
 		Schedule: []*Release{},
 	},
 	AccountThreshold: 1,

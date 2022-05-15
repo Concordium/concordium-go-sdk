@@ -7,31 +7,31 @@ import (
 )
 
 type Amount struct {
-	microGTU uint64
+	microCCD uint64
 }
 
 func NewAmountZero() *Amount {
 	return &Amount{}
 }
 
-func NewAmountFromMicroGTU(v int) *Amount {
-	return &Amount{microGTU: uint64(v)}
+func NewAmountFromMicroCCD(v int) *Amount {
+	return &Amount{microCCD: uint64(v)}
 }
 
-func NewAmountFromGTU(v float64) *Amount {
-	return &Amount{microGTU: uint64(v * 1e6)}
+func NewAmountFromCCD(v float64) *Amount {
+	return &Amount{microCCD: uint64(v * 1e6)}
 }
 
-func (a *Amount) MicroGTU() int {
-	return int(a.microGTU)
+func (a *Amount) MicroCCD() int {
+	return int(a.microCCD)
 }
 
-func (a *Amount) GTU() float64 {
-	return float64(a.microGTU) / 1e6
+func (a *Amount) CCD() float64 {
+	return float64(a.microCCD) / 1e6
 }
 
 func (a *Amount) MarshalJSON() ([]byte, error) {
-	b, err := json.Marshal(strconv.Itoa(int(a.microGTU)))
+	b, err := json.Marshal(strconv.Itoa(int(a.microCCD)))
 	if err != nil {
 		return nil, fmt.Errorf("%T: %w", *a, err)
 	}
@@ -48,6 +48,6 @@ func (a *Amount) UnmarshalJSON(b []byte) error {
 	if err != nil {
 		return fmt.Errorf("%T: %w", *a, err)
 	}
-	a.microGTU = uint64(num)
+	a.microCCD = uint64(num)
 	return nil
 }

@@ -1,5 +1,9 @@
 package concordium
 
+type Serialize interface {
+	Serialize() ([]byte, error)
+}
+
 type IdentityProvider struct {
 	IpIdentity     int                          `json:"ipIdentity"`
 	IpDescription  *IdentityProviderDescription `json:"ipDescription"`

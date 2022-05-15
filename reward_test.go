@@ -5,11 +5,11 @@ import "testing"
 const testdataRewardStatus = "testdata/reward_status.json"
 
 var testRewardStatus = &RewardStatus{
-	TotalAmount:               NewAmountFromMicroGTU(10872562806746186),
-	TotalEncryptedAmount:      NewAmountFromMicroGTU(82443855514),
-	BakingRewardAccount:       NewAmountFromMicroGTU(68951065940),
-	FinalizationRewardAccount: NewAmountFromMicroGTU(5),
-	GasAccount:                NewAmountFromMicroGTU(3),
+	TotalAmount:               NewAmountFromMicroCCD(10872562806746186),
+	TotalEncryptedAmount:      NewAmountFromMicroCCD(82443855514),
+	BakingRewardAccount:       NewAmountFromMicroCCD(68951065940),
+	FinalizationRewardAccount: NewAmountFromMicroCCD(5),
+	GasAccount:                NewAmountFromMicroCCD(3),
 }
 
 func TestRewardStatus_MarshalJSON(t *testing.T) {

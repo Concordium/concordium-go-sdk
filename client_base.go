@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	grpc_api "github.com/Concordium/concordium-go-sdk/grpc-api"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/wrapperspb"
@@ -68,7 +69,7 @@ type BaseClient interface {
 	GetBlocksAtHeight(ctx context.Context, height BlockHeight) ([]BlockHash, error)
 
 	// SendTransaction Submit a local transaction
-	SendTransaction(ctx context.Context, id NetworkId, payload io.Reader) (bool, error)
+	SendTransaction(ctx context.Context, id NetworkId, request TransactionRequest) (TransactionHash, error)
 
 	// StartBaker Start the baker in the consensus module
 	StartBaker(ctx context.Context) (bool, error)
@@ -180,7 +181,7 @@ func (c *baseClient) PeerConnect(ctx context.Context, ip string, port int) (bool
 	if err != nil {
 		return false, err
 	}
-	return res.Value, nil
+	return res.GetValue(), nil
 }
 
 func (c *baseClient) PeerDisconnect(ctx context.Context, ip string, port int) (bool, error) {
@@ -195,7 +196,7 @@ func (c *baseClient) PeerDisconnect(ctx context.Context, ip string, port int) (b
 	if err != nil {
 		return false, err
 	}
-	return res.Value, nil
+	return res.GetValue(), nil
 }
 
 func (c *baseClient) PeerUptime(ctx context.Context) (int64, error) {
@@ -203,7 +204,7 @@ func (c *baseClient) PeerUptime(ctx context.Context) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	return int64(res.Value), nil
+	return int64(res.GetValue()), nil
 }
 
 func (c *baseClient) PeerTotalSent(ctx context.Context) (int, error) {
@@ -211,7 +212,7 @@ func (c *baseClient) PeerTotalSent(ctx context.Context) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	return int(res.Value), nil
+	return int(res.GetValue()), nil
 }
 
 func (c *baseClient) PeerTotalReceived(ctx context.Context) (int, error) {
@@ -219,7 +220,7 @@ func (c *baseClient) PeerTotalReceived(ctx context.Context) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	return int(res.Value), nil
+	return int(res.GetValue()), nil
 }
 
 func (c *baseClient) PeerVersion(ctx context.Context) (string, error) {
@@ -227,7 +228,7 @@ func (c *baseClient) PeerVersion(ctx context.Context) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return res.Value, nil
+	return res.GetValue(), nil
 }
 
 func (c *baseClient) PeerStats(ctx context.Context, includeBootstrappers bool) (*PeerStats, error) {
@@ -266,9 +267,9 @@ func (c *baseClient) PeerList(ctx context.Context, includeBootstrappers bool) (*
 	}
 	for i, e := range res.Peers {
 		l.Peers[i] = &PeerElement{
-			NodeId:        NodeId(e.NodeId.Value),
-			Ip:            e.Ip.Value,
-			Port:          int(e.Port.Value),
+			NodeId:        NodeId(e.NodeId.GetValue()),
+			Ip:            e.Ip.GetValue(),
+			Port:          int(e.Port.GetValue()),
 			CatchupStatus: PeerElementCatchupStatus(e.CatchupStatus),
 		}
 	}
@@ -291,7 +292,7 @@ func (c *baseClient) BanNode(ctx context.Context, element PeerElement) (bool, er
 	if err != nil {
 		return false, err
 	}
-	return res.Value, nil
+	return res.GetValue(), nil
 }
 
 func (c *baseClient) UnbanNode(ctx context.Context, element PeerElement) (bool, error) {
@@ -310,7 +311,7 @@ func (c *baseClient) UnbanNode(ctx context.Context, element PeerElement) (bool, 
 	if err != nil {
 		return false, err
 	}
-	return res.Value, nil
+	return res.GetValue(), nil
 }
 
 func (c *baseClient) JoinNetwork(ctx context.Context, id NetworkId) (bool, error) {
@@ -322,7 +323,7 @@ func (c *baseClient) JoinNetwork(ctx context.Context, id NetworkId) (bool, error
 	if err != nil {
 		return false, err
 	}
-	return res.Value, nil
+	return res.GetValue(), nil
 }
 
 func (c *baseClient) LeaveNetwork(ctx context.Context, id NetworkId) (bool, error) {
@@ -334,7 +335,7 @@ func (c *baseClient) LeaveNetwork(ctx context.Context, id NetworkId) (bool, erro
 	if err != nil {
 		return false, err
 	}
-	return res.Value, nil
+	return res.GetValue(), nil
 }
 
 func (c *baseClient) NodeInfo(ctx context.Context) (*NodeInfo, error) {
@@ -343,7 +344,7 @@ func (c *baseClient) NodeInfo(ctx context.Context) (*NodeInfo, error) {
 		return nil, err
 	}
 	i := &NodeInfo{
-		NodeId:                      NodeId(res.NodeId.Value),
+		NodeId:                      NodeId(res.NodeId.GetValue()),
 		CurrentLocaltime:            int64(res.CurrentLocaltime),
 		PeerType:                    PeerType(res.PeerType),
 		ConsensusBakerRunning:       res.ConsensusBakerRunning,
@@ -351,7 +352,7 @@ func (c *baseClient) NodeInfo(ctx context.Context) (*NodeInfo, error) {
 		ConsensusType:               ConsensusType(res.ConsensusType),
 		ConsensusBakerCommittee:     NodeInfoIsInBakingCommittee(res.ConsensusBakerCommittee),
 		ConsensusFinalizerCommittee: res.ConsensusFinalizerCommittee,
-		ConsensusBakerId:            BakerId(res.ConsensusBakerId.Value),
+		ConsensusBakerId:            BakerId(res.ConsensusBakerId.GetValue()),
 	}
 	return i, nil
 }
@@ -362,7 +363,7 @@ func (c *baseClient) GetConsensusStatus(ctx context.Context) (*ConsensusStatus, 
 		return nil, err
 	}
 	s := &ConsensusStatus{}
-	err = json.Unmarshal([]byte(res.Value), s)
+	err = json.Unmarshal([]byte(res.GetValue()), s)
 	return s, err
 }
 
@@ -374,7 +375,7 @@ func (c *baseClient) GetBlockInfo(ctx context.Context, hash BlockHash) (*BlockIn
 		return nil, err
 	}
 	i := &BlockInfo{}
-	err = json.Unmarshal([]byte(res.Value), i)
+	err = json.Unmarshal([]byte(res.GetValue()), i)
 	return i, err
 }
 
@@ -387,7 +388,7 @@ func (c *baseClient) GetAncestors(ctx context.Context, hash BlockHash, amount in
 		return nil, err
 	}
 	var s []BlockHash
-	err = json.Unmarshal([]byte(res.Value), &s)
+	err = json.Unmarshal([]byte(res.GetValue()), &s)
 	return s, err
 }
 
@@ -397,7 +398,7 @@ func (c *baseClient) GetBranches(ctx context.Context) (*Branch, error) {
 		return nil, err
 	}
 	b := &Branch{}
-	err = json.Unmarshal([]byte(res.Value), b)
+	err = json.Unmarshal([]byte(res.GetValue()), b)
 	return b, err
 }
 
@@ -409,28 +410,34 @@ func (c *baseClient) GetBlocksAtHeight(ctx context.Context, height BlockHeight) 
 		return nil, err
 	}
 	var s []BlockHash
-	err = json.Unmarshal([]byte(res.Value), &s)
+	err = json.Unmarshal([]byte(res.GetValue()), &s)
 	return s, err
 }
 
-func (c *baseClient) SendTransaction(ctx context.Context, id NetworkId, payload io.Reader) (bool, error) {
-	b, err := io.ReadAll(payload)
+func (c *baseClient) SendTransaction(ctx context.Context, id NetworkId, request TransactionRequest) (TransactionHash, error) {
+	b, err := request.Serialize()
 	if err != nil {
-		return false, err
+		return "", fmt.Errorf("unable to serialize request: %w", err)
 	}
+	p := make([]byte, 2+len(b))
+	p[1] = uint8(request.Kind())
+	copy(p[2:], b)
 	res, err := c.grpc.SendTransaction(ctx, &grpc_api.SendTransactionRequest{
 		NetworkId: uint32(id),
-		Payload:   b,
+		Payload:   p,
 	})
 	if err != nil {
-		return false, err
+		return "", fmt.Errorf("unable to send request: %w", err)
 	}
-	return res.Value, nil
+	if !res.Value {
+		return "", fmt.Errorf("transaction was rejected")
+	}
+	return newTransactionHash(request.Kind(), b), nil
 }
 
 func (c *baseClient) StartBaker(ctx context.Context) (bool, error) {
 	res, err := c.grpc.StartBaker(ctx, &grpc_api.Empty{})
-	return res.Value, err
+	return res.GetValue(), err
 }
 
 func (c *baseClient) StopBaker(ctx context.Context) (bool, error) {
@@ -438,7 +445,7 @@ func (c *baseClient) StopBaker(ctx context.Context) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	return res.Value, nil
+	return res.GetValue(), nil
 }
 
 func (c *baseClient) GetAccountList(ctx context.Context, hash BlockHash) ([]AccountAddress, error) {
@@ -449,7 +456,7 @@ func (c *baseClient) GetAccountList(ctx context.Context, hash BlockHash) ([]Acco
 		return nil, err
 	}
 	var s []AccountAddress
-	err = json.Unmarshal([]byte(res.Value), &s)
+	err = json.Unmarshal([]byte(res.GetValue()), &s)
 	return s, err
 }
 
@@ -461,7 +468,7 @@ func (c *baseClient) GetInstances(ctx context.Context, hash BlockHash) ([]*Contr
 		return nil, err
 	}
 	var s []*ContractAddress
-	err = json.Unmarshal([]byte(res.Value), &s)
+	err = json.Unmarshal([]byte(res.GetValue()), &s)
 	return s, err
 }
 
@@ -474,7 +481,7 @@ func (c *baseClient) GetAccountInfo(ctx context.Context, hash BlockHash, address
 		return nil, err
 	}
 	i := &AccountInfo{}
-	err = json.Unmarshal([]byte(res.Value), i)
+	err = json.Unmarshal([]byte(res.GetValue()), i)
 	return i, err
 }
 
@@ -491,7 +498,7 @@ func (c *baseClient) GetInstanceInfo(ctx context.Context, hash BlockHash, addres
 		return nil, err
 	}
 	i := &InstanceInfo{}
-	err = json.Unmarshal([]byte(res.Value), i)
+	err = json.Unmarshal([]byte(res.GetValue()), i)
 	return i, err
 }
 
@@ -500,6 +507,7 @@ func (c *baseClient) InvokeContract(ctx context.Context, hash BlockHash, context
 	if err != nil {
 		return nil, err
 	}
+	fmt.Printf("%s\n", b)
 	res, err := c.grpc.InvokeContract(ctx, &grpc_api.InvokeContractRequest{
 		BlockHash: string(hash),
 		Context:   string(b),
@@ -507,9 +515,9 @@ func (c *baseClient) InvokeContract(ctx context.Context, hash BlockHash, context
 	if err != nil {
 		return nil, err
 	}
-	println(res.Value)
+	println(res.GetValue())
 	r := &InvokeContractResult{}
-	err = json.Unmarshal([]byte(res.Value), r)
+	err = json.Unmarshal([]byte(res.GetValue()), r)
 	return r, nil
 }
 
@@ -521,7 +529,7 @@ func (c *baseClient) GetRewardStatus(ctx context.Context, hash BlockHash) (*Rewa
 		return nil, err
 	}
 	s := &RewardStatus{}
-	err = json.Unmarshal([]byte(res.Value), s)
+	err = json.Unmarshal([]byte(res.GetValue()), s)
 	return s, err
 }
 
@@ -533,7 +541,7 @@ func (c *baseClient) GetBirkParameters(ctx context.Context, hash BlockHash) (*Bi
 		return nil, err
 	}
 	p := &BirkParameters{}
-	err = json.Unmarshal([]byte(res.Value), p)
+	err = json.Unmarshal([]byte(res.GetValue()), p)
 	return p, err
 }
 
@@ -545,7 +553,7 @@ func (c *baseClient) GetModuleList(ctx context.Context, hash BlockHash) ([]Modul
 		return nil, err
 	}
 	var s []ModuleRef
-	err = json.Unmarshal([]byte(res.Value), &s)
+	err = json.Unmarshal([]byte(res.GetValue()), &s)
 	return s, err
 }
 
@@ -557,7 +565,7 @@ func (c *baseClient) GetModuleSource(ctx context.Context, hash BlockHash, ref Mo
 	if err != nil {
 		return nil, err
 	}
-	return bytes.NewReader(res.Value), nil
+	return bytes.NewReader(res.GetValue()), nil
 }
 
 func (c *baseClient) GetIdentityProviders(ctx context.Context, hash BlockHash) ([]*IdentityProvider, error) {
@@ -568,7 +576,7 @@ func (c *baseClient) GetIdentityProviders(ctx context.Context, hash BlockHash) (
 		return nil, err
 	}
 	var s []*IdentityProvider
-	err = json.Unmarshal([]byte(res.Value), &s)
+	err = json.Unmarshal([]byte(res.GetValue()), &s)
 	return s, err
 }
 
@@ -580,7 +588,7 @@ func (c *baseClient) GetAnonymityRevokers(ctx context.Context, hash BlockHash) (
 		return nil, err
 	}
 	var s []*AnonymityRevoker
-	err = json.Unmarshal([]byte(res.Value), &s)
+	err = json.Unmarshal([]byte(res.GetValue()), &s)
 	return s, err
 }
 
@@ -591,7 +599,7 @@ func (c *baseClient) GetCryptographicParameters(ctx context.Context, hash BlockH
 	if err != nil {
 		return nil, err
 	}
-	return []byte(res.Value), nil
+	return []byte(res.GetValue()), nil
 }
 
 func (c *baseClient) GetBannedPeers(ctx context.Context) (*PeerList, error) {
@@ -605,9 +613,9 @@ func (c *baseClient) GetBannedPeers(ctx context.Context) (*PeerList, error) {
 	}
 	for i, e := range res.Peers {
 		l.Peers[i] = &PeerElement{
-			NodeId:        NodeId(e.NodeId.Value),
-			Ip:            e.Ip.Value,
-			Port:          int(e.Port.Value),
+			NodeId:        NodeId(e.NodeId.GetValue()),
+			Ip:            e.Ip.GetValue(),
+			Port:          int(e.Port.GetValue()),
 			CatchupStatus: PeerElementCatchupStatus(e.CatchupStatus),
 		}
 	}
@@ -619,7 +627,7 @@ func (c *baseClient) Shutdown(ctx context.Context) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	return res.Value, nil
+	return res.GetValue(), nil
 }
 
 func (c *baseClient) DumpStart(ctx context.Context, file string, raw bool) (bool, error) {
@@ -630,7 +638,7 @@ func (c *baseClient) DumpStart(ctx context.Context, file string, raw bool) (bool
 	if err != nil {
 		return false, err
 	}
-	return res.Value, nil
+	return res.GetValue(), nil
 }
 
 func (c *baseClient) DumpStop(ctx context.Context) (bool, error) {
@@ -638,7 +646,7 @@ func (c *baseClient) DumpStop(ctx context.Context) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	return res.Value, nil
+	return res.GetValue(), nil
 }
 
 func (c *baseClient) GetTransactionStatus(ctx context.Context, hash TransactionHash) ([]byte, error) {
@@ -648,7 +656,7 @@ func (c *baseClient) GetTransactionStatus(ctx context.Context, hash TransactionH
 	if err != nil {
 		return nil, err
 	}
-	return []byte(res.Value), nil
+	return []byte(res.GetValue()), nil
 }
 
 func (c *baseClient) GetTransactionStatusInBlock(ctx context.Context, hash TransactionHash, blockHash BlockHash) ([]byte, error) {
@@ -659,7 +667,7 @@ func (c *baseClient) GetTransactionStatusInBlock(ctx context.Context, hash Trans
 	if err != nil {
 		return nil, err
 	}
-	return []byte(res.Value), nil
+	return []byte(res.GetValue()), nil
 }
 
 func (c *baseClient) GetAccountNonFinalizedTransactions(ctx context.Context, address AccountAddress) ([]byte, error) {
@@ -669,7 +677,7 @@ func (c *baseClient) GetAccountNonFinalizedTransactions(ctx context.Context, add
 	if err != nil {
 		return nil, err
 	}
-	return []byte(res.Value), nil
+	return []byte(res.GetValue()), nil
 }
 
 func (c *baseClient) GetBlockSummary(ctx context.Context, hash BlockHash) ([]byte, error) {
@@ -679,7 +687,7 @@ func (c *baseClient) GetBlockSummary(ctx context.Context, hash BlockHash) ([]byt
 	if err != nil {
 		return nil, err
 	}
-	return []byte(res.Value), nil
+	return []byte(res.GetValue()), nil
 }
 
 func (c *baseClient) GetNextAccountNonce(ctx context.Context, address AccountAddress) (*NextAccountNonce, error) {
@@ -690,6 +698,6 @@ func (c *baseClient) GetNextAccountNonce(ctx context.Context, address AccountAdd
 		return nil, err
 	}
 	n := &NextAccountNonce{}
-	err = json.Unmarshal([]byte(res.Value), n)
+	err = json.Unmarshal([]byte(res.GetValue()), n)
 	return n, err
 }
