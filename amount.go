@@ -1,10 +1,13 @@
 package concordium
 
 import (
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"strconv"
 )
+
+const amountSize = 8
 
 type Amount struct {
 	microCCD uint64
@@ -50,4 +53,10 @@ func (a *Amount) UnmarshalJSON(b []byte) error {
 	}
 	a.microCCD = uint64(num)
 	return nil
+}
+
+func (a *Amount) Serialize() ([]byte, error) {
+	b := make([]byte, amountSize)
+	binary.BigEndian.PutUint64(b, a.microCCD)
+	return b, nil
 }

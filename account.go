@@ -2,9 +2,11 @@ package concordium
 
 import "time"
 
+type AccountNonce uint64
+
 type NextAccountNonce struct {
-	AllFinal bool   `json:"allFinal"`
-	Nonce    uint64 `json:"nonce"`
+	AllFinal bool         `json:"allFinal"`
+	Nonce    AccountNonce `json:"nonce"`
 }
 
 // AccountInfo

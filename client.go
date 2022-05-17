@@ -9,9 +9,10 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 	"io"
+	"time"
 )
 
-type BaseClient interface {
+type Client interface {
 	// PeerConnect Suggest to w peer to connect to the submitted peer details.
 	// This, if successful, adds the peer to the list of given addresses.
 	PeerConnect(ctx context.Context, ip string, port int) (bool, error)
@@ -68,8 +69,10 @@ type BaseClient interface {
 	// GetBlocksAtHeight Get the blocks at the given height
 	GetBlocksAtHeight(ctx context.Context, height BlockHeight) ([]BlockHash, error)
 
-	// SendTransaction Submit a local transaction
-	SendTransaction(ctx context.Context, id NetworkId, request TransactionRequest) (TransactionHash, error)
+	// SendTransactionAsync Submit a local transaction
+	SendTransactionAsync(ctx context.Context, id NetworkId, request TransactionRequest) (TransactionHash, error)
+
+	SendTransactionAwait(ctx context.Context, id NetworkId, request TransactionRequest) (*TransactionOutcome, error)
 
 	// StartBaker Start the baker in the consensus module
 	StartBaker(ctx context.Context) (bool, error)
@@ -126,10 +129,10 @@ type BaseClient interface {
 	DumpStop(ctx context.Context) (bool, error)
 
 	// GetTransactionStatus Query for the status of a transaction by its hash
-	GetTransactionStatus(ctx context.Context, hash TransactionHash) ([]byte, error) // TODO
+	GetTransactionStatus(ctx context.Context, hash TransactionHash) (*TransactionSummary, error)
 
 	// GetTransactionStatusInBlock Query for transactions in a block by its hash
-	GetTransactionStatusInBlock(ctx context.Context, hash TransactionHash, blockHash BlockHash) ([]byte, error) // TODO
+	GetTransactionStatusInBlock(ctx context.Context, hash TransactionHash, blockHash BlockHash) (*TransactionSummary, error)
 
 	// GetAccountNonFinalizedTransactions Query for non-finalized
 	// transactions present on an account by the account address
@@ -154,22 +157,22 @@ func (c perRPCCredentials) RequireTransportSecurity() bool {
 	return false
 }
 
-type baseClient struct {
+type client struct {
 	grpc grpc_api.P2PClient
 }
 
-func NewBaseClient(ctx context.Context, target, token string) (BaseClient, error) {
+func NewClient(ctx context.Context, target, token string) (Client, error) {
 	conn, err := grpc.DialContext(ctx, target, grpc.WithInsecure(), grpc.WithPerRPCCredentials(perRPCCredentials(token)))
 	if err != nil {
 		return nil, err
 	}
-	cli := &baseClient{
+	cli := &client{
 		grpc: grpc_api.NewP2PClient(conn),
 	}
 	return cli, nil
 }
 
-func (c *baseClient) PeerConnect(ctx context.Context, ip string, port int) (bool, error) {
+func (c *client) PeerConnect(ctx context.Context, ip string, port int) (bool, error) {
 	res, err := c.grpc.PeerConnect(ctx, &grpc_api.PeerConnectRequest{
 		Ip: &wrapperspb.StringValue{
 			Value: ip,
@@ -184,7 +187,7 @@ func (c *baseClient) PeerConnect(ctx context.Context, ip string, port int) (bool
 	return res.GetValue(), nil
 }
 
-func (c *baseClient) PeerDisconnect(ctx context.Context, ip string, port int) (bool, error) {
+func (c *client) PeerDisconnect(ctx context.Context, ip string, port int) (bool, error) {
 	res, err := c.grpc.PeerDisconnect(ctx, &grpc_api.PeerConnectRequest{
 		Ip: &wrapperspb.StringValue{
 			Value: ip,
@@ -199,7 +202,7 @@ func (c *baseClient) PeerDisconnect(ctx context.Context, ip string, port int) (b
 	return res.GetValue(), nil
 }
 
-func (c *baseClient) PeerUptime(ctx context.Context) (int64, error) {
+func (c *client) PeerUptime(ctx context.Context) (int64, error) {
 	res, err := c.grpc.PeerUptime(ctx, &grpc_api.Empty{})
 	if err != nil {
 		return 0, err
@@ -207,7 +210,7 @@ func (c *baseClient) PeerUptime(ctx context.Context) (int64, error) {
 	return int64(res.GetValue()), nil
 }
 
-func (c *baseClient) PeerTotalSent(ctx context.Context) (int, error) {
+func (c *client) PeerTotalSent(ctx context.Context) (int, error) {
 	res, err := c.grpc.PeerTotalSent(ctx, &grpc_api.Empty{})
 	if err != nil {
 		return 0, err
@@ -215,7 +218,7 @@ func (c *baseClient) PeerTotalSent(ctx context.Context) (int, error) {
 	return int(res.GetValue()), nil
 }
 
-func (c *baseClient) PeerTotalReceived(ctx context.Context) (int, error) {
+func (c *client) PeerTotalReceived(ctx context.Context) (int, error) {
 	res, err := c.grpc.PeerTotalReceived(ctx, &grpc_api.Empty{})
 	if err != nil {
 		return 0, err
@@ -223,7 +226,7 @@ func (c *baseClient) PeerTotalReceived(ctx context.Context) (int, error) {
 	return int(res.GetValue()), nil
 }
 
-func (c *baseClient) PeerVersion(ctx context.Context) (string, error) {
+func (c *client) PeerVersion(ctx context.Context) (string, error) {
 	res, err := c.grpc.PeerVersion(ctx, &grpc_api.Empty{})
 	if err != nil {
 		return "", err
@@ -231,7 +234,7 @@ func (c *baseClient) PeerVersion(ctx context.Context) (string, error) {
 	return res.GetValue(), nil
 }
 
-func (c *baseClient) PeerStats(ctx context.Context, includeBootstrappers bool) (*PeerStats, error) {
+func (c *client) PeerStats(ctx context.Context, includeBootstrappers bool) (*PeerStats, error) {
 	res, err := c.grpc.PeerStats(ctx, &grpc_api.PeersRequest{
 		IncludeBootstrappers: includeBootstrappers,
 	})
@@ -254,7 +257,7 @@ func (c *baseClient) PeerStats(ctx context.Context, includeBootstrappers bool) (
 	return s, nil
 }
 
-func (c *baseClient) PeerList(ctx context.Context, includeBootstrappers bool) (*PeerList, error) {
+func (c *client) PeerList(ctx context.Context, includeBootstrappers bool) (*PeerList, error) {
 	res, err := c.grpc.PeerList(ctx, &grpc_api.PeersRequest{
 		IncludeBootstrappers: includeBootstrappers,
 	})
@@ -276,7 +279,7 @@ func (c *baseClient) PeerList(ctx context.Context, includeBootstrappers bool) (*
 	return l, nil
 }
 
-func (c *baseClient) BanNode(ctx context.Context, element PeerElement) (bool, error) {
+func (c *client) BanNode(ctx context.Context, element PeerElement) (bool, error) {
 	res, err := c.grpc.BanNode(ctx, &grpc_api.PeerElement{
 		NodeId: &wrapperspb.StringValue{
 			Value: string(element.NodeId),
@@ -295,7 +298,7 @@ func (c *baseClient) BanNode(ctx context.Context, element PeerElement) (bool, er
 	return res.GetValue(), nil
 }
 
-func (c *baseClient) UnbanNode(ctx context.Context, element PeerElement) (bool, error) {
+func (c *client) UnbanNode(ctx context.Context, element PeerElement) (bool, error) {
 	res, err := c.grpc.UnbanNode(ctx, &grpc_api.PeerElement{
 		NodeId: &wrapperspb.StringValue{
 			Value: string(element.NodeId),
@@ -314,7 +317,7 @@ func (c *baseClient) UnbanNode(ctx context.Context, element PeerElement) (bool, 
 	return res.GetValue(), nil
 }
 
-func (c *baseClient) JoinNetwork(ctx context.Context, id NetworkId) (bool, error) {
+func (c *client) JoinNetwork(ctx context.Context, id NetworkId) (bool, error) {
 	res, err := c.grpc.JoinNetwork(ctx, &grpc_api.NetworkChangeRequest{
 		NetworkId: &wrapperspb.Int32Value{
 			Value: int32(id),
@@ -326,7 +329,7 @@ func (c *baseClient) JoinNetwork(ctx context.Context, id NetworkId) (bool, error
 	return res.GetValue(), nil
 }
 
-func (c *baseClient) LeaveNetwork(ctx context.Context, id NetworkId) (bool, error) {
+func (c *client) LeaveNetwork(ctx context.Context, id NetworkId) (bool, error) {
 	res, err := c.grpc.LeaveNetwork(ctx, &grpc_api.NetworkChangeRequest{
 		NetworkId: &wrapperspb.Int32Value{
 			Value: int32(id),
@@ -338,7 +341,7 @@ func (c *baseClient) LeaveNetwork(ctx context.Context, id NetworkId) (bool, erro
 	return res.GetValue(), nil
 }
 
-func (c *baseClient) NodeInfo(ctx context.Context) (*NodeInfo, error) {
+func (c *client) NodeInfo(ctx context.Context) (*NodeInfo, error) {
 	res, err := c.grpc.NodeInfo(ctx, &grpc_api.Empty{})
 	if err != nil {
 		return nil, err
@@ -357,7 +360,7 @@ func (c *baseClient) NodeInfo(ctx context.Context) (*NodeInfo, error) {
 	return i, nil
 }
 
-func (c *baseClient) GetConsensusStatus(ctx context.Context) (*ConsensusStatus, error) {
+func (c *client) GetConsensusStatus(ctx context.Context) (*ConsensusStatus, error) {
 	res, err := c.grpc.GetConsensusStatus(ctx, &grpc_api.Empty{})
 	if err != nil {
 		return nil, err
@@ -367,7 +370,7 @@ func (c *baseClient) GetConsensusStatus(ctx context.Context) (*ConsensusStatus, 
 	return s, err
 }
 
-func (c *baseClient) GetBlockInfo(ctx context.Context, hash BlockHash) (*BlockInfo, error) {
+func (c *client) GetBlockInfo(ctx context.Context, hash BlockHash) (*BlockInfo, error) {
 	res, err := c.grpc.GetBlockInfo(ctx, &grpc_api.BlockHash{
 		BlockHash: string(hash),
 	})
@@ -379,7 +382,7 @@ func (c *baseClient) GetBlockInfo(ctx context.Context, hash BlockHash) (*BlockIn
 	return i, err
 }
 
-func (c *baseClient) GetAncestors(ctx context.Context, hash BlockHash, amount int) ([]BlockHash, error) {
+func (c *client) GetAncestors(ctx context.Context, hash BlockHash, amount int) ([]BlockHash, error) {
 	res, err := c.grpc.GetAncestors(ctx, &grpc_api.BlockHashAndAmount{
 		BlockHash: string(hash),
 		Amount:    uint64(amount),
@@ -392,7 +395,7 @@ func (c *baseClient) GetAncestors(ctx context.Context, hash BlockHash, amount in
 	return s, err
 }
 
-func (c *baseClient) GetBranches(ctx context.Context) (*Branch, error) {
+func (c *client) GetBranches(ctx context.Context) (*Branch, error) {
 	res, err := c.grpc.GetBranches(ctx, &grpc_api.Empty{})
 	if err != nil {
 		return nil, err
@@ -402,7 +405,7 @@ func (c *baseClient) GetBranches(ctx context.Context) (*Branch, error) {
 	return b, err
 }
 
-func (c *baseClient) GetBlocksAtHeight(ctx context.Context, height BlockHeight) ([]BlockHash, error) {
+func (c *client) GetBlocksAtHeight(ctx context.Context, height BlockHeight) ([]BlockHash, error) {
 	res, err := c.grpc.GetBlocksAtHeight(ctx, &grpc_api.BlockHeight{
 		BlockHeight: uint64(height),
 	})
@@ -414,12 +417,13 @@ func (c *baseClient) GetBlocksAtHeight(ctx context.Context, height BlockHeight) 
 	return s, err
 }
 
-func (c *baseClient) SendTransaction(ctx context.Context, id NetworkId, request TransactionRequest) (TransactionHash, error) {
+func (c *client) SendTransactionAsync(ctx context.Context, id NetworkId, request TransactionRequest) (TransactionHash, error) {
 	b, err := request.Serialize()
 	if err != nil {
 		return "", fmt.Errorf("unable to serialize request: %w", err)
 	}
 	p := make([]byte, 2+len(b))
+	p[0] = uint8(request.Version())
 	p[1] = uint8(request.Kind())
 	copy(p[2:], b)
 	res, err := c.grpc.SendTransaction(ctx, &grpc_api.SendTransactionRequest{
@@ -435,12 +439,40 @@ func (c *baseClient) SendTransaction(ctx context.Context, id NetworkId, request 
 	return newTransactionHash(request.Kind(), b), nil
 }
 
-func (c *baseClient) StartBaker(ctx context.Context) (bool, error) {
+func (c *client) SendTransactionAwait(ctx context.Context, id NetworkId, request TransactionRequest) (*TransactionOutcome, error) {
+	hash, err := c.SendTransactionAsync(ctx, id, request)
+	if err != nil {
+		return nil, fmt.Errorf("unable to send transaction: %w", err)
+	}
+	outcome := TransactionOutcome{}
+	ticker := time.NewTicker(time.Second)
+	for range ticker.C {
+		if request.ExpiredAt().Add(time.Minute).Before(time.Now()) {
+			return nil, fmt.Errorf("transaction %q timed out", hash)
+		}
+		status, err := c.GetTransactionStatus(ctx, hash)
+		if err != nil {
+			return nil, fmt.Errorf("unable to get status of transaction %q: %w", hash, err)
+		}
+		if status.Status != TransactionStatusFinalized {
+			continue
+		}
+		if len(status.Outcomes) != 1 {
+			return nil, fmt.Errorf("unexpected outcomes count in transaction %q", hash)
+		}
+		for _, outcome = range status.Outcomes {
+		}
+		ticker.Stop()
+	}
+	return &outcome, nil
+}
+
+func (c *client) StartBaker(ctx context.Context) (bool, error) {
 	res, err := c.grpc.StartBaker(ctx, &grpc_api.Empty{})
 	return res.GetValue(), err
 }
 
-func (c *baseClient) StopBaker(ctx context.Context) (bool, error) {
+func (c *client) StopBaker(ctx context.Context) (bool, error) {
 	res, err := c.grpc.StopBaker(ctx, &grpc_api.Empty{})
 	if err != nil {
 		return false, err
@@ -448,7 +480,7 @@ func (c *baseClient) StopBaker(ctx context.Context) (bool, error) {
 	return res.GetValue(), nil
 }
 
-func (c *baseClient) GetAccountList(ctx context.Context, hash BlockHash) ([]AccountAddress, error) {
+func (c *client) GetAccountList(ctx context.Context, hash BlockHash) ([]AccountAddress, error) {
 	res, err := c.grpc.GetAccountList(ctx, &grpc_api.BlockHash{
 		BlockHash: string(hash),
 	})
@@ -460,7 +492,7 @@ func (c *baseClient) GetAccountList(ctx context.Context, hash BlockHash) ([]Acco
 	return s, err
 }
 
-func (c *baseClient) GetInstances(ctx context.Context, hash BlockHash) ([]*ContractAddress, error) {
+func (c *client) GetInstances(ctx context.Context, hash BlockHash) ([]*ContractAddress, error) {
 	res, err := c.grpc.GetInstances(ctx, &grpc_api.BlockHash{
 		BlockHash: string(hash),
 	})
@@ -472,7 +504,7 @@ func (c *baseClient) GetInstances(ctx context.Context, hash BlockHash) ([]*Contr
 	return s, err
 }
 
-func (c *baseClient) GetAccountInfo(ctx context.Context, hash BlockHash, address AccountAddress) (*AccountInfo, error) {
+func (c *client) GetAccountInfo(ctx context.Context, hash BlockHash, address AccountAddress) (*AccountInfo, error) {
 	res, err := c.grpc.GetAccountInfo(ctx, &grpc_api.GetAddressInfoRequest{
 		BlockHash: string(hash),
 		Address:   string(address),
@@ -485,7 +517,7 @@ func (c *baseClient) GetAccountInfo(ctx context.Context, hash BlockHash, address
 	return i, err
 }
 
-func (c *baseClient) GetInstanceInfo(ctx context.Context, hash BlockHash, address *ContractAddress) (*InstanceInfo, error) {
+func (c *client) GetInstanceInfo(ctx context.Context, hash BlockHash, address *ContractAddress) (*InstanceInfo, error) {
 	b, err := json.Marshal(address)
 	if err != nil {
 		return nil, err
@@ -502,12 +534,11 @@ func (c *baseClient) GetInstanceInfo(ctx context.Context, hash BlockHash, addres
 	return i, err
 }
 
-func (c *baseClient) InvokeContract(ctx context.Context, hash BlockHash, context *ContractContext) (*InvokeContractResult, error) {
+func (c *client) InvokeContract(ctx context.Context, hash BlockHash, context *ContractContext) (*InvokeContractResult, error) {
 	b, err := json.Marshal(context)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("%s\n", b)
 	res, err := c.grpc.InvokeContract(ctx, &grpc_api.InvokeContractRequest{
 		BlockHash: string(hash),
 		Context:   string(b),
@@ -515,13 +546,12 @@ func (c *baseClient) InvokeContract(ctx context.Context, hash BlockHash, context
 	if err != nil {
 		return nil, err
 	}
-	println(res.GetValue())
 	r := &InvokeContractResult{}
 	err = json.Unmarshal([]byte(res.GetValue()), r)
 	return r, nil
 }
 
-func (c *baseClient) GetRewardStatus(ctx context.Context, hash BlockHash) (*RewardStatus, error) {
+func (c *client) GetRewardStatus(ctx context.Context, hash BlockHash) (*RewardStatus, error) {
 	res, err := c.grpc.GetRewardStatus(ctx, &grpc_api.BlockHash{
 		BlockHash: string(hash),
 	})
@@ -533,7 +563,7 @@ func (c *baseClient) GetRewardStatus(ctx context.Context, hash BlockHash) (*Rewa
 	return s, err
 }
 
-func (c *baseClient) GetBirkParameters(ctx context.Context, hash BlockHash) (*BirkParameters, error) {
+func (c *client) GetBirkParameters(ctx context.Context, hash BlockHash) (*BirkParameters, error) {
 	res, err := c.grpc.GetBirkParameters(ctx, &grpc_api.BlockHash{
 		BlockHash: string(hash),
 	})
@@ -545,7 +575,7 @@ func (c *baseClient) GetBirkParameters(ctx context.Context, hash BlockHash) (*Bi
 	return p, err
 }
 
-func (c *baseClient) GetModuleList(ctx context.Context, hash BlockHash) ([]ModuleRef, error) {
+func (c *client) GetModuleList(ctx context.Context, hash BlockHash) ([]ModuleRef, error) {
 	res, err := c.grpc.GetModuleList(ctx, &grpc_api.BlockHash{
 		BlockHash: string(hash),
 	})
@@ -557,7 +587,7 @@ func (c *baseClient) GetModuleList(ctx context.Context, hash BlockHash) ([]Modul
 	return s, err
 }
 
-func (c *baseClient) GetModuleSource(ctx context.Context, hash BlockHash, ref ModuleRef) (io.Reader, error) {
+func (c *client) GetModuleSource(ctx context.Context, hash BlockHash, ref ModuleRef) (io.Reader, error) {
 	res, err := c.grpc.GetModuleSource(ctx, &grpc_api.GetModuleSourceRequest{
 		BlockHash: string(hash),
 		ModuleRef: string(ref),
@@ -568,7 +598,7 @@ func (c *baseClient) GetModuleSource(ctx context.Context, hash BlockHash, ref Mo
 	return bytes.NewReader(res.GetValue()), nil
 }
 
-func (c *baseClient) GetIdentityProviders(ctx context.Context, hash BlockHash) ([]*IdentityProvider, error) {
+func (c *client) GetIdentityProviders(ctx context.Context, hash BlockHash) ([]*IdentityProvider, error) {
 	res, err := c.grpc.GetIdentityProviders(ctx, &grpc_api.BlockHash{
 		BlockHash: string(hash),
 	})
@@ -580,7 +610,7 @@ func (c *baseClient) GetIdentityProviders(ctx context.Context, hash BlockHash) (
 	return s, err
 }
 
-func (c *baseClient) GetAnonymityRevokers(ctx context.Context, hash BlockHash) ([]*AnonymityRevoker, error) {
+func (c *client) GetAnonymityRevokers(ctx context.Context, hash BlockHash) ([]*AnonymityRevoker, error) {
 	res, err := c.grpc.GetAnonymityRevokers(ctx, &grpc_api.BlockHash{
 		BlockHash: string(hash),
 	})
@@ -592,7 +622,7 @@ func (c *baseClient) GetAnonymityRevokers(ctx context.Context, hash BlockHash) (
 	return s, err
 }
 
-func (c *baseClient) GetCryptographicParameters(ctx context.Context, hash BlockHash) ([]byte, error) {
+func (c *client) GetCryptographicParameters(ctx context.Context, hash BlockHash) ([]byte, error) {
 	res, err := c.grpc.GetCryptographicParameters(ctx, &grpc_api.BlockHash{
 		BlockHash: string(hash),
 	})
@@ -602,7 +632,7 @@ func (c *baseClient) GetCryptographicParameters(ctx context.Context, hash BlockH
 	return []byte(res.GetValue()), nil
 }
 
-func (c *baseClient) GetBannedPeers(ctx context.Context) (*PeerList, error) {
+func (c *client) GetBannedPeers(ctx context.Context) (*PeerList, error) {
 	res, err := c.grpc.GetBannedPeers(ctx, &grpc_api.Empty{})
 	if err != nil {
 		return nil, err
@@ -622,7 +652,7 @@ func (c *baseClient) GetBannedPeers(ctx context.Context) (*PeerList, error) {
 	return l, nil
 }
 
-func (c *baseClient) Shutdown(ctx context.Context) (bool, error) {
+func (c *client) Shutdown(ctx context.Context) (bool, error) {
 	res, err := c.grpc.Shutdown(ctx, &grpc_api.Empty{})
 	if err != nil {
 		return false, err
@@ -630,7 +660,7 @@ func (c *baseClient) Shutdown(ctx context.Context) (bool, error) {
 	return res.GetValue(), nil
 }
 
-func (c *baseClient) DumpStart(ctx context.Context, file string, raw bool) (bool, error) {
+func (c *client) DumpStart(ctx context.Context, file string, raw bool) (bool, error) {
 	res, err := c.grpc.DumpStart(ctx, &grpc_api.DumpRequest{
 		File: file,
 		Raw:  raw,
@@ -641,7 +671,7 @@ func (c *baseClient) DumpStart(ctx context.Context, file string, raw bool) (bool
 	return res.GetValue(), nil
 }
 
-func (c *baseClient) DumpStop(ctx context.Context) (bool, error) {
+func (c *client) DumpStop(ctx context.Context) (bool, error) {
 	res, err := c.grpc.DumpStop(ctx, &grpc_api.Empty{})
 	if err != nil {
 		return false, err
@@ -649,17 +679,19 @@ func (c *baseClient) DumpStop(ctx context.Context) (bool, error) {
 	return res.GetValue(), nil
 }
 
-func (c *baseClient) GetTransactionStatus(ctx context.Context, hash TransactionHash) ([]byte, error) {
+func (c *client) GetTransactionStatus(ctx context.Context, hash TransactionHash) (*TransactionSummary, error) {
 	res, err := c.grpc.GetTransactionStatus(ctx, &grpc_api.TransactionHash{
 		TransactionHash: string(hash),
 	})
 	if err != nil {
 		return nil, err
 	}
-	return []byte(res.GetValue()), nil
+	s := &TransactionSummary{}
+	err = json.Unmarshal([]byte(res.GetValue()), s)
+	return s, err
 }
 
-func (c *baseClient) GetTransactionStatusInBlock(ctx context.Context, hash TransactionHash, blockHash BlockHash) ([]byte, error) {
+func (c *client) GetTransactionStatusInBlock(ctx context.Context, hash TransactionHash, blockHash BlockHash) (*TransactionSummary, error) {
 	res, err := c.grpc.GetTransactionStatusInBlock(ctx, &grpc_api.GetTransactionStatusInBlockRequest{
 		TransactionHash: string(hash),
 		BlockHash:       string(blockHash),
@@ -667,10 +699,12 @@ func (c *baseClient) GetTransactionStatusInBlock(ctx context.Context, hash Trans
 	if err != nil {
 		return nil, err
 	}
-	return []byte(res.GetValue()), nil
+	s := &TransactionSummary{}
+	err = json.Unmarshal([]byte(res.GetValue()), s)
+	return s, err
 }
 
-func (c *baseClient) GetAccountNonFinalizedTransactions(ctx context.Context, address AccountAddress) ([]byte, error) {
+func (c *client) GetAccountNonFinalizedTransactions(ctx context.Context, address AccountAddress) ([]byte, error) {
 	res, err := c.grpc.GetAccountNonFinalizedTransactions(ctx, &grpc_api.AccountAddress{
 		AccountAddress: string(address),
 	})
@@ -680,7 +714,7 @@ func (c *baseClient) GetAccountNonFinalizedTransactions(ctx context.Context, add
 	return []byte(res.GetValue()), nil
 }
 
-func (c *baseClient) GetBlockSummary(ctx context.Context, hash BlockHash) ([]byte, error) {
+func (c *client) GetBlockSummary(ctx context.Context, hash BlockHash) ([]byte, error) {
 	res, err := c.grpc.GetBlockSummary(ctx, &grpc_api.BlockHash{
 		BlockHash: string(hash),
 	})
@@ -690,7 +724,7 @@ func (c *baseClient) GetBlockSummary(ctx context.Context, hash BlockHash) ([]byt
 	return []byte(res.GetValue()), nil
 }
 
-func (c *baseClient) GetNextAccountNonce(ctx context.Context, address AccountAddress) (*NextAccountNonce, error) {
+func (c *client) GetNextAccountNonce(ctx context.Context, address AccountAddress) (*NextAccountNonce, error) {
 	res, err := c.grpc.GetNextAccountNonce(ctx, &grpc_api.AccountAddress{
 		AccountAddress: string(address),
 	})
