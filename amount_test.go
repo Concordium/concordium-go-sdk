@@ -7,6 +7,12 @@ import (
 	"testing"
 )
 
+var (
+	testAmount        = NewAmountFromMicroCCD(1)
+	testAmountBeBytes = []byte{0, 0, 0, 0, 0, 0, 0, 1}
+	testAmountLeBytes = []byte{1, 0, 0, 0, 0, 0, 0, 0}
+)
+
 // Equal checks equality of 2 items. Used by github.com/google/go-cmp/cmp package. For tests only!
 func (a *Amount) Equal(v *Amount) bool {
 	if a != nil && v != nil {
@@ -15,7 +21,7 @@ func (a *Amount) Equal(v *Amount) bool {
 	return a == nil && v == nil
 }
 
-func TestAmount_NewAmountZero(t *testing.T) {
+func TestNewAmountZero(t *testing.T) {
 	v := uint64(0)
 	a := NewAmountZero()
 	if a.microCCD != v {
@@ -23,7 +29,7 @@ func TestAmount_NewAmountZero(t *testing.T) {
 	}
 }
 
-func TestAmount_NewAmountFromMicroCCD(t *testing.T) {
+func TestNewAmountFromMicroCCD(t *testing.T) {
 	v := 1
 	w := uint64(v)
 	a := NewAmountFromMicroCCD(v)
@@ -32,7 +38,7 @@ func TestAmount_NewAmountFromMicroCCD(t *testing.T) {
 	}
 }
 
-func TestAmount_NewAmountFromCCD(t *testing.T) {
+func TestNewAmountFromCCD(t *testing.T) {
 	v := 1e-6
 	w := uint64(v * 1e6)
 	a := NewAmountFromCCD(v)
@@ -59,14 +65,14 @@ func TestAmount_CCD(t *testing.T) {
 
 func TestAmount_MarshalJSON(t *testing.T) {
 	v := 1
-	w := []byte{byte(v)}
+	w := []byte(fmt.Sprintf(`"%d"`, v))
 	a := NewAmountFromMicroCCD(v)
 	b, err := json.Marshal(a)
 	if err != nil {
 		t.Fatalf("MarshalJSON() error = %v", err)
 	}
-	if reflect.DeepEqual(b, w) {
-		t.Errorf("MarshalJSON() got = %s, w %s", b, w)
+	if !reflect.DeepEqual(b, w) {
+		t.Errorf("MarshalJSON() got = %v, w %v", b, w)
 	}
 }
 
@@ -81,4 +87,20 @@ func TestAmount_UnmarshalJSON(t *testing.T) {
 	if a.MicroCCD() != v {
 		t.Errorf("UnmarshalJSON() got = %v, w %v", a.MicroCCD(), v)
 	}
+}
+
+func TestAmount_Serialize(t *testing.T) {
+	testSerialize(t, testAmount, testAmountBeBytes)
+}
+
+func TestAmount_Deserialize(t *testing.T) {
+	testDeserialize(t, &Amount{}, testAmount, testAmountBeBytes)
+}
+
+func TestAmount_SerializeModel(t *testing.T) {
+	testSerializeModel(t, testAmount, testAmountLeBytes)
+}
+
+func TestAmount_DeserializeModel(t *testing.T) {
+	testDeserializeModel(t, &Amount{}, testAmount, testAmountLeBytes)
 }

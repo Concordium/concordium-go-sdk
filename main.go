@@ -1,7 +1,11 @@
 package concordium
 
-type Serialize interface {
+type Serializer interface {
 	Serialize() ([]byte, error)
+}
+
+type Deserializer interface {
+	Deserialize(b []byte) error
 }
 
 type IdentityProvider struct {

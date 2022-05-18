@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func serializeModel(v any) ([]byte, error) {
+func SerializeModel(v any) ([]byte, error) {
 	return serializeModelReflect(reflect.Indirect(reflect.ValueOf(v)))
 }
 
@@ -160,7 +160,7 @@ func serializeModelTryCustom(rv reflect.Value) ([]byte, bool, error) {
 			rv = rvn
 		}
 	}
-	u, ok := rv.Interface().(SerializeModel)
+	u, ok := rv.Interface().(ModelSerializer)
 	if !ok {
 		return nil, false, nil
 	}

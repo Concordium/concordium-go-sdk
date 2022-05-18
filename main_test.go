@@ -59,3 +59,47 @@ func testUnmarshalJSON(t *testing.T, v, w any, td string) {
 		t.Errorf("UnmarshalJSON() got = %v, w %v", v, w)
 	}
 }
+
+func testSerialize(t *testing.T, v Serializer, w any) {
+	got, err := v.Serialize()
+	if err != nil {
+		t.Errorf("Serialize() error = %v", err)
+		return
+	}
+	if !reflect.DeepEqual(got, w) {
+		t.Errorf("Serialize() got = %v, want %v", got, w)
+	}
+}
+
+func testDeserialize(t *testing.T, v Deserializer, w any, b []byte) {
+	err := v.Deserialize(b)
+	if err != nil {
+		t.Errorf("Deserialize() error = %v", err)
+		return
+	}
+	if !reflect.DeepEqual(v, w) {
+		t.Errorf("Deserialize() got = %v, want %v", v, w)
+	}
+}
+
+func testSerializeModel(t *testing.T, v ModelSerializer, w any) {
+	got, err := v.SerializeModel()
+	if err != nil {
+		t.Errorf("SerializeModel() error = %v", err)
+		return
+	}
+	if !reflect.DeepEqual(got, w) {
+		t.Errorf("SerializeModel() got = %v, want %v", got, w)
+	}
+}
+
+func testDeserializeModel(t *testing.T, v ModelDeserializer, w any, b []byte) {
+	_, err := v.DeserializeModel(b)
+	if err != nil {
+		t.Errorf("DeserializeModel() error = %v", err)
+		return
+	}
+	if !reflect.DeepEqual(v, w) {
+		t.Errorf("DeserializeModel() got = %v, want %v", v, w)
+	}
+}

@@ -101,6 +101,27 @@ func (a *Address) SerializeModel() ([]byte, error) {
 	return b, nil
 }
 
+func (a *Address) DeserializeModel(b []byte) (int, error) {
+	if len(b) < 1 {
+		return 0, fmt.Errorf("%T requires %d bytes", *a, 1)
+	}
+	var i int
+	var err error
+	switch b[0] {
+	case accountAddressType:
+		i, err = a.account.DeserializeModel(b[1:])
+	case contractAddressType:
+		a.contract = &ContractAddress{}
+		i, err = a.contract.DeserializeModel(b[1:])
+	default:
+		err = fmt.Errorf("invalid")
+	}
+	if err != nil {
+		return 0, fmt.Errorf("%T: %w", *a, err)
+	}
+	return i + 1, nil
+}
+
 // AccountAddress base-58 check with version byte 1 encoded address (with Bitcoin mapping table)
 type AccountAddress string
 
@@ -115,8 +136,20 @@ func (a *AccountAddress) Serialize() ([]byte, error) {
 	return b, nil
 }
 
+func (a *AccountAddress) Deserialize(b []byte) error {
+	if len(b) < accountAddressSize {
+		return fmt.Errorf("%T requires %d bytes", *a, accountAddressSize)
+	}
+	*a = AccountAddress(base58.CheckEncode(b[:accountAddressSize], accountAddressVersion))
+	return nil
+}
+
 func (a *AccountAddress) SerializeModel() ([]byte, error) {
 	return a.Serialize()
+}
+
+func (a *AccountAddress) DeserializeModel(b []byte) (int, error) {
+	return accountAddressSize, a.Deserialize(b)
 }
 
 // ContractAddress is a JSON record with two fields {index : Int, subindex : Int}
@@ -135,6 +168,15 @@ func (a *ContractAddress) Serialize() ([]byte, error) {
 	return b, nil
 }
 
+func (a *ContractAddress) Deserialize(b []byte) error {
+	if len(b) < contractAddressSize {
+		return fmt.Errorf("%T requires %d bytes", *a, contractAddressSize)
+	}
+	a.Index = binary.BigEndian.Uint64(b[:8])
+	a.SubIndex = binary.BigEndian.Uint64(b[8:])
+	return nil
+}
+
 func (a *ContractAddress) SerializeModel() ([]byte, error) {
 	b := make([]byte, contractAddressSize)
 
@@ -142,4 +184,13 @@ func (a *ContractAddress) SerializeModel() ([]byte, error) {
 	binary.LittleEndian.PutUint64(b[8:], a.SubIndex)
 
 	return b, nil
+}
+
+func (a *ContractAddress) DeserializeModel(b []byte) (int, error) {
+	if len(b) < contractAddressSize {
+		return 0, fmt.Errorf("%T requires %d bytes", *a, contractAddressSize)
+	}
+	a.Index = binary.LittleEndian.Uint64(b[:8])
+	a.SubIndex = binary.LittleEndian.Uint64(b[8:])
+	return contractAddressSize, nil
 }

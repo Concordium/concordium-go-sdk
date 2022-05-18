@@ -21,7 +21,7 @@ func newInitContractBody(
 	return &initContractBody{
 		amount:    amount,
 		moduleRef: moduleRef,
-		initName:  concordium.NewInitNameFromContract(contractName),
+		initName:  concordium.NewInitName(contractName),
 		params:    params,
 	}
 }

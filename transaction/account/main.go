@@ -2,7 +2,6 @@ package account
 
 import (
 	"encoding/binary"
-	"encoding/hex"
 	"fmt"
 	"github.com/Concordium/concordium-go-sdk"
 )
@@ -50,14 +49,9 @@ func (s transactionParams) Serialize() ([]byte, error) {
 	size := 0
 	params := make([][]byte, len(s))
 	for i, p := range s {
-		var m concordium.Model
-		err := m.Serialize(p)
+		b, err := concordium.SerializeModel(p)
 		if err != nil {
 			return nil, fmt.Errorf("unable to serialize param: %w", err)
-		}
-		b, err := hex.DecodeString(string(m))
-		if err != nil {
-			return nil, fmt.Errorf("unable to decode param: %w", err)
 		}
 		size += len(b)
 		params[i] = b

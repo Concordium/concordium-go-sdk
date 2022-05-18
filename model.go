@@ -12,19 +12,31 @@ const (
 	modelStructFiledTagValueOption = "option"
 )
 
-type SerializeModel interface {
+type ModelSerializer interface {
 	SerializeModel() ([]byte, error)
+}
+
+type ModelDeserializer interface {
+	DeserializeModel(b []byte) (int, error)
 }
 
 type Model string
 
 func (m *Model) Serialize(v any) error {
-	b, err := serializeModel(v)
+	b, err := SerializeModel(v)
 	if err != nil {
 		return err
 	}
 	*m = Model(hex.EncodeToString(b))
 	return nil
+}
+
+func (m *Model) Deserialize(v any) error {
+	b, err := hex.DecodeString(string(*m))
+	if err != nil {
+		return err
+	}
+	return DeserializeModel(b, v)
 }
 
 func parseStructFieldTag(field reflect.StructField) (bool, map[string]bool) {

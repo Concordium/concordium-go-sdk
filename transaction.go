@@ -31,7 +31,7 @@ type BlockItemVersion uint8
 type BlockItemKind uint8
 
 type TransactionRequest interface {
-	Serialize
+	Serializer
 	Version() BlockItemVersion
 	Kind() BlockItemKind
 	ExpiredAt() time.Time

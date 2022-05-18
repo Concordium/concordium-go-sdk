@@ -1,12 +1,16 @@
 package concordium
 
 import (
-	"encoding/hex"
+	"reflect"
 	"testing"
 )
 
 var (
-	testCredSignKey = "b53af4521a678b015bbae217277933e87b978a48a9a07d55cc369cdf5e1ac215"
+	testCredSignKey      = DecryptedSignKey("b53af4521a678b015bbae217277933e87b978a48a9a07d55cc369cdf5e1ac215")
+	testCredSignKeyBytes = []byte{
+		181, 58, 244, 82, 26, 103, 139, 1, 91, 186, 226, 23, 39, 121, 51, 232,
+		123, 151, 138, 72, 169, 160, 125, 85, 204, 54, 156, 223, 94, 26, 194, 21,
+	}
 
 	testCredEncryptedSignKey = EncryptedSignKey{
 		Metadata: EncryptedSignKeyMetadata{
@@ -19,13 +23,24 @@ var (
 	}
 )
 
+func TestDecryptedSignKey_Decode(t *testing.T) {
+	got, err := testCredSignKey.Decode()
+	if err != nil {
+		t.Errorf("Decode() error = %v", err)
+		return
+	}
+	if !reflect.DeepEqual(got, testCredSignKeyBytes) {
+		t.Errorf("Decode() got = %v, want %v", got, testCredSignKeyBytes)
+	}
+}
+
 func TestEncryptedSignKey_Decode(t *testing.T) {
 	got, err := testCredEncryptedSignKey.Decode()
 	if err != nil {
 		t.Errorf("Decode() error = %v", err)
 		return
 	}
-	if hex.EncodeToString(got) != testCredSignKey {
-		t.Errorf("Decode() got = %q, want %q", hex.EncodeToString(got), testCredSignKey)
+	if !reflect.DeepEqual(got, testCredSignKeyBytes) {
+		t.Errorf("Decode() got = %v, want %v", got, testCredSignKeyBytes)
 	}
 }

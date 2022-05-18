@@ -60,3 +60,25 @@ func (a *Amount) Serialize() ([]byte, error) {
 	binary.BigEndian.PutUint64(b, a.microCCD)
 	return b, nil
 }
+
+func (a *Amount) Deserialize(b []byte) error {
+	if len(b) < amountSize {
+		return fmt.Errorf("%T requires %d bytes", *a, amountSize)
+	}
+	a.microCCD = binary.BigEndian.Uint64(b)
+	return nil
+}
+
+func (a *Amount) SerializeModel() ([]byte, error) {
+	b := make([]byte, amountSize)
+	binary.LittleEndian.PutUint64(b, a.microCCD)
+	return b, nil
+}
+
+func (a *Amount) DeserializeModel(b []byte) (int, error) {
+	if len(b) < amountSize {
+		return 0, fmt.Errorf("%T requires %d bytes", *a, amountSize)
+	}
+	a.microCCD = binary.LittleEndian.Uint64(b)
+	return amountSize, nil
+}

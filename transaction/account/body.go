@@ -3,7 +3,7 @@ package account
 import "github.com/Concordium/concordium-go-sdk"
 
 type body interface {
-	concordium.Serialize
+	concordium.Serializer
 	BaseEnergy() int
 }
 

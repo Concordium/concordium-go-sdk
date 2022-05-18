@@ -17,8 +17,8 @@ var (
 		Index:    10,
 		SubIndex: 11,
 	}
-	testContractAddressBigEndianBytes = []byte{0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 11}
-	testContractAddressLitEndianBytes = []byte{10, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0}
+	testContractAddressBeBytes = []byte{0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 11}
+	testContractAddressLeBytes = []byte{10, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0}
 )
 
 // Equal checks equality of 2 items. Used by github.com/google/go-cmp/cmp package. For tests only!
@@ -116,62 +116,66 @@ func TestAddress_SerializeModel(t *testing.T) {
 	}, {
 		name:    "ContractAddress",
 		address: &Address{contract: testContractAddress},
-		want:    append([]byte{1}, testContractAddressLitEndianBytes...),
+		want:    append([]byte{1}, testContractAddressLeBytes...),
 	}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := tt.address.SerializeModel()
-			if err != nil {
-				t.Errorf("SerializeModel() error = %v", err)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("SerializeModel() got = %v, want %v", got, tt.want)
-			}
+			testSerializeModel(t, tt.address, tt.want)
+		})
+	}
+}
+
+func TestAddress_DeserializeModel(t *testing.T) {
+	tests := []struct {
+		name string
+		want *Address
+		data []byte
+	}{{
+		name: "AccountAddress",
+		want: &Address{account: testAccountAddress},
+		data: append([]byte{0}, testAccountAddressBytes...),
+	}, {
+		name: "ContractAddress",
+		want: &Address{contract: testContractAddress},
+		data: append([]byte{1}, testContractAddressLeBytes...),
+	}}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			testDeserializeModel(t, &Address{}, tt.want, tt.data)
 		})
 	}
 }
 
 func TestAccountAddress_Serialize(t *testing.T) {
-	got, err := testAccountAddress.Serialize()
-	if err != nil {
-		t.Errorf("Serialize() error = %v", err)
-		return
-	}
-	if !reflect.DeepEqual(got, testAccountAddressBytes) {
-		t.Errorf("Serialize() got = %v, want %v", got, testAccountAddressBytes)
-	}
+	testSerialize(t, &testAccountAddress, testAccountAddressBytes)
+}
+
+func TestAccountAddress_Deserialize(t *testing.T) {
+	a := AccountAddress("")
+	testDeserialize(t, &a, &testAccountAddress, testAccountAddressBytes)
 }
 
 func TestAccountAddress_SerializeModel(t *testing.T) {
-	got, err := testAccountAddress.SerializeModel()
-	if err != nil {
-		t.Errorf("SerializeModel() error = %v", err)
-		return
-	}
-	if !reflect.DeepEqual(got, testAccountAddressBytes) {
-		t.Errorf("SerializeModel() got = %v, want %v", got, testAccountAddressBytes)
-	}
+	testSerializeModel(t, &testAccountAddress, testAccountAddressBytes)
+}
+
+func TestAccountAddress_DeserializeModel(t *testing.T) {
+	a := AccountAddress("")
+	testDeserializeModel(t, &a, &testAccountAddress, testAccountAddressBytes)
 }
 
 func TestContractAddress_Serialize(t *testing.T) {
-	got, err := testContractAddress.Serialize()
-	if err != nil {
-		t.Errorf("Serialize() error = %v", err)
-		return
-	}
-	if !reflect.DeepEqual(got, testContractAddressBigEndianBytes) {
-		t.Errorf("Serialize() got = %v, want %v", got, testContractAddressBigEndianBytes)
-	}
+	testSerialize(t, testContractAddress, testContractAddressBeBytes)
+}
+
+func TestContractAddress_Deserialize(t *testing.T) {
+	testDeserialize(t, &ContractAddress{}, testContractAddress, testContractAddressBeBytes)
 }
 
 func TestContractAddress_SerializeModel(t *testing.T) {
-	got, err := testContractAddress.SerializeModel()
-	if err != nil {
-		t.Errorf("SerializeModel() error = %v", err)
-		return
-	}
-	if !reflect.DeepEqual(got, testContractAddressLitEndianBytes) {
-		t.Errorf("SerializeModel() got = %v, want %v", got, testContractAddressLitEndianBytes)
-	}
+	testSerializeModel(t, testContractAddress, testContractAddressLeBytes)
+}
+
+func TestContractAddress_DeserializeModel(t *testing.T) {
+	testDeserializeModel(t, &ContractAddress{}, testContractAddress, testContractAddressLeBytes)
 }

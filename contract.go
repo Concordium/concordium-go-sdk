@@ -31,11 +31,19 @@ func (m *ModuleRef) Serialize() ([]byte, error) {
 	return b, nil
 }
 
+func (m *ModuleRef) Deserialize(b []byte) error {
+	if len(b) < moduleRefSize {
+		return fmt.Errorf("%T requires %d bytes", *m, moduleRefSize)
+	}
+	*m = ModuleRef(hex.EncodeToString(b))
+	return nil
+}
+
 type ContractName string
 
 type InitName string
 
-func NewInitNameFromContract(contractName ContractName) InitName {
+func NewInitName(contractName ContractName) InitName {
 	return InitName(initNamePrefix + contractName)
 }
 
@@ -45,6 +53,24 @@ func (n *InitName) Serialize() ([]byte, error) {
 	binary.BigEndian.PutUint16(b, uint16(nLen))
 	copy(b[2:], *n)
 	return b, nil
+}
+
+func (n *InitName) SerializeModel() ([]byte, error) {
+	nLen := len(*n)
+	b := make([]byte, 2+nLen)
+	binary.LittleEndian.PutUint16(b, uint16(nLen))
+	copy(b[2:], *n)
+	return b, nil
+}
+
+func (n *InitName) DeserializeModel(b []byte) (int, error) {
+	i := 2
+	if len(b) < i {
+		return 0, fmt.Errorf("%T requires %d bytes", *n, i)
+	}
+	l := int(binary.LittleEndian.Uint16(b))
+	*n = InitName(b[i : i+l])
+	return i + l, nil
 }
 
 type ReceiveName string
@@ -59,6 +85,24 @@ func (n *ReceiveName) Serialize() ([]byte, error) {
 	binary.BigEndian.PutUint16(b, uint16(nLen))
 	copy(b[2:], *n)
 	return b, nil
+}
+
+func (n *ReceiveName) SerializeModel() ([]byte, error) {
+	nLen := len(*n)
+	b := make([]byte, 2+nLen)
+	binary.LittleEndian.PutUint16(b, uint16(nLen))
+	copy(b[2:], *n)
+	return b, nil
+}
+
+func (n *ReceiveName) DeserializeModel(b []byte) (int, error) {
+	i := 2
+	if len(b) < i {
+		return 0, fmt.Errorf("%T requires %d bytes", *n, i)
+	}
+	l := int(binary.LittleEndian.Uint16(b))
+	*n = ReceiveName(b[i : i+l])
+	return i + l, nil
 }
 
 type ContractContext struct {
