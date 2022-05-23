@@ -1,0 +1,18 @@
+{
+  "blockHash": "7c9260d78b8cb702d25c9c9bb166276204f0ef617e867e597c6c7d53b8049267",
+  "blockParent": "1dd06682da815e86bc1589ec743103fda2039d0d9fa2ed919f400dc5a7c5b70b",
+  "blockLastFinalized": "1dd06682da815e86bc1589ec743103fda2039d0d9fa2ed919f400dc5a7c5b70b",
+  "blockHeight": 2705072,
+  "genesisIndex": 2,
+  "eraBlockHeight": 916798,
+  "blockReceiveTime": "2022-03-23T20:58:16Z",
+  "blockArriveTime": "2022-03-23T20:58:16Z",
+  "blockSlot": 37122774,
+  "blockSlotTime": "2022-03-23T20:58:16.5Z",
+  "blockBaker": 5,
+  "finalized": true,
+  "transactionCount": 0,
+  "transactionEnergyCost": 0,
+  "transactionsSize": 0,
+  "blockStateHash": "e9730d53eed8dafda69c0b0440faabfd4a89e536553a151c657b62c3af827545"
+}

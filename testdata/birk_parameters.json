@@ -1,0 +1,11 @@
+{
+  "electionDifficulty": 2.5e-2,
+  "electionNonce": "139b2dfddd24aa32b5260a8f3908331c814f567ae133de57065d6395db0e8cd6",
+  "bakers": [
+    {
+      "bakerId": 0,
+      "bakerLotteryPower": 9.96180263437706e-2,
+      "bakerAccount": "3Ug5rCqAN2z17MqAyh5KUGDpv6k9eSHu8AN8jCgbmAxmjcu5TM"
+    }
+  ]
+}
