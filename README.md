@@ -1,6 +1,12 @@
 # Concordium GoLang Client Library
 ___
 
+## Installation
+
+```shell
+go get -u github.com/Concordium/concordium-go-sdk
+```
+
 ## Main Client usage
 
 ```go
