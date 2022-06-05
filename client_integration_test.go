@@ -8,13 +8,13 @@ import (
 
 var (
 	// TODO move to env
-	testIntegrationGrpcTarget      = "35.184.87.228:10003"
+	testIntegrationGrpcTarget      = "34.71.98.161:10001"
 	testIntegrationGrpcToken       = "rpcadmin"
-	testIntegrationBlockHash       = BlockHash("4eccaca49abab6df9d24ac8f0da973d4b2dbe6180810842b15cd1cc2078d0b25")
-	testIntegrationBlockHeight     = BlockHeight(88794)
-	testIntegrationAccountAddress  = AccountAddress("3djqZmm3jFEfMHXj4RtuTYLfr7VJ5ZwmVGmNot8sbadxFrA5eW")
-	testIntegrationContractAddress = &ContractAddress{Index: 0, SubIndex: 0}
-	testIntegrationModuleRef       = ModuleRef("85a8a9242518e07617763de99e5c6bdf39d82fa534a8838929a2167655002813")
+	testIntegrationBlockHash       = BlockHash("63ced0f4b0ad467f3abee79f8e8c8c891c0676ee58c1b79ab2f5a383818d0ebc")
+	testIntegrationBlockHeight     = BlockHeight(3335575)
+	testIntegrationAccountAddress  = AccountAddress("3TdFQK6hqoqoW38JQJGZ2y3RZfgVPzwB7dMKXbBdeYvdwPeF63")
+	testIntegrationContractAddress = &ContractAddress{Index: 5129, SubIndex: 0}
+	testIntegrationModuleRef       = ModuleRef("935d17711a4dea10ba5a851df4f19cfdd7cdbd79c8d6ec9abfe5cacff873f6d0")
 
 	testIntegrationBaseClient Client
 )

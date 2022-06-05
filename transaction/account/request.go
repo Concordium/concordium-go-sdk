@@ -2,8 +2,9 @@ package account
 
 import (
 	"fmt"
-	"github.com/Concordium/concordium-go-sdk"
 	"time"
+
+	"github.com/Concordium/concordium-go-sdk"
 )
 
 type request struct {
