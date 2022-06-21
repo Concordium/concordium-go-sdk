@@ -7,7 +7,7 @@ import (
 
 var (
 	testModuleDeployBody = newDeployModuleBody(
-		testRandomBytes,
+		append([]byte{0, 0, 0, 0, 0, 0, 0, 10}, testRandomBytes...),
 	)
 	testModuleDeployBodyBytes = []byte{
 		0,          // type

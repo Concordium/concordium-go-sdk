@@ -93,6 +93,16 @@ func Test_DeserializeModel_Slice(t *testing.T) {
 	testDeserializeModelFunc(t, b, &v, w)
 }
 
+func Test_DeserializeModel_Array(t *testing.T) {
+	var v [3]uint8
+	w := [3]uint8{1, 2, 3}
+	b := make([]byte, len(w))
+	for n, i := range w {
+		b[n] = i
+	}
+	testDeserializeModelFunc(t, b, &v, w)
+}
+
 func Test_DeserializeModel_Map(t *testing.T) {
 	var v map[uint8]uint8
 	w := map[uint8]uint8{1: 11, 2: 12, 3: 13}

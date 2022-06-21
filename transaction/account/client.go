@@ -3,9 +3,10 @@ package account
 import (
 	"context"
 	"fmt"
-	cc "github.com/Concordium/concordium-go-sdk"
 	"io"
 	"time"
+
+	cc "github.com/Concordium/concordium-go-sdk"
 )
 
 type Context struct {

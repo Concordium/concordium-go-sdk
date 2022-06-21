@@ -84,6 +84,16 @@ func Test_SerializeModel_Slice(t *testing.T) {
 	testSerializeModelFunc(t, v, b)
 }
 
+func Test_SerializeModel_Array(t *testing.T) {
+	v := [3]uint8{1, 2, 3}
+	c := len(v)
+	b := make([]byte, c)
+	for n, i := range v {
+		b[n] = i
+	}
+	testSerializeModelFunc(t, v, b)
+}
+
 func Test_SerializeModel_Map(t *testing.T) {
 	v := map[uint8]uint8{0: 11, 1: 12, 2: 13}
 	c := len(v)

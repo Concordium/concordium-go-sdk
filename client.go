@@ -5,11 +5,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"time"
+
 	grpc_api "github.com/Concordium/concordium-go-sdk/grpc-api"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/wrapperspb"
-	"io"
-	"time"
 )
 
 type Client interface {
@@ -40,10 +41,10 @@ type Client interface {
 	PeerList(ctx context.Context, includeBootstrappers bool) (*PeerList, error)
 
 	// BanNode ...
-	BanNode(ctx context.Context, element PeerElement) (bool, error)
+	BanNode(ctx context.Context, element *PeerElement) (bool, error)
 
 	// UnbanNode ...
-	UnbanNode(ctx context.Context, element PeerElement) (bool, error)
+	UnbanNode(ctx context.Context, element *PeerElement) (bool, error)
 
 	// JoinNetwork ...
 	JoinNetwork(ctx context.Context, id NetworkId) (bool, error)
@@ -279,7 +280,7 @@ func (c *client) PeerList(ctx context.Context, includeBootstrappers bool) (*Peer
 	return l, nil
 }
 
-func (c *client) BanNode(ctx context.Context, element PeerElement) (bool, error) {
+func (c *client) BanNode(ctx context.Context, element *PeerElement) (bool, error) {
 	res, err := c.grpc.BanNode(ctx, &grpc_api.PeerElement{
 		NodeId: &wrapperspb.StringValue{
 			Value: string(element.NodeId),
@@ -298,7 +299,7 @@ func (c *client) BanNode(ctx context.Context, element PeerElement) (bool, error)
 	return res.GetValue(), nil
 }
 
-func (c *client) UnbanNode(ctx context.Context, element PeerElement) (bool, error) {
+func (c *client) UnbanNode(ctx context.Context, element *PeerElement) (bool, error) {
 	res, err := c.grpc.UnbanNode(ctx, &grpc_api.PeerElement{
 		NodeId: &wrapperspb.StringValue{
 			Value: string(element.NodeId),
@@ -377,6 +378,9 @@ func (c *client) GetBlockInfo(ctx context.Context, hash BlockHash) (*BlockInfo, 
 	if err != nil {
 		return nil, err
 	}
+	if res.GetValue() == "null" {
+		return nil, fmt.Errorf("not found")
+	}
 	i := &BlockInfo{}
 	err = json.Unmarshal([]byte(res.GetValue()), i)
 	return i, err
@@ -389,6 +393,9 @@ func (c *client) GetAncestors(ctx context.Context, hash BlockHash, amount int) (
 	})
 	if err != nil {
 		return nil, err
+	}
+	if res.GetValue() == "null" {
+		return nil, fmt.Errorf("not found")
 	}
 	var s []BlockHash
 	err = json.Unmarshal([]byte(res.GetValue()), &s)
@@ -411,6 +418,9 @@ func (c *client) GetBlocksAtHeight(ctx context.Context, height BlockHeight) ([]B
 	})
 	if err != nil {
 		return nil, err
+	}
+	if res.GetValue() == "null" {
+		return nil, fmt.Errorf("not found")
 	}
 	var s []BlockHash
 	err = json.Unmarshal([]byte(res.GetValue()), &s)
@@ -463,6 +473,7 @@ func (c *client) SendTransactionAwait(ctx context.Context, id NetworkId, request
 		for _, outcome = range status.Outcomes {
 		}
 		ticker.Stop()
+		break
 	}
 	return &outcome, nil
 }
@@ -487,6 +498,9 @@ func (c *client) GetAccountList(ctx context.Context, hash BlockHash) ([]AccountA
 	if err != nil {
 		return nil, err
 	}
+	if res.GetValue() == "null" {
+		return nil, fmt.Errorf("not found")
+	}
 	var s []AccountAddress
 	err = json.Unmarshal([]byte(res.GetValue()), &s)
 	return s, err
@@ -498,6 +512,9 @@ func (c *client) GetInstances(ctx context.Context, hash BlockHash) ([]*ContractA
 	})
 	if err != nil {
 		return nil, err
+	}
+	if res.GetValue() == "null" {
+		return nil, fmt.Errorf("not found")
 	}
 	var s []*ContractAddress
 	err = json.Unmarshal([]byte(res.GetValue()), &s)
@@ -511,6 +528,9 @@ func (c *client) GetAccountInfo(ctx context.Context, hash BlockHash, address Acc
 	})
 	if err != nil {
 		return nil, err
+	}
+	if res.GetValue() == "null" {
+		return nil, fmt.Errorf("not found")
 	}
 	i := &AccountInfo{}
 	err = json.Unmarshal([]byte(res.GetValue()), i)
@@ -528,6 +548,9 @@ func (c *client) GetInstanceInfo(ctx context.Context, hash BlockHash, address *C
 	})
 	if err != nil {
 		return nil, err
+	}
+	if res.GetValue() == "null" {
+		return nil, fmt.Errorf("not found")
 	}
 	i := &InstanceInfo{}
 	err = json.Unmarshal([]byte(res.GetValue()), i)
@@ -558,6 +581,9 @@ func (c *client) GetRewardStatus(ctx context.Context, hash BlockHash) (*RewardSt
 	if err != nil {
 		return nil, err
 	}
+	if res.GetValue() == "null" {
+		return nil, fmt.Errorf("not found")
+	}
 	s := &RewardStatus{}
 	err = json.Unmarshal([]byte(res.GetValue()), s)
 	return s, err
@@ -570,6 +596,9 @@ func (c *client) GetBirkParameters(ctx context.Context, hash BlockHash) (*BirkPa
 	if err != nil {
 		return nil, err
 	}
+	if res.GetValue() == "null" {
+		return nil, fmt.Errorf("not found")
+	}
 	p := &BirkParameters{}
 	err = json.Unmarshal([]byte(res.GetValue()), p)
 	return p, err
@@ -581,6 +610,9 @@ func (c *client) GetModuleList(ctx context.Context, hash BlockHash) ([]ModuleRef
 	})
 	if err != nil {
 		return nil, err
+	}
+	if res.GetValue() == "null" {
+		return nil, fmt.Errorf("not found")
 	}
 	var s []ModuleRef
 	err = json.Unmarshal([]byte(res.GetValue()), &s)
@@ -595,6 +627,9 @@ func (c *client) GetModuleSource(ctx context.Context, hash BlockHash, ref Module
 	if err != nil {
 		return nil, err
 	}
+	if len(res.GetValue()) == 0 {
+		return nil, fmt.Errorf("not found")
+	}
 	return bytes.NewReader(res.GetValue()), nil
 }
 
@@ -604,6 +639,9 @@ func (c *client) GetIdentityProviders(ctx context.Context, hash BlockHash) ([]*I
 	})
 	if err != nil {
 		return nil, err
+	}
+	if res.GetValue() == "null" {
+		return nil, fmt.Errorf("not found")
 	}
 	var s []*IdentityProvider
 	err = json.Unmarshal([]byte(res.GetValue()), &s)
@@ -617,6 +655,9 @@ func (c *client) GetAnonymityRevokers(ctx context.Context, hash BlockHash) ([]*A
 	if err != nil {
 		return nil, err
 	}
+	if res.GetValue() == "null" {
+		return nil, fmt.Errorf("not found")
+	}
 	var s []*AnonymityRevoker
 	err = json.Unmarshal([]byte(res.GetValue()), &s)
 	return s, err
@@ -628,6 +669,9 @@ func (c *client) GetCryptographicParameters(ctx context.Context, hash BlockHash)
 	})
 	if err != nil {
 		return nil, err
+	}
+	if res.GetValue() == "null" {
+		return nil, fmt.Errorf("not found")
 	}
 	return []byte(res.GetValue()), nil
 }
@@ -686,6 +730,9 @@ func (c *client) GetTransactionStatus(ctx context.Context, hash TransactionHash)
 	if err != nil {
 		return nil, err
 	}
+	if res.GetValue() == "null" {
+		return nil, fmt.Errorf("not found")
+	}
 	s := &TransactionSummary{}
 	err = json.Unmarshal([]byte(res.GetValue()), s)
 	return s, err
@@ -699,6 +746,9 @@ func (c *client) GetTransactionStatusInBlock(ctx context.Context, hash Transacti
 	if err != nil {
 		return nil, err
 	}
+	if res.GetValue() == "null" {
+		return nil, fmt.Errorf("not found")
+	}
 	s := &TransactionSummary{}
 	err = json.Unmarshal([]byte(res.GetValue()), s)
 	return s, err
@@ -711,6 +761,9 @@ func (c *client) GetAccountNonFinalizedTransactions(ctx context.Context, address
 	if err != nil {
 		return nil, err
 	}
+	if res.GetValue() == "null" {
+		return nil, fmt.Errorf("not found")
+	}
 	return []byte(res.GetValue()), nil
 }
 
@@ -721,6 +774,9 @@ func (c *client) GetBlockSummary(ctx context.Context, hash BlockHash) ([]byte, e
 	if err != nil {
 		return nil, err
 	}
+	if res.GetValue() == "null" {
+		return nil, fmt.Errorf("not found")
+	}
 	return []byte(res.GetValue()), nil
 }
 
@@ -730,6 +786,9 @@ func (c *client) GetNextAccountNonce(ctx context.Context, address AccountAddress
 	})
 	if err != nil {
 		return nil, err
+	}
+	if res.GetValue() == "null" {
+		return nil, fmt.Errorf("not found")
 	}
 	n := &NextAccountNonce{}
 	err = json.Unmarshal([]byte(res.GetValue()), n)
