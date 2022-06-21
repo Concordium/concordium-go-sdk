@@ -41,6 +41,14 @@ func (m *ModuleRef) Deserialize(b []byte) error {
 
 type ContractName string
 
+func (n *ContractName) SerializeModel() ([]byte, error) {
+	return nil, fmt.Errorf("use %T instead of %T", InitName(""), *n)
+}
+
+func (n *ContractName) DeserializeModel([]byte) (int, error) {
+	return 0, fmt.Errorf("use %T instead of %T", InitName(""), *n)
+}
+
 type InitName string
 
 func NewInitName(contractName ContractName) InitName {

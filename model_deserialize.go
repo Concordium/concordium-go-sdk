@@ -99,6 +99,17 @@ func deserializeModelReflect(b []byte, rv reflect.Value) (int, error) {
 			rs = reflect.Append(rs, re)
 		}
 		rv.Set(rs)
+	case reflect.Array:
+		i = 0
+		n := rv.Cap()
+		for j := 0; j < n; j++ {
+			re := rv.Index(j)
+			x, err := deserializeModelReflect(b[i:], re)
+			if err != nil {
+				return 0, err
+			}
+			i += x
+		}
 	case reflect.Map:
 		i = 4
 		if len(b) < i {

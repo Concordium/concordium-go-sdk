@@ -86,6 +86,24 @@ func serializeModelReflect(rv reflect.Value) ([]byte, error) {
 			copy(b[z:], x)
 			z += len(x)
 		}
+	case reflect.Array:
+		var i int
+		c := rv.Len()
+		bs := make([][]byte, c)
+		for j := 0; j < c; j++ {
+			var err error
+			bs[j], err = serializeModelReflect(rv.Index(j))
+			if err != nil {
+				return nil, err
+			}
+			i += len(bs[j])
+		}
+		b = make([]byte, i)
+		var z int
+		for _, x := range bs {
+			copy(b[z:], x)
+			z += len(x)
+		}
 	case reflect.Map:
 		i := 4
 		c := rv.Len()
