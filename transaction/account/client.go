@@ -22,7 +22,7 @@ type Client interface {
 
 	InitContract(ctx *Context, moduleRef cc.ModuleRef, name cc.ContractName, params ...any) (*cc.ContractAddress, error)
 
-	UpdateContract(ctx *Context, contractAddress *cc.ContractAddress, receiveName cc.ReceiveName, amount *cc.Amount, params ...any) (any, error)
+	UpdateContract(ctx *Context, contractAddress *cc.ContractAddress, receiveName cc.ReceiveName, amount *cc.Amount, params ...any) ([]*UpdateContractResultEvent, error)
 
 	SimpleTransfer(ctx *Context, to cc.AccountAddress, amount *cc.Amount) error
 }
@@ -38,68 +38,88 @@ type client struct {
 }
 
 func (c *client) DeployModule(ctx *Context, wasm io.Reader) (cc.ModuleRef, error) {
-	wb, err := io.ReadAll(wasm)
+	b, err := io.ReadAll(wasm)
 	if err != nil {
 		return "", fmt.Errorf("unable to read wasm: %w", err)
 	}
-	outcome, err := c.sendRequestAwait(ctx, newDeployModuleBody(wb))
+	s := &cc.TransactionSummary[*DeployModuleResultEvent, *DeployModuleRejectReason]{}
+	h, err := c.sendRequestAwait(ctx, newDeployModuleBody(b), s)
 	if err != nil {
 		return "", err
 	}
-	err = outcome.Error()
+	_, o, ok := s.Outcomes.First()
+	if !ok {
+		return "", fmt.Errorf("%q has no outcomes", h)
+	}
+	err = o.Error()
 	if err != nil {
 		return "", err
 	}
-	if len(outcome.Result.Events) != 1 {
-		return "", fmt.Errorf("unexpected events count in transaction %q", outcome.Hash)
+	if len(o.Result.Events) != 1 {
+		return "", fmt.Errorf("unexpected events count in transaction %q", o.Hash)
 	}
-	return cc.ModuleRef(outcome.Result.Events[0].Contents), nil
+	return o.Result.Events[0].Contents, nil
 }
 
 func (c *client) InitContract(ctx *Context, moduleRef cc.ModuleRef, name cc.ContractName, params ...any) (*cc.ContractAddress, error) {
-	outcome, err := c.sendRequestAwait(ctx, newInitContractBody(cc.NewAmountZero(), moduleRef, name, params...))
+	s := &cc.TransactionSummary[*InitContractResultEvent, *InitContractRejectReason]{}
+	h, err := c.sendRequestAwait(ctx, newInitContractBody(cc.NewAmountZero(), moduleRef, name, params...), s)
 	if err != nil {
 		return nil, err
 	}
-	err = outcome.Error()
+	_, o, ok := s.Outcomes.First()
+	if !ok {
+		return nil, fmt.Errorf("%q has no outcomes", h)
+	}
+	err = o.Error()
 	if err != nil {
 		return nil, err
 	}
-	if len(outcome.Result.Events) != 1 {
-		return nil, fmt.Errorf("unexpected events count in transaction %q", outcome.Hash)
+	if len(o.Result.Events) != 1 {
+		return nil, fmt.Errorf("unexpected events count in transaction %q", o.Hash)
 	}
-	return &outcome.Result.Events[0].Address, nil
+	return o.Result.Events[0].Address, nil
 }
 
-func (c *client) UpdateContract(ctx *Context, contractAddress *cc.ContractAddress, receiveName cc.ReceiveName, amount *cc.Amount, params ...any) (any, error) {
-	outcome, err := c.sendRequestAwait(ctx, newUpdateContractBody(amount, contractAddress, receiveName, params...))
+func (c *client) UpdateContract(ctx *Context, contractAddress *cc.ContractAddress, receiveName cc.ReceiveName, amount *cc.Amount, params ...any) ([]*UpdateContractResultEvent, error) {
+	s := &cc.TransactionSummary[*UpdateContractResultEvent, *UpdateContractRejectReason]{}
+	h, err := c.sendRequestAwait(ctx, newUpdateContractBody(amount, contractAddress, receiveName, params...), s)
 	if err != nil {
 		return nil, err
 	}
-	err = outcome.Error()
+	_, o, ok := s.Outcomes.First()
+	if !ok {
+		return nil, fmt.Errorf("%q has no outcomes", h)
+	}
+	err = o.Error()
 	if err != nil {
 		return nil, err
 	}
-	return outcome.Result.Events, nil
+	return o.Result.Events, nil
 }
 
 func (c *client) SimpleTransfer(ctx *Context, to cc.AccountAddress, amount *cc.Amount) error {
-	outcome, err := c.sendRequestAwait(ctx, newSimpleTransferBody(to, amount))
+	s := &cc.TransactionSummary[*SimpleTransferResultEvent, *SimpleTransferRejectReason]{}
+	h, err := c.sendRequestAwait(ctx, newSimpleTransferBody(to, amount), s)
 	if err != nil {
 		return err
 	}
-	return outcome.Error()
+	_, o, ok := s.Outcomes.First()
+	if !ok {
+		return fmt.Errorf("%q has no outcomes", h)
+	}
+	return o.Error()
 }
 
-func (c *client) sendRequestAwait(ctx *Context, body body) (*cc.TransactionOutcome, error) {
+func (c *client) sendRequestAwait(ctx *Context, body body, summary cc.ITransactionSummary[cc.ITransactionResultEvent, cc.ITransactionRejectReason]) (cc.TransactionHash, error) {
 	if ctx == nil {
-		return nil, fmt.Errorf("nil context not allowed")
+		return "", fmt.Errorf("nil context not allowed")
 	}
 	if ctx.Sender == "" {
-		return nil, fmt.Errorf("empty sender not allowed")
+		return "", fmt.Errorf("empty sender not allowed")
 	}
 	if len(ctx.Credentials) == 0 {
-		return nil, fmt.Errorf("empty credentials not allowed")
+		return "", fmt.Errorf("empty credentials not allowed")
 	}
 	ct := ctx.Context
 	if ct == nil {
@@ -115,17 +135,17 @@ func (c *client) sendRequestAwait(ctx *Context, body body) (*cc.TransactionOutco
 	}
 	nonce, err := c.cli.GetNextAccountNonce(ct, ctx.Sender)
 	if err != nil {
-		return nil, fmt.Errorf("unable to get next nonce: %w", err)
+		return "", fmt.Errorf("unable to get next nonce: %w", err)
 	}
 	// TODO what to do in case of false
 	if !nonce.AllFinal {
-		return nil, fmt.Errorf("account nonce is not reliable")
+		return "", fmt.Errorf("account nonce is not reliable")
 	}
 	req := newRequest(ctx.Credentials, ctx.Sender, nonce.Nonce, expiry, body)
 
-	s, err := c.cli.SendTransactionAwait(ct, net, req)
+	hash, err := c.cli.SendTransactionAwait(ct, net, req, summary)
 	if err != nil {
-		return nil, fmt.Errorf("unable to await for transaction: %w", err)
+		return hash, fmt.Errorf("unable to await for transaction: %w", err)
 	}
-	return s, nil
+	return hash, nil
 }

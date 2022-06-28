@@ -13,6 +13,7 @@ const (
 	TransactionStatusFinalized TransactionStatus = "finalized"
 	TransactionStatusCommitted TransactionStatus = "committed"
 	TransactionStatusReceived  TransactionStatus = "received"
+	TransactionStatusAbsent    TransactionStatus = "absent"
 
 	TransactionResultSuccess TransactionResultOutcome = "success"
 	TransactionResultReject  TransactionResultOutcome = "reject"
@@ -51,31 +52,81 @@ type TransactionStatus string
 
 type TransactionResultOutcome string
 
-type TransactionSummary struct {
-	Status   TransactionStatus             `json:"status"`
-	Outcomes map[string]TransactionOutcome `json:"outcomes"`
+type TransactionTypeType string
+
+type TransactionTypeContents string
+
+type TransactionResultEventTag string
+
+type TransactionRejectReasonTag string
+
+type ITransactionSummary[E ITransactionResultEvent, R ITransactionRejectReason] interface {
+	GetStatus() TransactionStatus
 }
 
-type TransactionOutcome struct {
-	Hash   TransactionHash   `json:"hash"`
-	Result TransactionResult `json:"result"`
+type TransactionSummary[E ITransactionResultEvent, R ITransactionRejectReason] struct {
+	Status   TransactionStatus         `json:"status"`
+	Outcomes TransactionOutcomes[E, R] `json:"outcomes"`
 }
 
-func (o *TransactionOutcome) Error() error {
+func (s *TransactionSummary[E, R]) GetStatus() TransactionStatus {
+	return s.Status
+}
+
+type TransactionOutcomes[E ITransactionResultEvent, R ITransactionRejectReason] map[BlockHash]*TransactionOutcome[E, R]
+
+func (m *TransactionOutcomes[E, R]) First() (BlockHash, *TransactionOutcome[E, R], bool) {
+	for k, v := range *m {
+		return k, v, true
+	}
+	return "", nil, false
+}
+
+type TransactionOutcome[E ITransactionResultEvent, R ITransactionRejectReason] struct {
+	Sender     AccountAddress           `json:"sender"`
+	Hash       TransactionHash          `json:"hash"`
+	Cost       *Amount                  `json:"cost"`
+	EnergyCost int                      `json:"energyCost"`
+	Type       *TransactionType         `json:"type"`
+	Result     *TransactionResult[E, R] `json:"result"`
+	Index      int                      `json:"index"`
+}
+
+func (o *TransactionOutcome[R, E]) Error() error {
 	if o.Result.Outcome == TransactionResultSuccess {
 		return nil
 	}
-	return fmt.Errorf("transaction %q was rejected", o.Hash)
+	return fmt.Errorf("transaction %q was rejected: %w", o.Hash, o.Result.RejectReason.Error())
 }
 
-type TransactionResult struct {
-	Outcome TransactionResultOutcome `json:"outcome"`
-	Events  TransactionResultEvents  `json:"events,omitempty"`
+type TransactionType struct {
+	Type     TransactionTypeType     `json:"type"`
+	Contents TransactionTypeContents `json:"contents"`
 }
 
-type TransactionResultEvents []*TransactionEvent
+type TransactionResult[E ITransactionResultEvent, R ITransactionRejectReason] struct {
+	Outcome      TransactionResultOutcome   `json:"outcome"`
+	Events       TransactionResultEvents[E] `json:"events,omitempty"`
+	RejectReason R                          `json:"rejectReason,omitempty"`
+}
 
-type TransactionEvent struct {
-	Address  ContractAddress `json:"address"`
-	Contents string          `json:"contents"`
+type TransactionResultEvents[E ITransactionResultEvent] []E
+
+type ITransactionResultEvent interface {
+}
+
+type ITransactionRejectReason interface {
+	Error() error
+}
+
+type TransactionResultEvent struct {
+	Tag TransactionResultEventTag `json:"tag"`
+}
+
+type TransactionRejectReason struct {
+	Tag TransactionRejectReasonTag `json:"tag"`
+}
+
+func (r *TransactionRejectReason) Error() error {
+	return fmt.Errorf("%s", r.Tag)
 }

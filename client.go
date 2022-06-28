@@ -73,7 +73,7 @@ type Client interface {
 	// SendTransactionAsync Submit a local transaction
 	SendTransactionAsync(ctx context.Context, id NetworkId, request TransactionRequest) (TransactionHash, error)
 
-	SendTransactionAwait(ctx context.Context, id NetworkId, request TransactionRequest) (*TransactionOutcome, error)
+	SendTransactionAwait(ctx context.Context, id NetworkId, request TransactionRequest, summary ITransactionSummary[ITransactionResultEvent, ITransactionRejectReason]) (TransactionHash, error)
 
 	// StartBaker Start the baker in the consensus module
 	StartBaker(ctx context.Context) (bool, error)
@@ -130,10 +130,10 @@ type Client interface {
 	DumpStop(ctx context.Context) (bool, error)
 
 	// GetTransactionStatus Query for the status of a transaction by its hash
-	GetTransactionStatus(ctx context.Context, hash TransactionHash) (*TransactionSummary, error)
+	GetTransactionStatus(ctx context.Context, hash TransactionHash, summary ITransactionSummary[ITransactionResultEvent, ITransactionRejectReason]) error
 
 	// GetTransactionStatusInBlock Query for transactions in a block by its hash
-	GetTransactionStatusInBlock(ctx context.Context, hash TransactionHash, blockHash BlockHash) (*TransactionSummary, error)
+	GetTransactionStatusInBlock(ctx context.Context, hash TransactionHash, blockHash BlockHash, summary ITransactionSummary[ITransactionResultEvent, ITransactionRejectReason]) error
 
 	// GetAccountNonFinalizedTransactions Query for non-finalized
 	// transactions present on an account by the account address
@@ -449,33 +449,27 @@ func (c *client) SendTransactionAsync(ctx context.Context, id NetworkId, request
 	return newTransactionHash(request.Kind(), b), nil
 }
 
-func (c *client) SendTransactionAwait(ctx context.Context, id NetworkId, request TransactionRequest) (*TransactionOutcome, error) {
+func (c *client) SendTransactionAwait(ctx context.Context, id NetworkId, request TransactionRequest, summary ITransactionSummary[ITransactionResultEvent, ITransactionRejectReason]) (TransactionHash, error) {
 	hash, err := c.SendTransactionAsync(ctx, id, request)
 	if err != nil {
-		return nil, fmt.Errorf("unable to send transaction: %w", err)
+		return hash, fmt.Errorf("unable to send transaction: %w", err)
 	}
-	outcome := TransactionOutcome{}
 	ticker := time.NewTicker(time.Second)
 	for range ticker.C {
 		if request.ExpiredAt().Add(time.Minute).Before(time.Now()) {
-			return nil, fmt.Errorf("transaction %q timed out", hash)
+			return hash, fmt.Errorf("transaction %q timed out", hash)
 		}
-		status, err := c.GetTransactionStatus(ctx, hash)
+		err = c.GetTransactionStatus(ctx, hash, summary)
 		if err != nil {
-			return nil, fmt.Errorf("unable to get status of transaction %q: %w", hash, err)
+			return hash, fmt.Errorf("unable to get status of transaction %q: %w", hash, err)
 		}
-		if status.Status != TransactionStatusFinalized {
+		if summary.GetStatus() != TransactionStatusFinalized {
 			continue
-		}
-		if len(status.Outcomes) != 1 {
-			return nil, fmt.Errorf("unexpected outcomes count in transaction %q", hash)
-		}
-		for _, outcome = range status.Outcomes {
 		}
 		ticker.Stop()
 		break
 	}
-	return &outcome, nil
+	return hash, nil
 }
 
 func (c *client) StartBaker(ctx context.Context) (bool, error) {
@@ -723,35 +717,33 @@ func (c *client) DumpStop(ctx context.Context) (bool, error) {
 	return res.GetValue(), nil
 }
 
-func (c *client) GetTransactionStatus(ctx context.Context, hash TransactionHash) (*TransactionSummary, error) {
+func (c *client) GetTransactionStatus(ctx context.Context, hash TransactionHash, summary ITransactionSummary[ITransactionResultEvent, ITransactionRejectReason]) error {
 	res, err := c.grpc.GetTransactionStatus(ctx, &grpc_api.TransactionHash{
 		TransactionHash: string(hash),
 	})
 	if err != nil {
-		return nil, err
+		return err
 	}
 	if res.GetValue() == "null" {
-		return nil, fmt.Errorf("not found")
+		return fmt.Errorf("not found")
 	}
-	s := &TransactionSummary{}
-	err = json.Unmarshal([]byte(res.GetValue()), s)
-	return s, err
+	err = json.Unmarshal([]byte(res.GetValue()), summary)
+	return err
 }
 
-func (c *client) GetTransactionStatusInBlock(ctx context.Context, hash TransactionHash, blockHash BlockHash) (*TransactionSummary, error) {
+func (c *client) GetTransactionStatusInBlock(ctx context.Context, hash TransactionHash, blockHash BlockHash, summary ITransactionSummary[ITransactionResultEvent, ITransactionRejectReason]) error {
 	res, err := c.grpc.GetTransactionStatusInBlock(ctx, &grpc_api.GetTransactionStatusInBlockRequest{
 		TransactionHash: string(hash),
 		BlockHash:       string(blockHash),
 	})
 	if err != nil {
-		return nil, err
+		return err
 	}
 	if res.GetValue() == "null" {
-		return nil, fmt.Errorf("not found")
+		return fmt.Errorf("not found")
 	}
-	s := &TransactionSummary{}
-	err = json.Unmarshal([]byte(res.GetValue()), s)
-	return s, err
+	err = json.Unmarshal([]byte(res.GetValue()), summary)
+	return err
 }
 
 func (c *client) GetAccountNonFinalizedTransactions(ctx context.Context, address AccountAddress) ([]byte, error) {

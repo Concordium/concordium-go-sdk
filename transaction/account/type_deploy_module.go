@@ -1,5 +1,25 @@
 package account
 
+import (
+	"fmt"
+
+	"github.com/Concordium/concordium-go-sdk"
+)
+
+type DeployModuleResultEvent struct {
+	*concordium.TransactionResultEvent `json:""`
+	Contents                           concordium.ModuleRef `json:"contents"`
+}
+
+type DeployModuleRejectReason struct {
+	*concordium.TransactionRejectReason `json:""`
+	Contents                            concordium.ModuleRef `json:"contents"`
+}
+
+func (r *DeployModuleRejectReason) Error() error {
+	return fmt.Errorf("module %q already exists", r.Contents)
+}
+
 type deployModuleBody struct {
 	baseBody
 	wasm []byte

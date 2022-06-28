@@ -1105,11 +1105,12 @@ func main() {
 		panic(err)
 	}
 
-	r, err := cli.GetTransactionStatus(ctx, "8af811b649875f09d6f5b7ebfcc1899cf0e58466f33f07f74daf073dc7aea17f")
+	s := &concordium.TransactionSummary[*concordium.TransactionResultEvent, *concordium.TransactionRejectReason]{}
+	err = cli.GetTransactionStatus(ctx, "8af811b649875f09d6f5b7ebfcc1899cf0e58466f33f07f74daf073dc7aea17f", s)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("%#v\n", r)
+	fmt.Printf("%#v\n", s)
 }
 ```
 
@@ -1133,14 +1134,16 @@ func main() {
 		panic(err)
 	}
 
-	r, err := cli.GetTransactionStatusInBlock(ctx,
+	s := &concordium.TransactionSummary[*concordium.TransactionResultEvent, *concordium.TransactionRejectReason]{}
+	err := cli.GetTransactionStatusInBlock(ctx,
 		"8af811b649875f09d6f5b7ebfcc1899cf0e58466f33f07f74daf073dc7aea17f",
 		"63ced0f4b0ad467f3abee79f8e8c8c891c0676ee58c1b79ab2f5a383818d0ebc",
+		s, 
 	)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("%#v\n", r)
+	fmt.Printf("%#v\n", s)
 }
 ```
 
