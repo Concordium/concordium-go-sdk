@@ -1,6 +1,29 @@
 package account
 
-import "github.com/Concordium/concordium-go-sdk"
+import (
+	"fmt"
+
+	"github.com/Concordium/concordium-go-sdk"
+)
+
+type InitContractResultEvent struct {
+	*concordium.TransactionResultEvent `json:""`
+	ContractVersion                    int                         `json:"contractVersion"`
+	Ref                                concordium.ModuleRef        `json:"ref"`
+	Address                            *concordium.ContractAddress `json:"address"`
+	Amount                             *concordium.Amount          `json:"amount"`
+	InitName                           concordium.InitName         `json:"initName"`
+	Events                             []concordium.Model          `json:"events"`
+}
+
+type InitContractRejectReason struct {
+	*concordium.TransactionRejectReason `json:""`
+	RejectReason                        int `json:"rejectReason"`
+}
+
+func (r *InitContractRejectReason) Error() error {
+	return fmt.Errorf("init rejected with reason %d", r.RejectReason)
+}
 
 type initContractBody struct {
 	baseBody

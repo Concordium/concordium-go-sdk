@@ -3,6 +3,7 @@ package account
 import (
 	"encoding/binary"
 	"fmt"
+
 	"github.com/Concordium/concordium-go-sdk"
 )
 
