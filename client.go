@@ -518,7 +518,7 @@ func (c *client) GetInstances(ctx context.Context, hash BlockHash) ([]*ContractA
 func (c *client) GetAccountInfo(ctx context.Context, hash BlockHash, address AccountAddress) (*AccountInfo, error) {
 	res, err := c.grpc.GetAccountInfo(ctx, &grpc_api.GetAddressInfoRequest{
 		BlockHash: string(hash),
-		Address:   string(address),
+		Address:   address.String(),
 	})
 	if err != nil {
 		return nil, err
@@ -748,7 +748,7 @@ func (c *client) GetTransactionStatusInBlock(ctx context.Context, hash Transacti
 
 func (c *client) GetAccountNonFinalizedTransactions(ctx context.Context, address AccountAddress) ([]byte, error) {
 	res, err := c.grpc.GetAccountNonFinalizedTransactions(ctx, &grpc_api.AccountAddress{
-		AccountAddress: string(address),
+		AccountAddress: address.String(),
 	})
 	if err != nil {
 		return nil, err
@@ -774,7 +774,7 @@ func (c *client) GetBlockSummary(ctx context.Context, hash BlockHash) ([]byte, e
 
 func (c *client) GetNextAccountNonce(ctx context.Context, address AccountAddress) (*NextAccountNonce, error) {
 	res, err := c.grpc.GetNextAccountNonce(ctx, &grpc_api.AccountAddress{
-		AccountAddress: string(address),
+		AccountAddress: address.String(),
 	})
 	if err != nil {
 		return nil, err

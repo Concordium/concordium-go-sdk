@@ -43,12 +43,12 @@ func (a *Address) MarshalJSON() ([]byte, error) {
 		Type    string `json:"type"`
 		Address any    `json:"address"`
 	}{}
-	if a.account != nil {
+	switch true {
+	case !a.account.IsZero():
 		tmp.Type = accountAddressJsonType
 		tmp.Address = a.account
 		return json.Marshal(tmp)
-	}
-	if a.contract != nil {
+	case a.contract != nil:
 		tmp.Type = contractAddressJsonType
 		tmp.Address = a.contract
 		return json.Marshal(tmp)
@@ -84,7 +84,7 @@ func (a *Address) SerializeModel() ([]byte, error) {
 	var typ uint8
 	var err error
 	switch true {
-	case a.account != nil:
+	case !a.account.IsZero():
 		typ = accountAddressType
 		ser, err = a.account.SerializeModel()
 	case a.contract != nil:
@@ -124,16 +124,18 @@ func (a *Address) DeserializeModel(b []byte) (int, error) {
 }
 
 // AccountAddress base-58 check with version byte 1 encoded address (with Bitcoin mapping table)
-type AccountAddress []byte
+type AccountAddress [accountAddressSize]byte
 
 func NewAccountAddressFromString(s string) (AccountAddress, error) {
-	a, _, err := base58.CheckDecode(s)
+	v, _, err := base58.CheckDecode(s)
 	if err != nil {
-		return nil, fmt.Errorf("base58 decode: %w", err)
+		return AccountAddress{}, fmt.Errorf("base58 decode: %w", err)
 	}
-	if len(a) != accountAddressSize {
-		return nil, fmt.Errorf("expect %d bytes but %d given", accountAddressSize, len(a))
+	if len(v) != accountAddressSize {
+		return AccountAddress{}, fmt.Errorf("expect %d bytes but %d given", accountAddressSize, len(v))
 	}
+	var a AccountAddress
+	copy(a[:], v)
 	return a, nil
 }
 
@@ -145,12 +147,16 @@ func MustNewAccountAddressFromString(s string) AccountAddress {
 	return a
 }
 
+func (a *AccountAddress) IsZero() bool {
+	return *a == AccountAddress{}
+}
+
+func (a *AccountAddress) String() string {
+	return base58.CheckEncode((*a)[:], accountAddressVersion)
+}
+
 func (a AccountAddress) MarshalJSON() ([]byte, error) {
-	if len(a) < accountAddressSize {
-		return nil, fmt.Errorf("%T requires %d bytes", a, accountAddressSize)
-	}
-	s := base58.CheckEncode((a)[:accountAddressSize], accountAddressVersion)
-	b, err := json.Marshal(s)
+	b, err := json.Marshal(a.String())
 	if err != nil {
 		return nil, fmt.Errorf("%T: %w", a, err)
 	}
@@ -172,11 +178,13 @@ func (a *AccountAddress) UnmarshalJSON(b []byte) error {
 }
 
 func (a *AccountAddress) Serialize() ([]byte, error) {
-	return *a, nil
+	return (*a)[:], nil
 }
 
 func (a *AccountAddress) Deserialize(b []byte) error {
-	*a = b
+	var v AccountAddress
+	copy(v[:], b)
+	*a = v
 	return nil
 }
 

@@ -12,7 +12,7 @@ var (
 	testIntegrationGrpcToken       = "rpcadmin"
 	testIntegrationBlockHash       = BlockHash("7f25ab75a1045321220d6a54ef76d5cd1b107228046b8cc349c69d90f2bf7fae")
 	testIntegrationBlockHeight     = BlockHeight(3335575)
-	testIntegrationAccountAddress  = AccountAddress("4hvvPeHb9HY4Lur7eUZv4KfL3tYBug8DRc4X9cVU8mpJLa1f2X")
+	testIntegrationAccountAddress  = MustNewAccountAddressFromString("4hvvPeHb9HY4Lur7eUZv4KfL3tYBug8DRc4X9cVU8mpJLa1f2X")
 	testIntegrationContractAddress = &ContractAddress{Index: 888, SubIndex: 0}
 	testIntegrationModuleRef       = ModuleRef("935d17711a4dea10ba5a851df4f19cfdd7cdbd79c8d6ec9abfe5cacff873f6d0")
 

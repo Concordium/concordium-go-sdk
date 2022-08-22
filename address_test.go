@@ -114,7 +114,7 @@ func TestAddress_SerializeModel(t *testing.T) {
 	}{{
 		name:    "AccountAddress",
 		address: &Address{account: testAccountAddress},
-		want:    append([]byte{0}, testAccountAddress...),
+		want:    append([]byte{0}, testAccountAddress[:]...),
 	}, {
 		name:    "ContractAddress",
 		address: &Address{contract: testContractAddress},
@@ -135,7 +135,7 @@ func TestAddress_DeserializeModel(t *testing.T) {
 	}{{
 		name: "AccountAddress",
 		want: &Address{account: testAccountAddress},
-		data: append([]byte{0}, testAccountAddress...),
+		data: append([]byte{0}, testAccountAddress[:]...),
 	}, {
 		name: "ContractAddress",
 		want: &Address{contract: testContractAddress},
@@ -170,21 +170,21 @@ func TestAccountAddress_UnmarshalJSON(t *testing.T) {
 }
 
 func TestAccountAddress_Serialize(t *testing.T) {
-	testSerialize(t, &testAccountAddress, []byte(testAccountAddress))
+	testSerialize(t, &testAccountAddress, testAccountAddress[:])
 }
 
 func TestAccountAddress_Deserialize(t *testing.T) {
 	a := testAccountAddress
-	testDeserialize(t, &a, &testAccountAddress, testAccountAddress)
+	testDeserialize(t, &a, &testAccountAddress, testAccountAddress[:])
 }
 
 func TestAccountAddress_SerializeModel(t *testing.T) {
-	testSerializeModel(t, &testAccountAddress, []byte(testAccountAddress))
+	testSerializeModel(t, &testAccountAddress, testAccountAddress[:])
 }
 
 func TestAccountAddress_DeserializeModel(t *testing.T) {
 	a := testAccountAddress
-	testDeserializeModel(t, &a, &testAccountAddress, testAccountAddress)
+	testDeserializeModel(t, &a, &testAccountAddress, testAccountAddress[:])
 }
 
 func TestContractAddress_Serialize(t *testing.T) {

@@ -115,7 +115,7 @@ func (c *client) sendRequestAwait(ctx *Context, body body, summary cc.ITransacti
 	if ctx == nil {
 		return "", fmt.Errorf("nil context not allowed")
 	}
-	if ctx.Sender == nil {
+	if ctx.Sender.IsZero() {
 		return "", fmt.Errorf("empty sender not allowed")
 	}
 	if len(ctx.Credentials) == 0 {
