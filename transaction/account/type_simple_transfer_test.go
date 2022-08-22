@@ -1,9 +1,10 @@
 package account
 
 import (
-	"github.com/Concordium/concordium-go-sdk"
 	"reflect"
 	"testing"
+
+	"github.com/Concordium/concordium-go-sdk"
 )
 
 var (

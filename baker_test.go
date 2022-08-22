@@ -13,9 +13,9 @@ var testBakerInfo = &BakerInfo{
 }
 
 func TestBakerInfo_MarshalJSON(t *testing.T) {
-	testMarshalJSON(t, testBakerInfo, testdataBakerInfo)
+	testFileMarshalJSON(t, testBakerInfo, testdataBakerInfo)
 }
 
 func TestBakerInfo_UnmarshalJSON(t *testing.T) {
-	testUnmarshalJSON(t, &BakerInfo{}, testBakerInfo, testdataBakerInfo)
+	testFileUnmarshalJSON(t, &BakerInfo{}, testBakerInfo, testdataBakerInfo)
 }

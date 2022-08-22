@@ -2,11 +2,12 @@ package concordium
 
 import (
 	"encoding/json"
-	"github.com/google/go-cmp/cmp"
 	"os"
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func testTimeMustParse(f, v string) time.Time {
@@ -28,7 +29,27 @@ func testEqualJSON(a, b []byte) (bool, error) {
 	return reflect.DeepEqual(j, i), nil
 }
 
-func testMarshalJSON(t *testing.T, v any, td string) {
+func testHexMarshalJSON(t *testing.T, v any, w []byte) {
+	b, err := json.Marshal(v)
+	if err != nil {
+		t.Fatalf("MarshalJSON() error = %v", err)
+	}
+	if !reflect.DeepEqual(b, w) {
+		t.Errorf("MarshalJSON() got = %v, w %v", b, w)
+	}
+}
+
+func testHexUnmarshalJSON(t *testing.T, v, w any, b []byte) {
+	err := json.Unmarshal(b, v)
+	if err != nil {
+		t.Fatalf("UnmarshalJSON() error = %v", err)
+	}
+	if !reflect.DeepEqual(v, w) {
+		t.Errorf("UnmarshalJSON() got = %v, w %v", v, w)
+	}
+}
+
+func testFileMarshalJSON(t *testing.T, v any, td string) {
 	b, err := json.MarshalIndent(v, "", "  ")
 	if err != nil {
 		t.Fatalf("json.Marshal() error = %v", err)
@@ -46,7 +67,7 @@ func testMarshalJSON(t *testing.T, v any, td string) {
 	}
 }
 
-func testUnmarshalJSON(t *testing.T, v, w any, td string) {
+func testFileUnmarshalJSON(t *testing.T, v, w any, td string) {
 	f, err := os.Open(td)
 	if err != nil {
 		t.Fatalf("os.Open() error = %v", err)

@@ -1,5 +1,11 @@
 package concordium
 
+import (
+	"encoding/hex"
+	"encoding/json"
+	"fmt"
+)
+
 type Serializer interface {
 	Serialize() ([]byte, error)
 }
@@ -31,4 +37,23 @@ type AnonymityRevokerDescription struct {
 	Name        string `json:"name"`
 	Url         string `json:"url"`
 	Description string `json:"description"`
+}
+
+func hexMarshalJSON(v []byte) ([]byte, error) {
+	b, err := json.Marshal(hex.EncodeToString(v))
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+func hexUnmarshalJSON(b []byte) ([]byte, error) {
+	if len(b) < 2 {
+		return nil, fmt.Errorf("expect at least 2 bytes but %d given", len(b))
+	}
+	v, err := hex.DecodeString(string(b[1 : len(b)-1]))
+	if err != nil {
+		return nil, err
+	}
+	return v, nil
 }

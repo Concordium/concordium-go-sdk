@@ -13,9 +13,9 @@ var testRewardStatus = &RewardStatus{
 }
 
 func TestRewardStatus_MarshalJSON(t *testing.T) {
-	testMarshalJSON(t, testRewardStatus, testdataRewardStatus)
+	testFileMarshalJSON(t, testRewardStatus, testdataRewardStatus)
 }
 
 func TestRewardStatus_UnmarshalJSON(t *testing.T) {
-	testUnmarshalJSON(t, &RewardStatus{}, testRewardStatus, testdataRewardStatus)
+	testFileUnmarshalJSON(t, &RewardStatus{}, testRewardStatus, testdataRewardStatus)
 }

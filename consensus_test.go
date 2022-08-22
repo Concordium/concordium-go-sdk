@@ -41,9 +41,9 @@ var testConsensusStatus = &ConsensusStatus{
 }
 
 func TestConsensusStatus_MarshalJSON(t *testing.T) {
-	testMarshalJSON(t, testConsensusStatus, testdataConsensusStatus)
+	testFileMarshalJSON(t, testConsensusStatus, testdataConsensusStatus)
 }
 
 func TestConsensusStatus_UnmarshalJSON(t *testing.T) {
-	testUnmarshalJSON(t, &ConsensusStatus{}, testConsensusStatus, testdataConsensusStatus)
+	testFileUnmarshalJSON(t, &ConsensusStatus{}, testConsensusStatus, testdataConsensusStatus)
 }

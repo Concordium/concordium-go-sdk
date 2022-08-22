@@ -20,9 +20,9 @@ var testInstanceInfo = &InstanceInfo{
 }
 
 func TestInstanceInfo_MarshalJSON(t *testing.T) {
-	testMarshalJSON(t, testInstanceInfo, testdataInstanceInfo)
+	testFileMarshalJSON(t, testInstanceInfo, testdataInstanceInfo)
 }
 
 func TestInstanceInfo_UnmarshalJSON(t *testing.T) {
-	testUnmarshalJSON(t, &InstanceInfo{}, testInstanceInfo, testdataInstanceInfo)
+	testFileUnmarshalJSON(t, &InstanceInfo{}, testInstanceInfo, testdataInstanceInfo)
 }

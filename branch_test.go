@@ -12,9 +12,9 @@ var testBranch = &Branch{
 }
 
 func TestBranch_MarshalJSON(t *testing.T) {
-	testMarshalJSON(t, testBranch, testdataBranch)
+	testFileMarshalJSON(t, testBranch, testdataBranch)
 }
 
 func TestBranch_UnmarshalJSON(t *testing.T) {
-	testUnmarshalJSON(t, &Branch{}, testBranch, testdataBranch)
+	testFileUnmarshalJSON(t, &Branch{}, testBranch, testdataBranch)
 }

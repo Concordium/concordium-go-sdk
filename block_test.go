@@ -27,9 +27,9 @@ var testBlockInfo = &BlockInfo{
 }
 
 func TestBlockInfo_MarshalJSON(t *testing.T) {
-	testMarshalJSON(t, testBlockInfo, testdataBlockInfo)
+	testFileMarshalJSON(t, testBlockInfo, testdataBlockInfo)
 }
 
 func TestBlockInfo_UnmarshalJSON(t *testing.T) {
-	testUnmarshalJSON(t, &BlockInfo{}, testBlockInfo, testdataBlockInfo)
+	testFileUnmarshalJSON(t, &BlockInfo{}, testBlockInfo, testdataBlockInfo)
 }

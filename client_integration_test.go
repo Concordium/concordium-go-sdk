@@ -10,10 +10,10 @@ var (
 	// TODO move to env
 	testIntegrationGrpcTarget      = "34.71.98.161:10001"
 	testIntegrationGrpcToken       = "rpcadmin"
-	testIntegrationBlockHash       = BlockHash("63ced0f4b0ad467f3abee79f8e8c8c891c0676ee58c1b79ab2f5a383818d0ebc")
+	testIntegrationBlockHash       = BlockHash("7f25ab75a1045321220d6a54ef76d5cd1b107228046b8cc349c69d90f2bf7fae")
 	testIntegrationBlockHeight     = BlockHeight(3335575)
-	testIntegrationAccountAddress  = AccountAddress("3TdFQK6hqoqoW38JQJGZ2y3RZfgVPzwB7dMKXbBdeYvdwPeF63")
-	testIntegrationContractAddress = &ContractAddress{Index: 5129, SubIndex: 0}
+	testIntegrationAccountAddress  = AccountAddress("4hvvPeHb9HY4Lur7eUZv4KfL3tYBug8DRc4X9cVU8mpJLa1f2X")
+	testIntegrationContractAddress = &ContractAddress{Index: 888, SubIndex: 0}
 	testIntegrationModuleRef       = ModuleRef("935d17711a4dea10ba5a851df4f19cfdd7cdbd79c8d6ec9abfe5cacff873f6d0")
 
 	testIntegrationBaseClient Client

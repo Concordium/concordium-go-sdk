@@ -473,7 +473,7 @@ func main() {
 		panic(err)
 	}
 
-	r, err := cli.GetBlockInfo(ctx, "63ced0f4b0ad467f3abee79f8e8c8c891c0676ee58c1b79ab2f5a383818d0ebc")
+	r, err := cli.GetBlockInfo(ctx, "7f25ab75a1045321220d6a54ef76d5cd1b107228046b8cc349c69d90f2bf7fae")
 	if err != nil {
 		panic(err)
 	}
@@ -501,7 +501,7 @@ func main() {
 		panic(err)
 	}
 
-	r, err := cli.GetAncestors(ctx, "63ced0f4b0ad467f3abee79f8e8c8c891c0676ee58c1b79ab2f5a383818d0ebc", 10)
+	r, err := cli.GetAncestors(ctx, "7f25ab75a1045321220d6a54ef76d5cd1b107228046b8cc349c69d90f2bf7fae", 10)
 	if err != nil {
 		panic(err)
 	}
@@ -641,7 +641,7 @@ func main() {
 		panic(err)
 	}
 
-	r, err := cli.GetAccountList(ctx, "63ced0f4b0ad467f3abee79f8e8c8c891c0676ee58c1b79ab2f5a383818d0ebc")
+	r, err := cli.GetAccountList(ctx, "7f25ab75a1045321220d6a54ef76d5cd1b107228046b8cc349c69d90f2bf7fae")
 	if err != nil {
 		panic(err)
 	}
@@ -669,7 +669,7 @@ func main() {
 		panic(err)
 	}
 
-	r, err := cli.GetInstances(ctx, "63ced0f4b0ad467f3abee79f8e8c8c891c0676ee58c1b79ab2f5a383818d0ebc")
+	r, err := cli.GetInstances(ctx, "7f25ab75a1045321220d6a54ef76d5cd1b107228046b8cc349c69d90f2bf7fae")
 	if err != nil {
 		panic(err)
 	}
@@ -698,8 +698,8 @@ func main() {
 	}
 
 	r, err := cli.GetAccountInfo(ctx,
-		"63ced0f4b0ad467f3abee79f8e8c8c891c0676ee58c1b79ab2f5a383818d0ebc",
-		"3TdFQK6hqoqoW38JQJGZ2y3RZfgVPzwB7dMKXbBdeYvdwPeF63",
+		"7f25ab75a1045321220d6a54ef76d5cd1b107228046b8cc349c69d90f2bf7fae",
+		"4hvvPeHb9HY4Lur7eUZv4KfL3tYBug8DRc4X9cVU8mpJLa1f2X",
 	)
 	if err != nil {
 		panic(err)
@@ -729,7 +729,7 @@ func main() {
 	}
 
 	r, err := cli.GetInstanceInfo(ctx,
-		"63ced0f4b0ad467f3abee79f8e8c8c891c0676ee58c1b79ab2f5a383818d0ebc",
+		"7f25ab75a1045321220d6a54ef76d5cd1b107228046b8cc349c69d90f2bf7fae",
 		&concordium.ContractAddress{Index: 5129, SubIndex: 0},
 	)
 	if err != nil {
@@ -759,8 +759,8 @@ func main() {
 		panic(err)
 	}
 
-	r, err := cli.InvokeContract(ctx, "63ced0f4b0ad467f3abee79f8e8c8c891c0676ee58c1b79ab2f5a383818d0ebc", &concordium.ContractContext{
-		Invoker:   concordium.WrapAccountAddress("3TdFQK6hqoqoW38JQJGZ2y3RZfgVPzwB7dMKXbBdeYvdwPeF63"),
+	r, err := cli.InvokeContract(ctx, "7f25ab75a1045321220d6a54ef76d5cd1b107228046b8cc349c69d90f2bf7fae", &concordium.ContractContext{
+		Invoker:   concordium.WrapAccountAddress("4hvvPeHb9HY4Lur7eUZv4KfL3tYBug8DRc4X9cVU8mpJLa1f2X"),
 		Contract:  &concordium.ContractAddress{Index: 5129, SubIndex: 0},
 		Amount:    concordium.NewAmountZero(),
 		Method:    "a.func",
@@ -794,7 +794,7 @@ func main() {
 		panic(err)
 	}
 
-	r, err := cli.GetRewardStatus(ctx, "63ced0f4b0ad467f3abee79f8e8c8c891c0676ee58c1b79ab2f5a383818d0ebc")
+	r, err := cli.GetRewardStatus(ctx, "7f25ab75a1045321220d6a54ef76d5cd1b107228046b8cc349c69d90f2bf7fae")
 	if err != nil {
 		panic(err)
 	}
@@ -822,7 +822,7 @@ func main() {
 		panic(err)
 	}
 
-	r, err := cli.GetBirkParameters(ctx, "63ced0f4b0ad467f3abee79f8e8c8c891c0676ee58c1b79ab2f5a383818d0ebc")
+	r, err := cli.GetBirkParameters(ctx, "7f25ab75a1045321220d6a54ef76d5cd1b107228046b8cc349c69d90f2bf7fae")
 	if err != nil {
 		panic(err)
 	}
@@ -850,7 +850,7 @@ func main() {
 		panic(err)
 	}
 
-	r, err := cli.GetModuleList(ctx, "63ced0f4b0ad467f3abee79f8e8c8c891c0676ee58c1b79ab2f5a383818d0ebc")
+	r, err := cli.GetModuleList(ctx, "7f25ab75a1045321220d6a54ef76d5cd1b107228046b8cc349c69d90f2bf7fae")
 	if err != nil {
 		panic(err)
 	}
@@ -879,7 +879,7 @@ func main() {
 	}
 
 	r, err := cli.GetModuleSource(ctx,
-		"63ced0f4b0ad467f3abee79f8e8c8c891c0676ee58c1b79ab2f5a383818d0ebc",
+		"7f25ab75a1045321220d6a54ef76d5cd1b107228046b8cc349c69d90f2bf7fae",
 		"935d17711a4dea10ba5a851df4f19cfdd7cdbd79c8d6ec9abfe5cacff873f6d0",
 	)
 	if err != nil {
@@ -909,7 +909,7 @@ func main() {
 		panic(err)
 	}
 
-	r, err := cli.GetIdentityProviders(ctx, "63ced0f4b0ad467f3abee79f8e8c8c891c0676ee58c1b79ab2f5a383818d0ebc")
+	r, err := cli.GetIdentityProviders(ctx, "7f25ab75a1045321220d6a54ef76d5cd1b107228046b8cc349c69d90f2bf7fae")
 	if err != nil {
 		panic(err)
 	}
@@ -937,7 +937,7 @@ func main() {
 		panic(err)
 	}
 
-	r, err := cli.GetAnonymityRevokers(ctx, "63ced0f4b0ad467f3abee79f8e8c8c891c0676ee58c1b79ab2f5a383818d0ebc")
+	r, err := cli.GetAnonymityRevokers(ctx, "7f25ab75a1045321220d6a54ef76d5cd1b107228046b8cc349c69d90f2bf7fae")
 	if err != nil {
 		panic(err)
 	}
@@ -965,7 +965,7 @@ func main() {
 		panic(err)
 	}
 
-	r, err := cli.GetCryptographicParameters(ctx, "63ced0f4b0ad467f3abee79f8e8c8c891c0676ee58c1b79ab2f5a383818d0ebc")
+	r, err := cli.GetCryptographicParameters(ctx, "7f25ab75a1045321220d6a54ef76d5cd1b107228046b8cc349c69d90f2bf7fae")
 	if err != nil {
 		panic(err)
 	}
@@ -1137,7 +1137,7 @@ func main() {
 	s := &concordium.TransactionSummary[*concordium.TransactionResultEvent, *concordium.TransactionRejectReason]{}
 	err := cli.GetTransactionStatusInBlock(ctx,
 		"8af811b649875f09d6f5b7ebfcc1899cf0e58466f33f07f74daf073dc7aea17f",
-		"63ced0f4b0ad467f3abee79f8e8c8c891c0676ee58c1b79ab2f5a383818d0ebc",
+		"7f25ab75a1045321220d6a54ef76d5cd1b107228046b8cc349c69d90f2bf7fae",
 		s, 
 	)
 	if err != nil {
@@ -1167,7 +1167,7 @@ func main() {
 		panic(err)
 	}
 
-	r, err := cli.GetAccountNonFinalizedTransactions(ctx, "3TdFQK6hqoqoW38JQJGZ2y3RZfgVPzwB7dMKXbBdeYvdwPeF63")
+	r, err := cli.GetAccountNonFinalizedTransactions(ctx, "4hvvPeHb9HY4Lur7eUZv4KfL3tYBug8DRc4X9cVU8mpJLa1f2X")
 	if err != nil {
 		panic(err)
 	}
@@ -1195,7 +1195,7 @@ func main() {
 		panic(err)
 	}
 
-	r, err := cli.GetBlockSummary(ctx, "63ced0f4b0ad467f3abee79f8e8c8c891c0676ee58c1b79ab2f5a383818d0ebc")
+	r, err := cli.GetBlockSummary(ctx, "7f25ab75a1045321220d6a54ef76d5cd1b107228046b8cc349c69d90f2bf7fae")
 	if err != nil {
 		panic(err)
 	}
@@ -1223,7 +1223,7 @@ func main() {
 		panic(err)
 	}
 
-	r, err := cli.GetNextAccountNonce(ctx, "3TdFQK6hqoqoW38JQJGZ2y3RZfgVPzwB7dMKXbBdeYvdwPeF63")
+	r, err := cli.GetNextAccountNonce(ctx, "4hvvPeHb9HY4Lur7eUZv4KfL3tYBug8DRc4X9cVU8mpJLa1f2X")
 	if err != nil {
 		panic(err)
 	}
