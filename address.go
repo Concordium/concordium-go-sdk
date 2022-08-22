@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
+
 	"github.com/btcsuite/btcutil/base58"
 )
 
@@ -42,7 +43,7 @@ func (a *Address) MarshalJSON() ([]byte, error) {
 		Type    string `json:"type"`
 		Address any    `json:"address"`
 	}{}
-	if a.account != "" {
+	if a.account != nil {
 		tmp.Type = accountAddressJsonType
 		tmp.Address = a.account
 		return json.Marshal(tmp)
@@ -83,7 +84,7 @@ func (a *Address) SerializeModel() ([]byte, error) {
 	var typ uint8
 	var err error
 	switch true {
-	case a.account != "":
+	case a.account != nil:
 		typ = accountAddressType
 		ser, err = a.account.SerializeModel()
 	case a.contract != nil:
@@ -123,24 +124,59 @@ func (a *Address) DeserializeModel(b []byte) (int, error) {
 }
 
 // AccountAddress base-58 check with version byte 1 encoded address (with Bitcoin mapping table)
-type AccountAddress string
+type AccountAddress []byte
 
-func (a *AccountAddress) Serialize() ([]byte, error) {
-	b, _, err := base58.CheckDecode(string(*a))
+func NewAccountAddressFromString(s string) (AccountAddress, error) {
+	a, _, err := base58.CheckDecode(s)
 	if err != nil {
-		return nil, fmt.Errorf("%T: base58 decode: %w", *a, err)
+		return nil, fmt.Errorf("base58 decode: %w", err)
 	}
-	if len(b) != accountAddressSize {
-		return nil, fmt.Errorf("%T expect %d bytes but %d given", *a, accountAddressSize, len(b))
+	if len(a) != accountAddressSize {
+		return nil, fmt.Errorf("expect %d bytes but %d given", accountAddressSize, len(a))
+	}
+	return a, nil
+}
+
+func MustNewAccountAddressFromString(s string) AccountAddress {
+	a, err := NewAccountAddressFromString(s)
+	if err != nil {
+		panic("MustNewAccountAddressFromString: " + err.Error())
+	}
+	return a
+}
+
+func (a AccountAddress) MarshalJSON() ([]byte, error) {
+	if len(a) < accountAddressSize {
+		return nil, fmt.Errorf("%T requires %d bytes", a, accountAddressSize)
+	}
+	s := base58.CheckEncode((a)[:accountAddressSize], accountAddressVersion)
+	b, err := json.Marshal(s)
+	if err != nil {
+		return nil, fmt.Errorf("%T: %w", a, err)
 	}
 	return b, nil
 }
 
-func (a *AccountAddress) Deserialize(b []byte) error {
-	if len(b) < accountAddressSize {
-		return fmt.Errorf("%T requires %d bytes", *a, accountAddressSize)
+func (a *AccountAddress) UnmarshalJSON(b []byte) error {
+	var s string
+	err := json.Unmarshal(b, &s)
+	if err != nil {
+		return fmt.Errorf("%T: %w", *a, err)
 	}
-	*a = AccountAddress(base58.CheckEncode(b[:accountAddressSize], accountAddressVersion))
+	v, err := NewAccountAddressFromString(s)
+	if err != nil {
+		return fmt.Errorf("%T: %w", *a, err)
+	}
+	*a = v
+	return nil
+}
+
+func (a *AccountAddress) Serialize() ([]byte, error) {
+	return *a, nil
+}
+
+func (a *AccountAddress) Deserialize(b []byte) error {
+	*a = b
 	return nil
 }
 

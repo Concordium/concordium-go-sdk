@@ -8,8 +8,9 @@ import (
 )
 
 var (
-	testAccountAddress      = AccountAddress("3TdFQK6hqoqoW38JQJGZ2y3RZfgVPzwB7dMKXbBdeYvdwPeF63")
-	testAccountAddressBytes = []byte{
+	testAccountAddressString = "3TdFQK6hqoqoW38JQJGZ2y3RZfgVPzwB7dMKXbBdeYvdwPeF63"
+	testAccountAddressJSON   = []byte(`"` + testAccountAddressString + `"`)
+	testAccountAddress       = AccountAddress{
 		67, 216, 242, 23, 249, 75, 83, 21, 191, 33, 90, 180, 74, 75, 37, 207,
 		77, 10, 155, 248, 93, 73, 251, 134, 119, 71, 132, 152, 76, 101, 116, 217,
 	}
@@ -25,7 +26,7 @@ var (
 // Equal checks equality of 2 items. Used by github.com/google/go-cmp/cmp package. For tests only!
 func (a *Address) Equal(v *Address) bool {
 	if a != nil && v != nil {
-		return a.account == v.account && a.contract.Equal(v.contract)
+		return reflect.DeepEqual(a.account, v.account) && a.contract.Equal(v.contract)
 	}
 	return a == nil && v == nil
 }
@@ -45,8 +46,8 @@ func TestAddress_MarshalJSON(t *testing.T) {
 		w []byte
 	}{{
 		n: "AccountAddress",
-		a: &Address{account: "foo"},
-		w: []byte(`{"type":"AddressAccount","address":"foo"}`),
+		a: &Address{account: testAccountAddress},
+		w: []byte(`{"type":"AddressAccount","address":"` + testAccountAddressString + `"}`),
 	}, {
 		n: "ContractAddress",
 		a: &Address{contract: &ContractAddress{}},
@@ -80,8 +81,8 @@ func TestAddress_UnmarshalJSON(t *testing.T) {
 		w *Address
 	}{{
 		n: "AccountAddress",
-		w: &Address{account: "foo"},
-		b: []byte(`{"type":"AddressAccount","address":"foo"}`),
+		w: &Address{account: testAccountAddress},
+		b: []byte(`{"type":"AddressAccount","address":"` + testAccountAddressString + `"}`),
 	}, {
 		n: "ContractAddress",
 		w: &Address{contract: &ContractAddress{}},
@@ -113,7 +114,7 @@ func TestAddress_SerializeModel(t *testing.T) {
 	}{{
 		name:    "AccountAddress",
 		address: &Address{account: testAccountAddress},
-		want:    append([]byte{0}, testAccountAddressBytes...),
+		want:    append([]byte{0}, testAccountAddress...),
 	}, {
 		name:    "ContractAddress",
 		address: &Address{contract: testContractAddress},
@@ -134,7 +135,7 @@ func TestAddress_DeserializeModel(t *testing.T) {
 	}{{
 		name: "AccountAddress",
 		want: &Address{account: testAccountAddress},
-		data: append([]byte{0}, testAccountAddressBytes...),
+		data: append([]byte{0}, testAccountAddress...),
 	}, {
 		name: "ContractAddress",
 		want: &Address{contract: testContractAddress},
@@ -147,22 +148,43 @@ func TestAddress_DeserializeModel(t *testing.T) {
 	}
 }
 
+func TestAccountAddress_MarshalJSON(t *testing.T) {
+	got, err := testAccountAddress.MarshalJSON()
+	if err != nil {
+		t.Fatalf("MarshalJSON() error = %v", err)
+	}
+	if !reflect.DeepEqual(got, testAccountAddressJSON) {
+		t.Errorf("MarshalJSON() got = %s, w %s", got, testAccountAddressJSON)
+	}
+}
+
+func TestAccountAddress_UnmarshalJSON(t *testing.T) {
+	var a AccountAddress
+	err := a.UnmarshalJSON(testAccountAddressJSON)
+	if err != nil {
+		t.Fatalf("UnmarshalJSON() error = %v", err)
+	}
+	if !reflect.DeepEqual(a, testAccountAddress) {
+		t.Errorf("UnmarshalJSON() got = %v, w %v", a, testAccountAddress)
+	}
+}
+
 func TestAccountAddress_Serialize(t *testing.T) {
-	testSerialize(t, &testAccountAddress, testAccountAddressBytes)
+	testSerialize(t, &testAccountAddress, []byte(testAccountAddress))
 }
 
 func TestAccountAddress_Deserialize(t *testing.T) {
-	a := AccountAddress("")
-	testDeserialize(t, &a, &testAccountAddress, testAccountAddressBytes)
+	a := testAccountAddress
+	testDeserialize(t, &a, &testAccountAddress, testAccountAddress)
 }
 
 func TestAccountAddress_SerializeModel(t *testing.T) {
-	testSerializeModel(t, &testAccountAddress, testAccountAddressBytes)
+	testSerializeModel(t, &testAccountAddress, []byte(testAccountAddress))
 }
 
 func TestAccountAddress_DeserializeModel(t *testing.T) {
-	a := AccountAddress("")
-	testDeserializeModel(t, &a, &testAccountAddress, testAccountAddressBytes)
+	a := testAccountAddress
+	testDeserializeModel(t, &a, &testAccountAddress, testAccountAddress)
 }
 
 func TestContractAddress_Serialize(t *testing.T) {

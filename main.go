@@ -3,7 +3,6 @@ package concordium
 import (
 	"encoding/hex"
 	"encoding/json"
-	"fmt"
 )
 
 type Serializer interface {
@@ -48,10 +47,12 @@ func hexMarshalJSON(v []byte) ([]byte, error) {
 }
 
 func hexUnmarshalJSON(b []byte) ([]byte, error) {
-	if len(b) < 2 {
-		return nil, fmt.Errorf("expect at least 2 bytes but %d given", len(b))
+	var s string
+	err := json.Unmarshal(b, &s)
+	if err != nil {
+		return nil, err
 	}
-	v, err := hex.DecodeString(string(b[1 : len(b)-1]))
+	v, err := hex.DecodeString(s)
 	if err != nil {
 		return nil, err
 	}

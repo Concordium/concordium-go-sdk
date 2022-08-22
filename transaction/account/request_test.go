@@ -4,6 +4,8 @@ import (
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/Concordium/concordium-go-sdk"
 )
 
 type testBody struct{}
@@ -20,7 +22,7 @@ func (b *testBody) BaseEnergy() int {
 var (
 	testRequest = newRequest(
 		testCredentials,
-		"3TdFQK6hqoqoW38JQJGZ2y3RZfgVPzwB7dMKXbBdeYvdwPeF63",
+		concordium.MustNewAccountAddressFromString("3TdFQK6hqoqoW38JQJGZ2y3RZfgVPzwB7dMKXbBdeYvdwPeF63"),
 		5,
 		time.Unix(1622334455, 0),
 		&testBody{},

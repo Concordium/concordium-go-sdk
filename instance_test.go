@@ -6,7 +6,7 @@ const testdataInstanceInfo = "testdata/instance_info.json"
 
 var testInstanceInfo = &InstanceInfo{
 	Model:  "00000000030000000101000000620000000002010000006300000000000100000061000000000000006ab2da7f010000d106000000000000000000000000000002",
-	Owner:  "3f5mdmn3zVSoC3vKkDNP9YcDJjcK1A2UUiPSsMpZhKLZyKRHNY",
+	Owner:  MustNewAccountAddressFromString("3f5mdmn3zVSoC3vKkDNP9YcDJjcK1A2UUiPSsMpZhKLZyKRHNY"),
 	Amount: NewAmountZero(),
 	Methods: []ReceiveName{
 		"govogo.cancelVote",

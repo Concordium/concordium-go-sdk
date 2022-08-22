@@ -9,7 +9,7 @@ import (
 
 var (
 	testSimpleTransferBody = newSimpleTransferBody(
-		"3TdFQK6hqoqoW38JQJGZ2y3RZfgVPzwB7dMKXbBdeYvdwPeF63",
+		concordium.MustNewAccountAddressFromString("3TdFQK6hqoqoW38JQJGZ2y3RZfgVPzwB7dMKXbBdeYvdwPeF63"),
 		concordium.NewAmountZero(),
 	)
 	testSimpleTransferBodyBytes = []byte{

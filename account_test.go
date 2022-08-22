@@ -44,7 +44,7 @@ var testAccountInfo = &AccountInfo{
 	},
 	AccountEncryptionKey: testEncryptionKey,
 	AccountIndex:         1731,
-	AccountAddress:       "4tUQrKhVKPN5pEev5joobH6n8RR5sXX6u6REdWZxi7NVvoZhVc",
+	AccountAddress:       MustNewAccountAddressFromString("4tUQrKhVKPN5pEev5joobH6n8RR5sXX6u6REdWZxi7NVvoZhVc"),
 }
 
 func TestNextAccountNonce_MarshalJSON(t *testing.T) {
@@ -64,7 +64,7 @@ func TestAccountInfo_UnmarshalJSON(t *testing.T) {
 }
 
 func TestEncryptionKey_MarshalJSON(t *testing.T) {
-	testHexMarshalJSON(t, &testEncryptionKey, testEncryptionKeyJSON)
+	testHexMarshalJSON(t, testEncryptionKey, testEncryptionKeyJSON)
 }
 
 func TestEncryptionKey_UnmarshalJSON(t *testing.T) {
@@ -73,7 +73,7 @@ func TestEncryptionKey_UnmarshalJSON(t *testing.T) {
 }
 
 func TestEncryptedAmount_MarshalJSON(t *testing.T) {
-	testHexMarshalJSON(t, &testEncryptedAmount, testEncryptedAmountJSON)
+	testHexMarshalJSON(t, testEncryptedAmount, testEncryptedAmountJSON)
 }
 
 func TestEncryptedAmount_UnmarshalJSON(t *testing.T) {

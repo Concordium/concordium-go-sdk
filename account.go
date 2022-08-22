@@ -48,10 +48,10 @@ type AccountEncryptedAmount struct {
 // EncryptionKey base-16 encoded string (192 characters)
 type EncryptionKey []byte
 
-func (k *EncryptionKey) MarshalJSON() ([]byte, error) {
-	b, err := hexMarshalJSON(*k)
+func (k EncryptionKey) MarshalJSON() ([]byte, error) {
+	b, err := hexMarshalJSON(k)
 	if err != nil {
-		return nil, fmt.Errorf("%T: %w", *k, err)
+		return nil, fmt.Errorf("%T: %w", k, err)
 	}
 	return b, nil
 }
@@ -68,10 +68,10 @@ func (k *EncryptionKey) UnmarshalJSON(b []byte) error {
 // EncryptedAmount base-16 encoded string (384 characters)
 type EncryptedAmount []byte
 
-func (a *EncryptedAmount) MarshalJSON() ([]byte, error) {
-	b, err := hexMarshalJSON(*a)
+func (a EncryptedAmount) MarshalJSON() ([]byte, error) {
+	b, err := hexMarshalJSON(a)
 	if err != nil {
-		return nil, fmt.Errorf("%T: %w", *a, err)
+		return nil, fmt.Errorf("%T: %w", a, err)
 	}
 	return b, nil
 }

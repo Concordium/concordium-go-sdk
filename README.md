@@ -699,7 +699,7 @@ func main() {
 
 	r, err := cli.GetAccountInfo(ctx,
 		"7f25ab75a1045321220d6a54ef76d5cd1b107228046b8cc349c69d90f2bf7fae",
-		"4hvvPeHb9HY4Lur7eUZv4KfL3tYBug8DRc4X9cVU8mpJLa1f2X",
+		concordium.MustNewAccountAddressFromString("4hvvPeHb9HY4Lur7eUZv4KfL3tYBug8DRc4X9cVU8mpJLa1f2X"),
 	)
 	if err != nil {
 		panic(err)
@@ -760,7 +760,7 @@ func main() {
 	}
 
 	r, err := cli.InvokeContract(ctx, "7f25ab75a1045321220d6a54ef76d5cd1b107228046b8cc349c69d90f2bf7fae", &concordium.ContractContext{
-		Invoker:   concordium.WrapAccountAddress("4hvvPeHb9HY4Lur7eUZv4KfL3tYBug8DRc4X9cVU8mpJLa1f2X"),
+		Invoker:   concordium.WrapAccountAddress(concordium.MustNewAccountAddressFromString("4hvvPeHb9HY4Lur7eUZv4KfL3tYBug8DRc4X9cVU8mpJLa1f2X")),
 		Contract:  &concordium.ContractAddress{Index: 5129, SubIndex: 0},
 		Amount:    concordium.NewAmountZero(),
 		Method:    "a.func",
@@ -1167,7 +1167,7 @@ func main() {
 		panic(err)
 	}
 
-	r, err := cli.GetAccountNonFinalizedTransactions(ctx, "4hvvPeHb9HY4Lur7eUZv4KfL3tYBug8DRc4X9cVU8mpJLa1f2X")
+	r, err := cli.GetAccountNonFinalizedTransactions(ctx, concordium.MustNewAccountAddressFromString("4hvvPeHb9HY4Lur7eUZv4KfL3tYBug8DRc4X9cVU8mpJLa1f2X"))
 	if err != nil {
 		panic(err)
 	}
@@ -1223,7 +1223,7 @@ func main() {
 		panic(err)
 	}
 
-	r, err := cli.GetNextAccountNonce(ctx, "4hvvPeHb9HY4Lur7eUZv4KfL3tYBug8DRc4X9cVU8mpJLa1f2X")
+	r, err := cli.GetNextAccountNonce(ctx, concordium.MustNewAccountAddressFromString("4hvvPeHb9HY4Lur7eUZv4KfL3tYBug8DRc4X9cVU8mpJLa1f2X"))
 	if err != nil {
 		panic(err)
 	}
