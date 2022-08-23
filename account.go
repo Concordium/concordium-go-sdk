@@ -1,6 +1,7 @@
 package concordium
 
 import (
+	"encoding/hex"
 	"fmt"
 	"time"
 )
@@ -48,6 +49,22 @@ type AccountEncryptedAmount struct {
 // EncryptionKey base-16 encoded string (192 characters)
 type EncryptionKey []byte
 
+func NewEncryptionKeyFromString(s string) (EncryptionKey, error) {
+	k, err := hex.DecodeString(s)
+	if err != nil {
+		return nil, fmt.Errorf("hex decode: %w", err)
+	}
+	return k, nil
+}
+
+func MustNewEncryptionKeyFromString(s string) EncryptionKey {
+	k, err := NewEncryptionKeyFromString(s)
+	if err != nil {
+		panic("MustNewEncryptionKeyFromString: " + err.Error())
+	}
+	return k
+}
+
 func (k EncryptionKey) MarshalJSON() ([]byte, error) {
 	b, err := hexMarshalJSON(k)
 	if err != nil {
@@ -67,6 +84,22 @@ func (k *EncryptionKey) UnmarshalJSON(b []byte) error {
 
 // EncryptedAmount base-16 encoded string (384 characters)
 type EncryptedAmount []byte
+
+func NewEncryptedAmountFromString(s string) (EncryptedAmount, error) {
+	a, err := hex.DecodeString(s)
+	if err != nil {
+		return nil, fmt.Errorf("hex decode: %w", err)
+	}
+	return a, nil
+}
+
+func MustNewEncryptedAmountFromString(s string) EncryptedAmount {
+	a, err := NewEncryptedAmountFromString(s)
+	if err != nil {
+		panic("MustNewEncryptedAmountFromString: " + err.Error())
+	}
+	return a
+}
 
 func (a EncryptedAmount) MarshalJSON() ([]byte, error) {
 	b, err := hexMarshalJSON(a)
