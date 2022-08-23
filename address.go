@@ -127,15 +127,15 @@ func (a *Address) DeserializeModel(b []byte) (int, error) {
 type AccountAddress [accountAddressSize]byte
 
 func NewAccountAddressFromString(s string) (AccountAddress, error) {
-	v, _, err := base58.CheckDecode(s)
+	b, _, err := base58.CheckDecode(s)
 	if err != nil {
 		return AccountAddress{}, fmt.Errorf("base58 decode: %w", err)
 	}
-	if len(v) != accountAddressSize {
-		return AccountAddress{}, fmt.Errorf("expect %d bytes but %d given", accountAddressSize, len(v))
+	if len(b) != accountAddressSize {
+		return AccountAddress{}, fmt.Errorf("expect %d bytes but %d given", accountAddressSize, len(b))
 	}
 	var a AccountAddress
-	copy(a[:], v)
+	copy(a[:], b)
 	return a, nil
 }
 
