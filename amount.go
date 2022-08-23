@@ -21,16 +21,8 @@ func NewAmountFromMicroCCD(v int) *Amount {
 	return &Amount{microCCD: uint64(v)}
 }
 
-func NewAmountFromCCD(v float64) *Amount {
-	return &Amount{microCCD: uint64(v * 1e6)}
-}
-
 func (a *Amount) MicroCCD() int {
 	return int(a.microCCD)
-}
-
-func (a *Amount) CCD() float64 {
-	return float64(a.microCCD) / 1e6
 }
 
 func (a *Amount) MarshalJSON() ([]byte, error) {

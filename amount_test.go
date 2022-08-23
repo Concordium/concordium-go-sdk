@@ -38,28 +38,11 @@ func TestNewAmountFromMicroCCD(t *testing.T) {
 	}
 }
 
-func TestNewAmountFromCCD(t *testing.T) {
-	v := 1e-6
-	w := uint64(v * 1e6)
-	a := NewAmountFromCCD(v)
-	if a.microCCD != w {
-		t.Errorf("NewAmountFromCCD() got = %v, w %v", a.microCCD, w)
-	}
-}
-
 func TestAmount_MicroCCD(t *testing.T) {
 	v := 1
 	a := NewAmountFromMicroCCD(v)
 	if a.MicroCCD() != v {
 		t.Errorf("MicroCCD() got = %v, w %v", a.MicroCCD(), v)
-	}
-}
-
-func TestAmount_CCD(t *testing.T) {
-	v := 1e-6
-	a := NewAmountFromCCD(v)
-	if a.CCD() != v {
-		t.Errorf("CCD() got = %v, w %v", a.CCD(), v)
 	}
 }
 
