@@ -115,7 +115,7 @@ type Client interface {
 	GetAnonymityRevokers(ctx context.Context, hash BlockHash) ([]*AnonymityRevoker, error)
 
 	// GetCryptographicParameters ...
-	GetCryptographicParameters(ctx context.Context, hash BlockHash) ([]byte, error) // TODO
+	GetCryptographicParameters(ctx context.Context, hash BlockHash) (*CryptographicParameters, error)
 
 	// GetBannedPeers ...
 	GetBannedPeers(ctx context.Context) (*PeerList, error)
@@ -657,7 +657,7 @@ func (c *client) GetAnonymityRevokers(ctx context.Context, hash BlockHash) ([]*A
 	return s, err
 }
 
-func (c *client) GetCryptographicParameters(ctx context.Context, hash BlockHash) ([]byte, error) {
+func (c *client) GetCryptographicParameters(ctx context.Context, hash BlockHash) (*CryptographicParameters, error) {
 	res, err := c.grpc.GetCryptographicParameters(ctx, &grpc_api.BlockHash{
 		BlockHash: hash.String(),
 	})
@@ -667,7 +667,9 @@ func (c *client) GetCryptographicParameters(ctx context.Context, hash BlockHash)
 	if res.GetValue() == "null" {
 		return nil, fmt.Errorf("not found")
 	}
-	return []byte(res.GetValue()), nil
+	p := &CryptographicParameters{}
+	err = json.Unmarshal([]byte(res.GetValue()), p)
+	return p, err
 }
 
 func (c *client) GetBannedPeers(ctx context.Context) (*PeerList, error) {
