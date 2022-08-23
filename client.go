@@ -373,7 +373,7 @@ func (c *client) GetConsensusStatus(ctx context.Context) (*ConsensusStatus, erro
 
 func (c *client) GetBlockInfo(ctx context.Context, hash BlockHash) (*BlockInfo, error) {
 	res, err := c.grpc.GetBlockInfo(ctx, &grpc_api.BlockHash{
-		BlockHash: string(hash),
+		BlockHash: hash.String(),
 	})
 	if err != nil {
 		return nil, err
@@ -388,7 +388,7 @@ func (c *client) GetBlockInfo(ctx context.Context, hash BlockHash) (*BlockInfo, 
 
 func (c *client) GetAncestors(ctx context.Context, hash BlockHash, amount int) ([]BlockHash, error) {
 	res, err := c.grpc.GetAncestors(ctx, &grpc_api.BlockHashAndAmount{
-		BlockHash: string(hash),
+		BlockHash: hash.String(),
 		Amount:    uint64(amount),
 	})
 	if err != nil {
@@ -487,7 +487,7 @@ func (c *client) StopBaker(ctx context.Context) (bool, error) {
 
 func (c *client) GetAccountList(ctx context.Context, hash BlockHash) ([]AccountAddress, error) {
 	res, err := c.grpc.GetAccountList(ctx, &grpc_api.BlockHash{
-		BlockHash: string(hash),
+		BlockHash: hash.String(),
 	})
 	if err != nil {
 		return nil, err
@@ -502,7 +502,7 @@ func (c *client) GetAccountList(ctx context.Context, hash BlockHash) ([]AccountA
 
 func (c *client) GetInstances(ctx context.Context, hash BlockHash) ([]*ContractAddress, error) {
 	res, err := c.grpc.GetInstances(ctx, &grpc_api.BlockHash{
-		BlockHash: string(hash),
+		BlockHash: hash.String(),
 	})
 	if err != nil {
 		return nil, err
@@ -517,7 +517,7 @@ func (c *client) GetInstances(ctx context.Context, hash BlockHash) ([]*ContractA
 
 func (c *client) GetAccountInfo(ctx context.Context, hash BlockHash, address AccountAddress) (*AccountInfo, error) {
 	res, err := c.grpc.GetAccountInfo(ctx, &grpc_api.GetAddressInfoRequest{
-		BlockHash: string(hash),
+		BlockHash: hash.String(),
 		Address:   address.String(),
 	})
 	if err != nil {
@@ -537,7 +537,7 @@ func (c *client) GetInstanceInfo(ctx context.Context, hash BlockHash, address *C
 		return nil, err
 	}
 	res, err := c.grpc.GetInstanceInfo(ctx, &grpc_api.GetAddressInfoRequest{
-		BlockHash: string(hash),
+		BlockHash: hash.String(),
 		Address:   string(b),
 	})
 	if err != nil {
@@ -557,7 +557,7 @@ func (c *client) InvokeContract(ctx context.Context, hash BlockHash, context *Co
 		return nil, err
 	}
 	res, err := c.grpc.InvokeContract(ctx, &grpc_api.InvokeContractRequest{
-		BlockHash: string(hash),
+		BlockHash: hash.String(),
 		Context:   string(b),
 	})
 	if err != nil {
@@ -570,7 +570,7 @@ func (c *client) InvokeContract(ctx context.Context, hash BlockHash, context *Co
 
 func (c *client) GetRewardStatus(ctx context.Context, hash BlockHash) (*RewardStatus, error) {
 	res, err := c.grpc.GetRewardStatus(ctx, &grpc_api.BlockHash{
-		BlockHash: string(hash),
+		BlockHash: hash.String(),
 	})
 	if err != nil {
 		return nil, err
@@ -585,7 +585,7 @@ func (c *client) GetRewardStatus(ctx context.Context, hash BlockHash) (*RewardSt
 
 func (c *client) GetBirkParameters(ctx context.Context, hash BlockHash) (*BirkParameters, error) {
 	res, err := c.grpc.GetBirkParameters(ctx, &grpc_api.BlockHash{
-		BlockHash: string(hash),
+		BlockHash: hash.String(),
 	})
 	if err != nil {
 		return nil, err
@@ -600,7 +600,7 @@ func (c *client) GetBirkParameters(ctx context.Context, hash BlockHash) (*BirkPa
 
 func (c *client) GetModuleList(ctx context.Context, hash BlockHash) ([]ModuleRef, error) {
 	res, err := c.grpc.GetModuleList(ctx, &grpc_api.BlockHash{
-		BlockHash: string(hash),
+		BlockHash: hash.String(),
 	})
 	if err != nil {
 		return nil, err
@@ -615,7 +615,7 @@ func (c *client) GetModuleList(ctx context.Context, hash BlockHash) ([]ModuleRef
 
 func (c *client) GetModuleSource(ctx context.Context, hash BlockHash, ref ModuleRef) (io.Reader, error) {
 	res, err := c.grpc.GetModuleSource(ctx, &grpc_api.GetModuleSourceRequest{
-		BlockHash: string(hash),
+		BlockHash: hash.String(),
 		ModuleRef: string(ref),
 	})
 	if err != nil {
@@ -629,7 +629,7 @@ func (c *client) GetModuleSource(ctx context.Context, hash BlockHash, ref Module
 
 func (c *client) GetIdentityProviders(ctx context.Context, hash BlockHash) ([]*IdentityProvider, error) {
 	res, err := c.grpc.GetIdentityProviders(ctx, &grpc_api.BlockHash{
-		BlockHash: string(hash),
+		BlockHash: hash.String(),
 	})
 	if err != nil {
 		return nil, err
@@ -644,7 +644,7 @@ func (c *client) GetIdentityProviders(ctx context.Context, hash BlockHash) ([]*I
 
 func (c *client) GetAnonymityRevokers(ctx context.Context, hash BlockHash) ([]*AnonymityRevoker, error) {
 	res, err := c.grpc.GetAnonymityRevokers(ctx, &grpc_api.BlockHash{
-		BlockHash: string(hash),
+		BlockHash: hash.String(),
 	})
 	if err != nil {
 		return nil, err
@@ -659,7 +659,7 @@ func (c *client) GetAnonymityRevokers(ctx context.Context, hash BlockHash) ([]*A
 
 func (c *client) GetCryptographicParameters(ctx context.Context, hash BlockHash) ([]byte, error) {
 	res, err := c.grpc.GetCryptographicParameters(ctx, &grpc_api.BlockHash{
-		BlockHash: string(hash),
+		BlockHash: hash.String(),
 	})
 	if err != nil {
 		return nil, err
@@ -734,7 +734,7 @@ func (c *client) GetTransactionStatus(ctx context.Context, hash TransactionHash,
 func (c *client) GetTransactionStatusInBlock(ctx context.Context, hash TransactionHash, blockHash BlockHash, summary ITransactionSummary[ITransactionResultEvent, ITransactionRejectReason]) error {
 	res, err := c.grpc.GetTransactionStatusInBlock(ctx, &grpc_api.GetTransactionStatusInBlockRequest{
 		TransactionHash: string(hash),
-		BlockHash:       string(blockHash),
+		BlockHash:       blockHash.String(),
 	})
 	if err != nil {
 		return err
@@ -761,7 +761,7 @@ func (c *client) GetAccountNonFinalizedTransactions(ctx context.Context, address
 
 func (c *client) GetBlockSummary(ctx context.Context, hash BlockHash) ([]byte, error) {
 	res, err := c.grpc.GetBlockSummary(ctx, &grpc_api.BlockHash{
-		BlockHash: string(hash),
+		BlockHash: hash.String(),
 	})
 	if err != nil {
 		return nil, err

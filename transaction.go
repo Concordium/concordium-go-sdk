@@ -79,7 +79,7 @@ func (m *TransactionOutcomes[E, R]) First() (BlockHash, *TransactionOutcome[E, R
 	for k, v := range *m {
 		return k, v, true
 	}
-	return "", nil, false
+	return BlockHash{}, nil, false
 }
 
 type TransactionOutcome[E ITransactionResultEvent, R ITransactionRejectReason] struct {

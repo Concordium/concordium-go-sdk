@@ -7,7 +7,7 @@ import (
 const testdataBranch = "testdata/branch.json"
 
 var testBranch = &Branch{
-	BlockHash: "030cf811f9e706188e4b2fbcb36fee7146d104a5b1e98162883bdbe63be4071e",
+	BlockHash: MustNewBlockHashFromString("030cf811f9e706188e4b2fbcb36fee7146d104a5b1e98162883bdbe63be4071e"),
 	Children:  []*Branch{},
 }
 
