@@ -1,0 +1,261 @@
+{
+  "finalizationData": {
+    "finalizationBlockPointer": "c7077bf80cefef660eb5ae99ad3fa9137c1f9cc7ed3ea019a8058d3e5c81aa07",
+    "finalizationDelay": 0,
+    "finalizationIndex": 530252,
+    "finalizers": [
+      {
+        "bakerId": 0,
+        "signed": true,
+        "weight": 7119286292406144
+      }
+    ]
+  },
+  "protocolVersion": 4,
+  "specialEvents": [
+    {
+      "bakerId": 5,
+      "bakerReward": "758296",
+      "foundationCharge": "167207",
+      "newGASAccount": "769692",
+      "oldGASAccount": "23138",
+      "passiveReward": "10",
+      "tag": "BlockAccrueReward",
+      "transactionFees": "1672067"
+    }
+  ],
+  "updates": {
+    "chainParameters": {
+      "accountCreationLimit": 10,
+      "bakingCommissionRange": {
+        "max": 0.1,
+        "min": 0.1
+      },
+      "capitalBound": 0.1,
+      "delegatorCooldown": 1209600,
+      "electionDifficulty": 0.025,
+      "euroPerEnergy": {
+        "denominator": 50000,
+        "numerator": 1
+      },
+      "finalizationCommissionRange": {
+        "max": 1.0,
+        "min": 1.0
+      },
+      "foundationAccountIndex": 11,
+      "leverageBound": {
+        "denominator": 1,
+        "numerator": 3
+      },
+      "microGTUPerEuro": {
+        "denominator": 103736215559,
+        "numerator": 8681372131440148480
+      },
+      "minimumEquityCapital": "14000000000",
+      "mintPerPayday": 0.000261157877,
+      "passiveBakingCommission": 0.12,
+      "passiveFinalizationCommission": 1.0,
+      "passiveTransactionCommission": 0.12,
+      "poolOwnerCooldown": 1814400,
+      "rewardParameters": {
+        "gASRewards": {
+          "accountCreation": 0.02,
+          "baker": 0.25,
+          "chainUpdate": 0.005,
+          "finalizationProof": 0.005
+        },
+        "mintDistribution": {
+          "bakingReward": 0.6,
+          "finalizationReward": 0.3
+        },
+        "transactionFeeDistribution": {
+          "baker": 0.45,
+          "gasAccount": 0.45
+        }
+      },
+      "rewardPeriodLength": 24,
+      "transactionCommissionRange": {
+        "max": 0.1,
+        "min": 0.1
+      }
+    },
+    "keys": {
+      "level1Keys": {
+        "keys": [
+          {
+            "schemeId": "Ed25519",
+            "verifyKey": "55721372d942742db382c3680737a424fe3234cf82a80d42da008d6b47179500"
+          }
+        ],
+        "threshold": 7
+      },
+      "level2Keys": {
+        "addAnonymityRevoker": {
+          "authorizedKeys": [
+            0
+          ],
+          "threshold": 7
+        },
+        "addIdentityProvider": {
+          "authorizedKeys": [
+            0
+          ],
+          "threshold": 7
+        },
+        "cooldownParameters": {
+          "authorizedKeys": [
+            0
+          ],
+          "threshold": 7
+        },
+        "electionDifficulty": {
+          "authorizedKeys": [
+            0
+          ],
+          "threshold": 7
+        },
+        "emergency": {
+          "authorizedKeys": [
+            0
+          ],
+          "threshold": 7
+        },
+        "euroPerEnergy": {
+          "authorizedKeys": [
+            0
+          ],
+          "threshold": 7
+        },
+        "foundationAccount": {
+          "authorizedKeys": [
+            0
+          ],
+          "threshold": 7
+        },
+        "keys": [
+          {
+            "schemeId": "Ed25519",
+            "verifyKey": "b8ddf4505a37eee2c046671f634b74cf3630f3958ad70a04f39dc843041965be"
+          }
+        ],
+        "microGTUPerEuro": {
+          "authorizedKeys": [
+            0
+          ],
+          "threshold": 7
+        },
+        "mintDistribution": {
+          "authorizedKeys": [
+            0
+          ],
+          "threshold": 7
+        },
+        "paramGASRewards": {
+          "authorizedKeys": [
+            0
+          ],
+          "threshold": 7
+        },
+        "poolParameters": {
+          "authorizedKeys": [
+            0
+          ],
+          "threshold": 7
+        },
+        "protocol": {
+          "authorizedKeys": [
+            0
+          ],
+          "threshold": 7
+        },
+        "timeParameters": {
+          "authorizedKeys": [
+            0
+          ],
+          "threshold": 7
+        },
+        "transactionFeeDistribution": {
+          "authorizedKeys": [
+            0
+          ],
+          "threshold": 7
+        }
+      },
+      "rootKeys": {
+        "keys": [
+          {
+            "schemeId": "Ed25519",
+            "verifyKey": "f4c9fb9da8d2b00cb6e1fd241b6271a0c4afcb3784e7e6c323bda7ed0b80a478"
+          }
+        ],
+        "threshold": 7
+      }
+    },
+    "updateQueues": {
+      "addAnonymityRevoker": {
+        "nextSequenceNumber": 1,
+        "queue": []
+      },
+      "addIdentityProvider": {
+        "nextSequenceNumber": 1,
+        "queue": []
+      },
+      "cooldownParameters": {
+        "nextSequenceNumber": 1,
+        "queue": []
+      },
+      "electionDifficulty": {
+        "nextSequenceNumber": 1,
+        "queue": []
+      },
+      "euroPerEnergy": {
+        "nextSequenceNumber": 1,
+        "queue": []
+      },
+      "foundationAccount": {
+        "nextSequenceNumber": 1,
+        "queue": []
+      },
+      "gasRewards": {
+        "nextSequenceNumber": 1,
+        "queue": []
+      },
+      "level1Keys": {
+        "nextSequenceNumber": 1,
+        "queue": []
+      },
+      "level2Keys": {
+        "nextSequenceNumber": 1,
+        "queue": []
+      },
+      "microGTUPerEuro": {
+        "nextSequenceNumber": 1,
+        "queue": []
+      },
+      "mintDistribution": {
+        "nextSequenceNumber": 1,
+        "queue": []
+      },
+      "poolParameters": {
+        "nextSequenceNumber": 1,
+        "queue": []
+      },
+      "protocol": {
+        "nextSequenceNumber": 1,
+        "queue": []
+      },
+      "rootKeys": {
+        "nextSequenceNumber": 1,
+        "queue": []
+      },
+      "timeParameters": {
+        "nextSequenceNumber": 1,
+        "queue": []
+      },
+      "transactionFeeDistribution": {
+        "nextSequenceNumber": 1,
+        "queue": []
+      }
+    }
+  }
+}

@@ -137,10 +137,10 @@ type Client interface {
 
 	// GetAccountNonFinalizedTransactions Query for non-finalized
 	// transactions present on an account by the account address
-	GetAccountNonFinalizedTransactions(ctx context.Context, address AccountAddress) ([]TransactionHash, error) // TODO
+	GetAccountNonFinalizedTransactions(ctx context.Context, address AccountAddress) ([]TransactionHash, error)
 
 	// GetBlockSummary Request a summary for a block by its hash
-	GetBlockSummary(ctx context.Context, hash BlockHash) ([]byte, error) // TODO
+	GetBlockSummary(ctx context.Context, hash BlockHash) (*BlockSummary, error)
 
 	// GetNextAccountNonce Request next nonce information for an account
 	GetNextAccountNonce(ctx context.Context, address AccountAddress) (*NextAccountNonce, error)
@@ -763,7 +763,7 @@ func (c *client) GetAccountNonFinalizedTransactions(ctx context.Context, address
 	return s, nil
 }
 
-func (c *client) GetBlockSummary(ctx context.Context, hash BlockHash) ([]byte, error) {
+func (c *client) GetBlockSummary(ctx context.Context, hash BlockHash) (*BlockSummary, error) {
 	res, err := c.grpc.GetBlockSummary(ctx, &grpc_api.BlockHash{
 		BlockHash: hash.String(),
 	})
@@ -773,7 +773,9 @@ func (c *client) GetBlockSummary(ctx context.Context, hash BlockHash) ([]byte, e
 	if res.GetValue() == "null" {
 		return nil, fmt.Errorf("not found")
 	}
-	return []byte(res.GetValue()), nil
+	s := &BlockSummary{}
+	err = json.Unmarshal([]byte(res.GetValue()), s)
+	return s, nil
 }
 
 func (c *client) GetNextAccountNonce(ctx context.Context, address AccountAddress) (*NextAccountNonce, error) {
