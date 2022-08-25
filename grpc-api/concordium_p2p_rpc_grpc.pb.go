@@ -18,71 +18,122 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type P2PClient interface {
-	//! Suggest to a peer to connect to the submitted peer details.
-	//! This, if successful, adds the peer to the list of given addresses.
+	// Suggest to a peer to connect to the submitted peer details.
+	// This, if successful, adds the peer to the list of given addresses.
 	PeerConnect(ctx context.Context, in *PeerConnectRequest, opts ...grpc.CallOption) (*BoolResponse, error)
-	//! Disconnect from the peer and remove them from the given addresses list
-	//! if they are on it. Return if the request was processed successfully.
+	// Disconnect from the peer and remove them from the given addresses list
+	// if they are on it. Return if the request was processed successfully.
 	PeerDisconnect(ctx context.Context, in *PeerConnectRequest, opts ...grpc.CallOption) (*BoolResponse, error)
-	//! Peer uptime in milliseconds
+	// Uptime of the *node* in milliseconds.
 	PeerUptime(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*NumberResponse, error)
-	//! Peer total number of sent packets
+	// Total number of sent packets by the node.
 	PeerTotalSent(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*NumberResponse, error)
-	//! Peer total number of received packets
+	// Total number of received packets by the node.
 	PeerTotalReceived(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*NumberResponse, error)
-	//! Peer client software version
+	// Node software version.
 	PeerVersion(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*StringResponse, error)
-	//! Stats for connected peers
+	// Stats for connected peers.
 	PeerStats(ctx context.Context, in *PeersRequest, opts ...grpc.CallOption) (*PeerStatsResponse, error)
-	//! List of connected peers
+	// List of connected peers.
 	PeerList(ctx context.Context, in *PeersRequest, opts ...grpc.CallOption) (*PeerListResponse, error)
+	// Ban a the given peer.
 	BanNode(ctx context.Context, in *PeerElement, opts ...grpc.CallOption) (*BoolResponse, error)
+	// Unban the given peer.
 	UnbanNode(ctx context.Context, in *PeerElement, opts ...grpc.CallOption) (*BoolResponse, error)
+	// Join the provided network.
 	JoinNetwork(ctx context.Context, in *NetworkChangeRequest, opts ...grpc.CallOption) (*BoolResponse, error)
+	// Leave the provided network.
 	LeaveNetwork(ctx context.Context, in *NetworkChangeRequest, opts ...grpc.CallOption) (*BoolResponse, error)
-	//! Get information about the running Node
+	// Get information about the running node.
 	NodeInfo(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*NodeInfoResponse, error)
-	//! see https://gitlab.com/Concordium/notes-wiki/wikis/Consensus-queries#getconsensusstatus
+	// Get information about the consensus.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetConsensusStatus(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*JsonResponse, error)
-	//! see https://gitlab.com/Concordium/notes-wiki/wikis/Consensus-queries#getblockinfo
+	// Get information about the block.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetBlockInfo(ctx context.Context, in *BlockHash, opts ...grpc.CallOption) (*JsonResponse, error)
-	//! see https://gitlab.com/Concordium/notes-wiki/wikis/Consensus-queries#getancestors
+	// Get ancestors for the provided block.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetAncestors(ctx context.Context, in *BlockHashAndAmount, opts ...grpc.CallOption) (*JsonResponse, error)
-	//! see https://gitlab.com/Concordium/notes-wiki/wikis/Consensus-queries#getbranches
+	// Get the current branches.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetBranches(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*JsonResponse, error)
-	//! Get the blocks at the given height
+	// Get the blocks at the given height.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetBlocksAtHeight(ctx context.Context, in *BlockHeight, opts ...grpc.CallOption) (*JsonResponse, error)
-	//! Submit a local transaction
+	// Submit a transaction.
 	SendTransaction(ctx context.Context, in *SendTransactionRequest, opts ...grpc.CallOption) (*BoolResponse, error)
-	//! Start the baker in the consensus module
+	// Start the baker in the consensus module.
 	StartBaker(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*BoolResponse, error)
-	//! Stop the baker in the consensus module
+	// Stop the baker in the consensus module.
 	StopBaker(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*BoolResponse, error)
+	// Get a list of accounts that exist in the state after the given block.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetAccountList(ctx context.Context, in *BlockHash, opts ...grpc.CallOption) (*JsonResponse, error)
+	// Get all smart contract instances that exist in the state after the given block.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetInstances(ctx context.Context, in *BlockHash, opts ...grpc.CallOption) (*JsonResponse, error)
+	// Get information about an account.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetAccountInfo(ctx context.Context, in *GetAddressInfoRequest, opts ...grpc.CallOption) (*JsonResponse, error)
+	// Get information about a smart contract instance.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetInstanceInfo(ctx context.Context, in *GetAddressInfoRequest, opts ...grpc.CallOption) (*JsonResponse, error)
+	// Invoke a smart contract instance and view the result *as if* it had been updated at the end of the provided block.
+	// This is *not* a transaction.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	InvokeContract(ctx context.Context, in *InvokeContractRequest, opts ...grpc.CallOption) (*JsonResponse, error)
+	// Get an overview of the balance of special accounts in the given block.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetRewardStatus(ctx context.Context, in *BlockHash, opts ...grpc.CallOption) (*JsonResponse, error)
+	// Get an overview of the parameters used for baking.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetBirkParameters(ctx context.Context, in *BlockHash, opts ...grpc.CallOption) (*JsonResponse, error)
+	// Get a list of smart contract modules that exist in the state after the given block.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetModuleList(ctx context.Context, in *BlockHash, opts ...grpc.CallOption) (*JsonResponse, error)
+	// Get the source of a smart contract module.
 	GetModuleSource(ctx context.Context, in *GetModuleSourceRequest, opts ...grpc.CallOption) (*BytesResponse, error)
+	// Get a list of all identity providers that exist in the state after the given block.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetIdentityProviders(ctx context.Context, in *BlockHash, opts ...grpc.CallOption) (*JsonResponse, error)
+	// Get a list of all anonymity revokers that exist in the state after the given block.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetAnonymityRevokers(ctx context.Context, in *BlockHash, opts ...grpc.CallOption) (*JsonResponse, error)
+	// Get the cryptographic parameters used in the given block.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetCryptographicParameters(ctx context.Context, in *BlockHash, opts ...grpc.CallOption) (*JsonResponse, error)
+	// Get a list of all baker IDs registered at that block in ascending order. Or null, if the block is invalid.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
+	GetBakerList(ctx context.Context, in *BlockHash, opts ...grpc.CallOption) (*JsonResponse, error)
+	// Get the status of a pool. If passiveDelegation == true, this returns the status for the passive delegators.
+	// Otherwise, it returns the status for the baker with the specified ID (if it exists).
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
+	GetPoolStatus(ctx context.Context, in *GetPoolStatusRequest, opts ...grpc.CallOption) (*JsonResponse, error)
+	// Get a list of banned peers.
 	GetBannedPeers(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*PeerListResponse, error)
+	// Shut down the node.
 	Shutdown(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*BoolResponse, error)
+	// Start dumping packages into the specified file.
+	// Only enabled if the node was built with the `network_dump` feature.
 	DumpStart(ctx context.Context, in *DumpRequest, opts ...grpc.CallOption) (*BoolResponse, error)
+	// Stop dumping packages.
+	// Only enabled if the node was built with the `network_dump` feature.
 	DumpStop(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*BoolResponse, error)
-	//! Query for the status of a transaction by its hash
+	// Query for the status of a transaction by its hash.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetTransactionStatus(ctx context.Context, in *TransactionHash, opts ...grpc.CallOption) (*JsonResponse, error)
-	//! Query for transactions in a block by its hash
+	// Query for transactions in a block by its hash.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetTransactionStatusInBlock(ctx context.Context, in *GetTransactionStatusInBlockRequest, opts ...grpc.CallOption) (*JsonResponse, error)
-	//! Query for non-finalized transactions present on an account by the account address
+	// Query for non-finalized transactions present on an account by the account address.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetAccountNonFinalizedTransactions(ctx context.Context, in *AccountAddress, opts ...grpc.CallOption) (*JsonResponse, error)
-	//! Request a summary for a block by its hash
+	// Request a summary for a block by its hash.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetBlockSummary(ctx context.Context, in *BlockHash, opts ...grpc.CallOption) (*JsonResponse, error)
-	//! Request next nonce information for an account
+	// Request next nonce information for an account.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetNextAccountNonce(ctx context.Context, in *AccountAddress, opts ...grpc.CallOption) (*JsonResponse, error)
 }
 
@@ -391,6 +442,24 @@ func (c *p2PClient) GetCryptographicParameters(ctx context.Context, in *BlockHas
 	return out, nil
 }
 
+func (c *p2PClient) GetBakerList(ctx context.Context, in *BlockHash, opts ...grpc.CallOption) (*JsonResponse, error) {
+	out := new(JsonResponse)
+	err := c.cc.Invoke(ctx, "/concordium.P2P/GetBakerList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *p2PClient) GetPoolStatus(ctx context.Context, in *GetPoolStatusRequest, opts ...grpc.CallOption) (*JsonResponse, error) {
+	out := new(JsonResponse)
+	err := c.cc.Invoke(ctx, "/concordium.P2P/GetPoolStatus", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *p2PClient) GetBannedPeers(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*PeerListResponse, error) {
 	out := new(PeerListResponse)
 	err := c.cc.Invoke(ctx, "/concordium.P2P/GetBannedPeers", in, out, opts...)
@@ -476,71 +545,122 @@ func (c *p2PClient) GetNextAccountNonce(ctx context.Context, in *AccountAddress,
 // All implementations must embed UnimplementedP2PServer
 // for forward compatibility
 type P2PServer interface {
-	//! Suggest to a peer to connect to the submitted peer details.
-	//! This, if successful, adds the peer to the list of given addresses.
+	// Suggest to a peer to connect to the submitted peer details.
+	// This, if successful, adds the peer to the list of given addresses.
 	PeerConnect(context.Context, *PeerConnectRequest) (*BoolResponse, error)
-	//! Disconnect from the peer and remove them from the given addresses list
-	//! if they are on it. Return if the request was processed successfully.
+	// Disconnect from the peer and remove them from the given addresses list
+	// if they are on it. Return if the request was processed successfully.
 	PeerDisconnect(context.Context, *PeerConnectRequest) (*BoolResponse, error)
-	//! Peer uptime in milliseconds
+	// Uptime of the *node* in milliseconds.
 	PeerUptime(context.Context, *Empty) (*NumberResponse, error)
-	//! Peer total number of sent packets
+	// Total number of sent packets by the node.
 	PeerTotalSent(context.Context, *Empty) (*NumberResponse, error)
-	//! Peer total number of received packets
+	// Total number of received packets by the node.
 	PeerTotalReceived(context.Context, *Empty) (*NumberResponse, error)
-	//! Peer client software version
+	// Node software version.
 	PeerVersion(context.Context, *Empty) (*StringResponse, error)
-	//! Stats for connected peers
+	// Stats for connected peers.
 	PeerStats(context.Context, *PeersRequest) (*PeerStatsResponse, error)
-	//! List of connected peers
+	// List of connected peers.
 	PeerList(context.Context, *PeersRequest) (*PeerListResponse, error)
+	// Ban a the given peer.
 	BanNode(context.Context, *PeerElement) (*BoolResponse, error)
+	// Unban the given peer.
 	UnbanNode(context.Context, *PeerElement) (*BoolResponse, error)
+	// Join the provided network.
 	JoinNetwork(context.Context, *NetworkChangeRequest) (*BoolResponse, error)
+	// Leave the provided network.
 	LeaveNetwork(context.Context, *NetworkChangeRequest) (*BoolResponse, error)
-	//! Get information about the running Node
+	// Get information about the running node.
 	NodeInfo(context.Context, *Empty) (*NodeInfoResponse, error)
-	//! see https://gitlab.com/Concordium/notes-wiki/wikis/Consensus-queries#getconsensusstatus
+	// Get information about the consensus.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetConsensusStatus(context.Context, *Empty) (*JsonResponse, error)
-	//! see https://gitlab.com/Concordium/notes-wiki/wikis/Consensus-queries#getblockinfo
+	// Get information about the block.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetBlockInfo(context.Context, *BlockHash) (*JsonResponse, error)
-	//! see https://gitlab.com/Concordium/notes-wiki/wikis/Consensus-queries#getancestors
+	// Get ancestors for the provided block.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetAncestors(context.Context, *BlockHashAndAmount) (*JsonResponse, error)
-	//! see https://gitlab.com/Concordium/notes-wiki/wikis/Consensus-queries#getbranches
+	// Get the current branches.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetBranches(context.Context, *Empty) (*JsonResponse, error)
-	//! Get the blocks at the given height
+	// Get the blocks at the given height.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetBlocksAtHeight(context.Context, *BlockHeight) (*JsonResponse, error)
-	//! Submit a local transaction
+	// Submit a transaction.
 	SendTransaction(context.Context, *SendTransactionRequest) (*BoolResponse, error)
-	//! Start the baker in the consensus module
+	// Start the baker in the consensus module.
 	StartBaker(context.Context, *Empty) (*BoolResponse, error)
-	//! Stop the baker in the consensus module
+	// Stop the baker in the consensus module.
 	StopBaker(context.Context, *Empty) (*BoolResponse, error)
+	// Get a list of accounts that exist in the state after the given block.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetAccountList(context.Context, *BlockHash) (*JsonResponse, error)
+	// Get all smart contract instances that exist in the state after the given block.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetInstances(context.Context, *BlockHash) (*JsonResponse, error)
+	// Get information about an account.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetAccountInfo(context.Context, *GetAddressInfoRequest) (*JsonResponse, error)
+	// Get information about a smart contract instance.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetInstanceInfo(context.Context, *GetAddressInfoRequest) (*JsonResponse, error)
+	// Invoke a smart contract instance and view the result *as if* it had been updated at the end of the provided block.
+	// This is *not* a transaction.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	InvokeContract(context.Context, *InvokeContractRequest) (*JsonResponse, error)
+	// Get an overview of the balance of special accounts in the given block.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetRewardStatus(context.Context, *BlockHash) (*JsonResponse, error)
+	// Get an overview of the parameters used for baking.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetBirkParameters(context.Context, *BlockHash) (*JsonResponse, error)
+	// Get a list of smart contract modules that exist in the state after the given block.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetModuleList(context.Context, *BlockHash) (*JsonResponse, error)
+	// Get the source of a smart contract module.
 	GetModuleSource(context.Context, *GetModuleSourceRequest) (*BytesResponse, error)
+	// Get a list of all identity providers that exist in the state after the given block.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetIdentityProviders(context.Context, *BlockHash) (*JsonResponse, error)
+	// Get a list of all anonymity revokers that exist in the state after the given block.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetAnonymityRevokers(context.Context, *BlockHash) (*JsonResponse, error)
+	// Get the cryptographic parameters used in the given block.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetCryptographicParameters(context.Context, *BlockHash) (*JsonResponse, error)
+	// Get a list of all baker IDs registered at that block in ascending order. Or null, if the block is invalid.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
+	GetBakerList(context.Context, *BlockHash) (*JsonResponse, error)
+	// Get the status of a pool. If passiveDelegation == true, this returns the status for the passive delegators.
+	// Otherwise, it returns the status for the baker with the specified ID (if it exists).
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
+	GetPoolStatus(context.Context, *GetPoolStatusRequest) (*JsonResponse, error)
+	// Get a list of banned peers.
 	GetBannedPeers(context.Context, *Empty) (*PeerListResponse, error)
+	// Shut down the node.
 	Shutdown(context.Context, *Empty) (*BoolResponse, error)
+	// Start dumping packages into the specified file.
+	// Only enabled if the node was built with the `network_dump` feature.
 	DumpStart(context.Context, *DumpRequest) (*BoolResponse, error)
+	// Stop dumping packages.
+	// Only enabled if the node was built with the `network_dump` feature.
 	DumpStop(context.Context, *Empty) (*BoolResponse, error)
-	//! Query for the status of a transaction by its hash
+	// Query for the status of a transaction by its hash.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetTransactionStatus(context.Context, *TransactionHash) (*JsonResponse, error)
-	//! Query for transactions in a block by its hash
+	// Query for transactions in a block by its hash.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetTransactionStatusInBlock(context.Context, *GetTransactionStatusInBlockRequest) (*JsonResponse, error)
-	//! Query for non-finalized transactions present on an account by the account address
+	// Query for non-finalized transactions present on an account by the account address.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetAccountNonFinalizedTransactions(context.Context, *AccountAddress) (*JsonResponse, error)
-	//! Request a summary for a block by its hash
+	// Request a summary for a block by its hash.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetBlockSummary(context.Context, *BlockHash) (*JsonResponse, error)
-	//! Request next nonce information for an account
+	// Request next nonce information for an account.
+	// A JSON schema for the return type is provided at: https://developer.concordium.software/en/mainnet/net/references/grpc.html.
 	GetNextAccountNonce(context.Context, *AccountAddress) (*JsonResponse, error)
 	mustEmbedUnimplementedP2PServer()
 }
@@ -647,6 +767,12 @@ func (UnimplementedP2PServer) GetAnonymityRevokers(context.Context, *BlockHash) 
 }
 func (UnimplementedP2PServer) GetCryptographicParameters(context.Context, *BlockHash) (*JsonResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCryptographicParameters not implemented")
+}
+func (UnimplementedP2PServer) GetBakerList(context.Context, *BlockHash) (*JsonResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetBakerList not implemented")
+}
+func (UnimplementedP2PServer) GetPoolStatus(context.Context, *GetPoolStatusRequest) (*JsonResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPoolStatus not implemented")
 }
 func (UnimplementedP2PServer) GetBannedPeers(context.Context, *Empty) (*PeerListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetBannedPeers not implemented")
@@ -1282,6 +1408,42 @@ func _P2P_GetCryptographicParameters_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _P2P_GetBakerList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BlockHash)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(P2PServer).GetBakerList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/concordium.P2P/GetBakerList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(P2PServer).GetBakerList(ctx, req.(*BlockHash))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _P2P_GetPoolStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPoolStatusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(P2PServer).GetPoolStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/concordium.P2P/GetPoolStatus",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(P2PServer).GetPoolStatus(ctx, req.(*GetPoolStatusRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _P2P_GetBannedPeers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Empty)
 	if err := dec(in); err != nil {
@@ -1582,6 +1744,14 @@ var P2P_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetCryptographicParameters",
 			Handler:    _P2P_GetCryptographicParameters_Handler,
+		},
+		{
+			MethodName: "GetBakerList",
+			Handler:    _P2P_GetBakerList_Handler,
+		},
+		{
+			MethodName: "GetPoolStatus",
+			Handler:    _P2P_GetPoolStatus_Handler,
 		},
 		{
 			MethodName: "GetBannedPeers",
