@@ -1,18 +1,30 @@
 package account
 
 import (
+	"encoding/json"
+	"fmt"
+
 	"github.com/Concordium/concordium-go-sdk"
 )
 
 type SimpleTransferResultEvent struct {
-	*concordium.TransactionResultEvent `json:""`
-	From                               *concordium.Address `json:"from"`
-	Amount                             *concordium.Amount  `json:"amount"`
-	To                                 *concordium.Address `json:"to"`
+	Tag    concordium.TransactionResultEventTag `json:"tag"`
+	From   *concordium.Address                  `json:"from"`
+	Amount *concordium.Amount                   `json:"amount"`
+	To     *concordium.Address                  `json:"to"`
+}
+
+func NewSimpleTransferResultEvent(origin *concordium.TransactionResultEvent) (*SimpleTransferResultEvent, error) {
+	e := &SimpleTransferResultEvent{}
+	err := json.Unmarshal(origin.Raw, e)
+	if err != nil {
+		return nil, err
+	}
+	return e, nil
 }
 
 type SimpleTransferRejectReason struct {
-	*concordium.TransactionRejectReason `json:""`
+	Tag concordium.TransactionRejectReasonTag `json:"tag"`
 
 	// TODO
 	// Array of different types? Really???!!!
@@ -24,6 +36,19 @@ type SimpleTransferRejectReason struct {
 	//   "999999999999999999"
 	// ]
 	Contents []any `json:"contents"`
+}
+
+func NewSimpleTransferRejectReason(origin *concordium.TransactionRejectReason) (*SimpleTransferRejectReason, error) {
+	r := &SimpleTransferRejectReason{}
+	err := json.Unmarshal(origin.Raw, r)
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
+}
+
+func (r *SimpleTransferRejectReason) Error() error {
+	return fmt.Errorf("%s", r.Tag)
 }
 
 type simpleTransferBody struct {

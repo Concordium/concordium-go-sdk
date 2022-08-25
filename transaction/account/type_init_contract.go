@@ -1,24 +1,43 @@
 package account
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/Concordium/concordium-go-sdk"
 )
 
 type InitContractResultEvent struct {
-	*concordium.TransactionResultEvent `json:""`
-	ContractVersion                    int                         `json:"contractVersion"`
-	Ref                                concordium.ModuleRef        `json:"ref"`
-	Address                            *concordium.ContractAddress `json:"address"`
-	Amount                             *concordium.Amount          `json:"amount"`
-	InitName                           concordium.InitName         `json:"initName"`
-	Events                             []concordium.Model          `json:"events"`
+	Tag             concordium.TransactionResultEventTag `json:"tag"`
+	ContractVersion int                                  `json:"contractVersion"`
+	Ref             concordium.ModuleRef                 `json:"ref"`
+	Address         *concordium.ContractAddress          `json:"address"`
+	Amount          *concordium.Amount                   `json:"amount"`
+	InitName        concordium.InitName                  `json:"initName"`
+	Events          []concordium.Model                   `json:"events"`
+}
+
+func NewInitContractResultEvent(origin *concordium.TransactionResultEvent) (*InitContractResultEvent, error) {
+	e := &InitContractResultEvent{}
+	err := json.Unmarshal(origin.Raw, e)
+	if err != nil {
+		return nil, err
+	}
+	return e, nil
 }
 
 type InitContractRejectReason struct {
-	*concordium.TransactionRejectReason `json:""`
-	RejectReason                        int `json:"rejectReason"`
+	Tag          concordium.TransactionRejectReasonTag `json:"tag"`
+	RejectReason int                                   `json:"rejectReason"`
+}
+
+func NewInitContractRejectReason(origin *concordium.TransactionRejectReason) (*InitContractRejectReason, error) {
+	r := &InitContractRejectReason{}
+	err := json.Unmarshal(origin.Raw, r)
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
 }
 
 func (r *InitContractRejectReason) Error() error {

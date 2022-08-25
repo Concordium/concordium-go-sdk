@@ -61,6 +61,28 @@ var (
 				TransactionFees:  "1672067",
 			},
 		},
+		TransactionSummaries: []*TransactionOutcome{
+			{
+				Cost:       NewAmountFromMicroCCD(1672067),
+				EnergyCost: 999,
+				Hash:       "71eda267f1e717fad5867c64eb2e362dc6467abbb01807528e91edcb3dc65e41",
+				Index:      0,
+				Result: &TransactionResult{
+					Events: TransactionResultEvents{
+						{
+							Tag: "ContractInitialized",
+							Raw: []byte(`{"tag": "ContractInitialized"}`),
+						},
+					},
+					Outcome: "success",
+				},
+				Sender: MustNewAccountAddressFromString("4hvvPeHb9HY4Lur7eUZv4KfL3tYBug8DRc4X9cVU8mpJLa1f2X"),
+				Type: &TransactionType{
+					Contents: "initContract",
+					Type:     "accountTransaction",
+				},
+			},
+		},
 		Updates: &Updates{
 			ChainParameters: &ChainParameters{
 				AccountCreationLimit: 10,

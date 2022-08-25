@@ -78,11 +78,11 @@ type BlockInfo struct {
 }
 
 type BlockSummary struct {
-	FinalizationData *FinalizationData `json:"finalizationData"`
-	ProtocolVersion  int               `json:"protocolVersion"`
-	SpecialEvents    []*SpecialEvent   `json:"specialEvents"`
-	//TransactionSummaries any `json:"transactionSummaries"` // TODO
-	Updates *Updates `json:"updates"`
+	FinalizationData     *FinalizationData     `json:"finalizationData"`
+	ProtocolVersion      int                   `json:"protocolVersion"`
+	SpecialEvents        []*SpecialEvent       `json:"specialEvents"`
+	TransactionSummaries []*TransactionOutcome `json:"transactionSummaries"`
+	Updates              *Updates              `json:"updates"`
 }
 
 type FinalizationData struct {

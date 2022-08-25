@@ -24,6 +24,25 @@
       "transactionFees": "1672067"
     }
   ],
+  "transactionSummaries": [
+    {
+      "cost": "1672067",
+      "energyCost": 999,
+      "hash": "71eda267f1e717fad5867c64eb2e362dc6467abbb01807528e91edcb3dc65e41",
+      "index": 0,
+      "result": {
+        "events": [
+          {"tag": "ContractInitialized"}
+        ],
+        "outcome": "success"
+      },
+      "sender": "4hvvPeHb9HY4Lur7eUZv4KfL3tYBug8DRc4X9cVU8mpJLa1f2X",
+      "type": {
+        "contents": "initContract",
+        "type": "accountTransaction"
+      }
+    }
+  ],
   "updates": {
     "chainParameters": {
       "accountCreationLimit": 10,
