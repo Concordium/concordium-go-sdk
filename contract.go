@@ -18,24 +18,60 @@ const (
 type InvokeContractResultTag string
 
 // ModuleRef base-16 encoded module reference (64 characters)
-type ModuleRef string
+type ModuleRef [moduleRefSize]byte
 
-func (m *ModuleRef) Serialize() ([]byte, error) {
-	b, err := hex.DecodeString(string(*m))
+func NewModuleRefFromString(s string) (ModuleRef, error) {
+	b, err := hex.DecodeString(s)
 	if err != nil {
-		return nil, fmt.Errorf("%T: hex decode: %w", *m, err)
+		return ModuleRef{}, fmt.Errorf("hex decode: %w", err)
 	}
 	if len(b) != moduleRefSize {
-		return nil, fmt.Errorf("%T expect %d bytes but %d given", *m, moduleRefSize, len(b))
+		return ModuleRef{}, fmt.Errorf("expect %d bytes but %d given", moduleRefSize, len(b))
+	}
+	var h ModuleRef
+	copy(h[:], b)
+	return h, nil
+}
+
+func MustNewModuleRefFromString(s string) ModuleRef {
+	h, err := NewModuleRefFromString(s)
+	if err != nil {
+		panic("MustNewModuleRefFromString: " + err.Error())
+	}
+	return h
+}
+
+func (r *ModuleRef) String() string {
+	return hex.EncodeToString((*r)[:])
+}
+
+func (r ModuleRef) MarshalJSON() ([]byte, error) {
+	b, err := hexMarshalJSON(r[:])
+	if err != nil {
+		return nil, fmt.Errorf("%T: %w", r, err)
 	}
 	return b, nil
 }
 
-func (m *ModuleRef) Deserialize(b []byte) error {
-	if len(b) < moduleRefSize {
-		return fmt.Errorf("%T requires %d bytes", *m, moduleRefSize)
+func (r *ModuleRef) UnmarshalJSON(b []byte) error {
+	v, err := hexUnmarshalJSON(b)
+	if err != nil {
+		return fmt.Errorf("%T: %w", *r, err)
 	}
-	*m = ModuleRef(hex.EncodeToString(b))
+	var x ModuleRef
+	copy(x[:], v)
+	*r = x
+	return nil
+}
+
+func (r *ModuleRef) Serialize() ([]byte, error) {
+	return (*r)[:], nil
+}
+
+func (r *ModuleRef) Deserialize(b []byte) error {
+	var v ModuleRef
+	copy(v[:], b)
+	*r = v
 	return nil
 }
 

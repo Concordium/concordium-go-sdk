@@ -16,7 +16,7 @@ var testInstanceInfo = &InstanceInfo{
 		"govogo.winningProposal",
 	},
 	Name:         "init_govogo",
-	SourceModule: "1d40f9366f6fcb4586ac8e09ed391b5832cfd752fb63ee7bd38da0f3e77c4204",
+	SourceModule: MustNewModuleRefFromString("1d40f9366f6fcb4586ac8e09ed391b5832cfd752fb63ee7bd38da0f3e77c4204"),
 }
 
 func TestInstanceInfo_MarshalJSON(t *testing.T) {

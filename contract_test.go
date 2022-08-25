@@ -5,11 +5,8 @@ import (
 )
 
 var (
-	testModuleRef      = ModuleRef("1d40f9366f6fcb4586ac8e09ed391b5832cfd752fb63ee7bd38da0f3e77c4204")
-	testModuleRefBytes = []byte{
-		29, 64, 249, 54, 111, 111, 203, 69, 134, 172, 142, 9, 237, 57, 27, 88,
-		50, 207, 215, 82, 251, 99, 238, 123, 211, 141, 160, 243, 231, 124, 66, 4,
-	}
+	testModuleRefString = "1d40f9366f6fcb4586ac8e09ed391b5832cfd752fb63ee7bd38da0f3e77c4204"
+	testModuleRef       = MustNewModuleRefFromString(testModuleRefString)
 
 	testContractName = ContractName("foo")
 
@@ -23,12 +20,12 @@ var (
 )
 
 func TestModuleRef_Serialize(t *testing.T) {
-	testSerialize(t, &testModuleRef, testModuleRefBytes)
+	testSerialize(t, &testModuleRef, testModuleRef[:])
 }
 
 func TestModuleRef_Deserialize(t *testing.T) {
-	m := ModuleRef("")
-	testDeserialize(t, &m, &testModuleRef, testModuleRefBytes)
+	a := testModuleRef
+	testDeserialize(t, &a, &testModuleRef, testModuleRef[:])
 }
 
 func TestNewInitName(t *testing.T) {

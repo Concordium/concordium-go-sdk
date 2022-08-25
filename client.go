@@ -617,7 +617,7 @@ func (c *client) GetModuleList(ctx context.Context, hash BlockHash) ([]ModuleRef
 func (c *client) GetModuleSource(ctx context.Context, hash BlockHash, ref ModuleRef) (io.Reader, error) {
 	res, err := c.grpc.GetModuleSource(ctx, &grpc_api.GetModuleSourceRequest{
 		BlockHash: hash.String(),
-		ModuleRef: string(ref),
+		ModuleRef: ref.String(),
 	})
 	if err != nil {
 		return nil, err

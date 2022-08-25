@@ -40,29 +40,29 @@ type client struct {
 func (c *client) DeployModule(ctx *Context, wasm io.Reader) (cc.ModuleRef, error) {
 	b, err := io.ReadAll(wasm)
 	if err != nil {
-		return "", fmt.Errorf("unable to read wasm: %w", err)
+		return cc.ModuleRef{}, fmt.Errorf("unable to read wasm: %w", err)
 	}
 	s, h, err := c.sendRequestAwait(ctx, newDeployModuleBody(b))
 	if err != nil {
-		return "", err
+		return cc.ModuleRef{}, err
 	}
 	_, o, ok := s.Outcomes.First()
 	if !ok {
-		return "", fmt.Errorf("%q has no outcomes", h)
+		return cc.ModuleRef{}, fmt.Errorf("%q has no outcomes", h)
 	}
 	if o.Result.Outcome != cc.TransactionResultSuccess {
 		r, err := NewDeployModuleRejectReason(o.Result.RejectReason)
 		if err != nil {
-			return "", err
+			return cc.ModuleRef{}, err
 		}
-		return "", r.Error()
+		return cc.ModuleRef{}, r.Error()
 	}
 	if len(o.Result.Events) != 1 {
-		return "", fmt.Errorf("unexpected events count in transaction %q", o.Hash)
+		return cc.ModuleRef{}, fmt.Errorf("unexpected events count in transaction %q", o.Hash)
 	}
 	e, err := NewDeployModuleResultEvent(o.Result.Events[0])
 	if err != nil {
-		return "", err
+		return cc.ModuleRef{}, err
 	}
 	return e.Contents, nil
 }
