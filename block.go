@@ -57,24 +57,45 @@ func (h *BlockHash) UnmarshalJSON(b []byte) error {
 
 type BlockHeight uint64
 
+// BlockInfo contains metadata about a given block.
 type BlockInfo struct {
-	BlockHash             BlockHash   `json:"blockHash"`
-	BlockParent           BlockHash   `json:"blockParent"`
-	BlockLastFinalized    BlockHash   `json:"blockLastFinalized"`
-	BlockHeight           BlockHeight `json:"blockHeight"`
-	EraBlockHeight        BlockHeight `json:"eraBlockHeight"`
-	GenesisIndex          int         `json:"genesisIndex"`
-	BlockReceiveTime      time.Time   `json:"blockReceiveTime"`
-	BlockArriveTime       time.Time   `json:"blockArriveTime"`
-	BlockSlot             int         `json:"blockSlot"`
-	BlockSlotTime         time.Time   `json:"blockSlotTime"`
-	BlockBaker            BakerId     `json:"blockBaker"`
-	Finalized             bool        `json:"finalized"`
-	TransactionCount      int         `json:"transactionCount"`
-	TransactionEnergyCost int         `json:"transactionEnergyCost"`
-	// undocumented but returned in fact
-	TransactionsSize int       `json:"transactionsSize"`
-	BlockStateHash   BlockHash `json:"blockStateHash"`
+	// Time when the block was added to the node's tree. This is a subjective (i.e., node specific) value.
+	BlockArriveTime time.Time `json:"blockArriveTime"`
+	// Identity of the baker of the block. For non-genesis blocks the value is going to always be `Some`.
+	BlockBaker *uint64 `json:"blockBaker"`
+	// Hash of the block.
+	BlockHash BlockHash `json:"blockHash"`
+	// Height of the block from genesis.
+	BlockHeight BlockHeight `json:"blockHeight"`
+	// Pointer to the last finalized block. Each block has a pointer to a specific finalized block
+	// that existed at the time the block was produced.
+	BlockLastFinalized BlockHash `json:"blockLastFinalized"`
+	// Parent block pointer
+	BlockParent BlockHash `json:"blockParent"`
+	// Time when the block was first received by the node. This can be in principle quite different from
+	// the arrive time if, e.g., block execution takes a long time, or the block must wait for the
+	// arrival of its parent.
+	BlockReceiveTime time.Time `json:"blockReceiveTime"`
+	// Slot number of the slot the block is in.
+	BlockSlot uint64 `json:"blockSlot"`
+	// Slot time of the slot the block is in. In contrast to [BlockInfo::block_arrive_time] this is an
+	// objective value, all nodes agree on it.
+	BlockSlotTime time.Time `json:"blockSlotTime"`
+	// Hash of the block state at the end of the given block.
+	BlockStateHash BlockHash `json:"blockStateHash"`
+	// The height of this block relative to the (re)genesis block of its era.
+	EraBlockHeight BlockHeight `json:"eraBlockHeight"`
+	// Whether the block is finalized or not.
+	Finalized bool `json:"finalized"`
+	// The genesis index for this block. This counts the number of protocol updates that have
+	// preceded this block, and defines the era of the block.
+	GenesisIndex uint64 `json:"genesisIndex"`
+	// The number of transactions in the block.
+	TransactionCount uint64 `json:"transactionCount"`
+	// The total energy consumption of transactions in the block.
+	TransactionEnergyCost uint64 `json:"transactionEnergyCost"`
+	// Size of all the transactions in the block in bytes.
+	TransactionsSize uint64 `json:"transactionsSize"`
 }
 
 type BlockSummary struct {

@@ -14,81 +14,91 @@ import (
 )
 
 type Client interface {
-	// PeerConnect Suggest to w peer to connect to the submitted peer details.
-	// This, if successful, adds the peer to the list of given addresses.
-	PeerConnect(ctx context.Context, ip string, port int) (bool, error)
+	// PeerConnect suggest the node to connect to the submitted peer. If successful,
+	// this adds the peer to the list of peers.
+	PeerConnect(ctx context.Context, ip string, port int32) (bool, error)
 
-	// PeerDisconnect Disconnect from the peer and remove them from the given addresses list
-	// if they are on it. Return if the request was processed successfully.
-	PeerDisconnect(ctx context.Context, ip string, port int) (bool, error)
+	// PeerDisconnect disconnect from the peer and remove them from the given
+	// addresses list if they are on it.
+	PeerDisconnect(ctx context.Context, ip string, port int32) (bool, error)
 
-	// PeerUptime Peer uptime
-	PeerUptime(ctx context.Context) (int64, error)
+	// PeerUptime get the uptime of the node in milliseconds.
+	PeerUptime(ctx context.Context) (uint64, error)
 
-	// PeerTotalSent Peer total number of sent packets
-	PeerTotalSent(ctx context.Context) (int, error)
+	// PeerTotalSent get the total number of packets sent by the node.
+	PeerTotalSent(ctx context.Context) (uint64, error)
 
-	// PeerTotalReceived Peer total number of received packets
-	PeerTotalReceived(ctx context.Context) (int, error)
+	// PeerTotalReceived get the total number of packets received by the node.
+	PeerTotalReceived(ctx context.Context) (uint64, error)
 
-	// PeerVersion Peer client software version
+	// PeerVersion get the version of the node software.
 	PeerVersion(ctx context.Context) (string, error)
 
-	// PeerStats Stats for connected peers
+	// PeerStats get information on the peers that the node is connected to.
 	PeerStats(ctx context.Context, includeBootstrappers bool) (*PeerStats, error)
 
-	// PeerList List of connected peers
+	// PeerList get a list of the peers that the node is connected to.
 	PeerList(ctx context.Context, includeBootstrappers bool) (*PeerList, error)
 
-	// BanNode ...
-	BanNode(ctx context.Context, element *PeerElement) (bool, error)
+	// BanNode ban a node from being a peer. Note that you should provide a nodeId
+	// OR an ip, but not both. Use an empty value for the option not chosen.
+	BanNode(ctx context.Context, nodeId NodeId, ip string) (bool, error)
 
-	// UnbanNode ...
-	UnbanNode(ctx context.Context, element *PeerElement) (bool, error)
+	// UnbanNode unban a previously banned node. Note that you should provide a nodeId
+	// OR an ip, but not both. Use an empty value for the option not chosen.
+	UnbanNode(ctx context.Context, nodeId NodeId, ip string) (bool, error)
 
-	// JoinNetwork ...
-	JoinNetwork(ctx context.Context, id NetworkId) (bool, error)
+	// JoinNetwork attempt to join the specified network.
+	JoinNetwork(ctx context.Context, networkId NetworkId) (bool, error)
 
-	// LeaveNetwork ...
-	LeaveNetwork(ctx context.Context, id NetworkId) (bool, error)
+	// LeaveNetwork attempt to leave the specified network.
+	LeaveNetwork(ctx context.Context, networkId NetworkId) (bool, error)
 
-	// NodeInfo Get information about the running Node
+	// NodeInfo get information about the running node.
 	NodeInfo(ctx context.Context) (*NodeInfo, error)
 
-	// GetConsensusStatus see https://github.com/Concordium/concordium-node/blob/main/docs/grpc.md#getconsensusstatus--consensusstatus
+	// GetConsensusStatus get the information about the consensus.
 	GetConsensusStatus(ctx context.Context) (*ConsensusStatus, error)
 
-	// GetBlockInfo see https://github.com/Concordium/concordium-node/blob/main/docs/grpc.md#getblockinfo--blockhash---blockinfo
-	GetBlockInfo(ctx context.Context, hash BlockHash) (*BlockInfo, error)
+	// GetBlockInfo get information, such as height, timings, and transaction
+	// counts for the given block.
+	GetBlockInfo(ctx context.Context, blockHash BlockHash) (*BlockInfo, error)
 
-	// GetAncestors see https://github.com/Concordium/concordium-node/blob/main/docs/grpc.md#getancestors--blockhash---blockhash
-	GetAncestors(ctx context.Context, hash BlockHash, amount int) ([]BlockHash, error)
+	// GetAncestors get a list of the blocks preceding the given block. The list will contain
+	// at most amount blocks.
+	GetAncestors(ctx context.Context, blockHash BlockHash, amount int) ([]BlockHash, error)
 
-	// GetBranches see https://github.com/Concordium/concordium-node/blob/main/docs/grpc.md#getbranches--branch
+	// GetBranches get the branches of the tree. This is the part of the tree above the last
+	// finalized block.
 	GetBranches(ctx context.Context) (*Branch, error)
 
-	// GetBlocksAtHeight Get the blocks at the given height
-	GetBlocksAtHeight(ctx context.Context, height BlockHeight) ([]BlockHash, error)
+	// GetBlocksAtHeight get a list of the blocks at the given height.
+	GetBlocksAtHeight(ctx context.Context, blockHeight BlockHeight) ([]BlockHash, error)
 
-	// SendTransactionAsync Submit a local transaction
-	SendTransactionAsync(ctx context.Context, id NetworkId, request TransactionRequest) (TransactionHash, error)
+	// SendTransactionAsync sends a transaction to the given network. The node will do basic
+	// transaction validation, such as signature checks and account nonce checks, and if these
+	// fail, the call will return an error.
+	SendTransactionAsync(ctx context.Context, networkId NetworkId, request TransactionRequest) (TransactionHash, error)
 
-	SendTransactionAwait(ctx context.Context, id NetworkId, request TransactionRequest) (*TransactionSummary, TransactionHash, error)
+	// SendTransactionAwait sends a transaction to the given network. and await its finalization.
+	SendTransactionAwait(ctx context.Context, networkId NetworkId, request TransactionRequest) (*TransactionSummary, TransactionHash, error)
 
-	// StartBaker Start the baker in the consensus module
+	// StartBaker start the baker.
 	StartBaker(ctx context.Context) (bool, error)
 
-	// StopBaker Stop the baker in the consensus module
+	// StopBaker stop the baker.
 	StopBaker(ctx context.Context) (bool, error)
 
-	// GetAccountList see https://github.com/Concordium/concordium-node/blob/main/docs/grpc.md#getaccountlist--blockhash---accountaddress
-	GetAccountList(ctx context.Context, hash BlockHash) ([]AccountAddress, error)
+	// GetAccountList get a list of all accounts that exist in the state at the end
+	// of the given block.
+	GetAccountList(ctx context.Context, blockHash BlockHash) ([]AccountAddress, error)
 
-	// GetInstances see https://github.com/Concordium/concordium-node/blob/main/docs/grpc.md#getinstances--blockhash---contractaddress
-	GetInstances(ctx context.Context, hash BlockHash) ([]*ContractAddress, error)
+	// GetInstances get a list of all smart contract instances that exist in the
+	// state at the end of the given block.
+	GetInstances(ctx context.Context, blockHash BlockHash) ([]*ContractAddress, error)
 
-	// GetAccountInfo see https://github.com/Concordium/concordium-node/blob/main/docs/grpc.md#getaccountinfo--blockhash---accountaddress---accountinfo
-	GetAccountInfo(ctx context.Context, hash BlockHash, address AccountAddress) (*AccountInfo, error)
+	// GetAccountInfo get the state of an account in the given block.
+	GetAccountInfo(ctx context.Context, blockHash BlockHash, accountAddress AccountAddress) (*AccountInfo, error)
 
 	// GetInstanceInfo see https://github.com/Concordium/concordium-node/blob/main/docs/grpc.md#getinstanceinfo--blockhash---contractaddress---contractinfo
 	GetInstanceInfo(ctx context.Context, hash BlockHash, address *ContractAddress) (*InstanceInfo, error)
@@ -173,13 +183,13 @@ func NewClient(ctx context.Context, target, token string) (Client, error) {
 	return cli, nil
 }
 
-func (c *client) PeerConnect(ctx context.Context, ip string, port int) (bool, error) {
+func (c *client) PeerConnect(ctx context.Context, ip string, port int32) (bool, error) {
 	res, err := c.grpc.PeerConnect(ctx, &grpc_api.PeerConnectRequest{
 		Ip: &wrapperspb.StringValue{
 			Value: ip,
 		},
 		Port: &wrapperspb.Int32Value{
-			Value: int32(port),
+			Value: port,
 		},
 	})
 	if err != nil {
@@ -188,13 +198,13 @@ func (c *client) PeerConnect(ctx context.Context, ip string, port int) (bool, er
 	return res.GetValue(), nil
 }
 
-func (c *client) PeerDisconnect(ctx context.Context, ip string, port int) (bool, error) {
+func (c *client) PeerDisconnect(ctx context.Context, ip string, port int32) (bool, error) {
 	res, err := c.grpc.PeerDisconnect(ctx, &grpc_api.PeerConnectRequest{
 		Ip: &wrapperspb.StringValue{
 			Value: ip,
 		},
 		Port: &wrapperspb.Int32Value{
-			Value: int32(port),
+			Value: port,
 		},
 	})
 	if err != nil {
@@ -203,28 +213,28 @@ func (c *client) PeerDisconnect(ctx context.Context, ip string, port int) (bool,
 	return res.GetValue(), nil
 }
 
-func (c *client) PeerUptime(ctx context.Context) (int64, error) {
+func (c *client) PeerUptime(ctx context.Context) (uint64, error) {
 	res, err := c.grpc.PeerUptime(ctx, &grpc_api.Empty{})
 	if err != nil {
 		return 0, err
 	}
-	return int64(res.GetValue()), nil
+	return res.GetValue(), nil
 }
 
-func (c *client) PeerTotalSent(ctx context.Context) (int, error) {
+func (c *client) PeerTotalSent(ctx context.Context) (uint64, error) {
 	res, err := c.grpc.PeerTotalSent(ctx, &grpc_api.Empty{})
 	if err != nil {
 		return 0, err
 	}
-	return int(res.GetValue()), nil
+	return res.GetValue(), nil
 }
 
-func (c *client) PeerTotalReceived(ctx context.Context) (int, error) {
+func (c *client) PeerTotalReceived(ctx context.Context) (uint64, error) {
 	res, err := c.grpc.PeerTotalReceived(ctx, &grpc_api.Empty{})
 	if err != nil {
 		return 0, err
 	}
-	return int(res.GetValue()), nil
+	return res.GetValue(), nil
 }
 
 func (c *client) PeerVersion(ctx context.Context) (string, error) {
@@ -244,15 +254,15 @@ func (c *client) PeerStats(ctx context.Context, includeBootstrappers bool) (*Pee
 	}
 	s := &PeerStats{
 		Peers:     make([]*PeerStatsElement, len(res.Peerstats)),
-		AvgBpsIn:  int(res.AvgBpsIn),
-		AvgBpsOut: int(res.AvgBpsOut),
+		AvgBpsIn:  res.AvgBpsIn,
+		AvgBpsOut: res.AvgBpsOut,
 	}
 	for i, e := range res.Peerstats {
 		s.Peers[i] = &PeerStatsElement{
 			NodeId:          NodeId(e.NodeId),
-			PacketsSent:     int(e.PacketsSent),
-			PacketsReceived: int(e.PacketsReceived),
-			Latency:         int(e.Latency),
+			PacketsSent:     e.PacketsSent,
+			PacketsReceived: e.PacketsReceived,
+			Latency:         e.Latency,
 		}
 	}
 	return s, nil
@@ -273,55 +283,55 @@ func (c *client) PeerList(ctx context.Context, includeBootstrappers bool) (*Peer
 		l.Peers[i] = &PeerElement{
 			NodeId:        NodeId(e.NodeId.GetValue()),
 			Ip:            e.Ip.GetValue(),
-			Port:          int(e.Port.GetValue()),
+			Port:          e.Port.GetValue(),
 			CatchupStatus: PeerElementCatchupStatus(e.CatchupStatus),
 		}
 	}
 	return l, nil
 }
 
-func (c *client) BanNode(ctx context.Context, element *PeerElement) (bool, error) {
-	res, err := c.grpc.BanNode(ctx, &grpc_api.PeerElement{
-		NodeId: &wrapperspb.StringValue{
-			Value: string(element.NodeId),
-		},
-		Port: &wrapperspb.UInt32Value{
-			Value: uint32(element.Port),
-		},
-		Ip: &wrapperspb.StringValue{
-			Value: element.Ip,
-		},
-		CatchupStatus: grpc_api.PeerElement_CatchupStatus(element.CatchupStatus),
-	})
+func (c *client) BanNode(ctx context.Context, nodeId NodeId, ip string) (bool, error) {
+	req := &grpc_api.PeerElement{}
+	if nodeId != "" {
+		req.NodeId = &wrapperspb.StringValue{
+			Value: string(nodeId),
+		}
+	}
+	if ip != "" {
+		req.Ip = &wrapperspb.StringValue{
+			Value: ip,
+		}
+	}
+	res, err := c.grpc.BanNode(ctx, req)
 	if err != nil {
 		return false, err
 	}
 	return res.GetValue(), nil
 }
 
-func (c *client) UnbanNode(ctx context.Context, element *PeerElement) (bool, error) {
-	res, err := c.grpc.UnbanNode(ctx, &grpc_api.PeerElement{
-		NodeId: &wrapperspb.StringValue{
-			Value: string(element.NodeId),
-		},
-		Port: &wrapperspb.UInt32Value{
-			Value: uint32(element.Port),
-		},
-		Ip: &wrapperspb.StringValue{
-			Value: element.Ip,
-		},
-		CatchupStatus: grpc_api.PeerElement_CatchupStatus(element.CatchupStatus),
-	})
+func (c *client) UnbanNode(ctx context.Context, nodeId NodeId, ip string) (bool, error) {
+	req := &grpc_api.PeerElement{}
+	if nodeId != "" {
+		req.NodeId = &wrapperspb.StringValue{
+			Value: string(nodeId),
+		}
+	}
+	if ip != "" {
+		req.Ip = &wrapperspb.StringValue{
+			Value: ip,
+		}
+	}
+	res, err := c.grpc.UnbanNode(ctx, req)
 	if err != nil {
 		return false, err
 	}
 	return res.GetValue(), nil
 }
 
-func (c *client) JoinNetwork(ctx context.Context, id NetworkId) (bool, error) {
+func (c *client) JoinNetwork(ctx context.Context, networkId NetworkId) (bool, error) {
 	res, err := c.grpc.JoinNetwork(ctx, &grpc_api.NetworkChangeRequest{
 		NetworkId: &wrapperspb.Int32Value{
-			Value: int32(id),
+			Value: int32(networkId),
 		},
 	})
 	if err != nil {
@@ -330,10 +340,10 @@ func (c *client) JoinNetwork(ctx context.Context, id NetworkId) (bool, error) {
 	return res.GetValue(), nil
 }
 
-func (c *client) LeaveNetwork(ctx context.Context, id NetworkId) (bool, error) {
+func (c *client) LeaveNetwork(ctx context.Context, networkId NetworkId) (bool, error) {
 	res, err := c.grpc.LeaveNetwork(ctx, &grpc_api.NetworkChangeRequest{
 		NetworkId: &wrapperspb.Int32Value{
-			Value: int32(id),
+			Value: int32(networkId),
 		},
 	})
 	if err != nil {
@@ -349,7 +359,7 @@ func (c *client) NodeInfo(ctx context.Context) (*NodeInfo, error) {
 	}
 	i := &NodeInfo{
 		NodeId:                      NodeId(res.NodeId.GetValue()),
-		CurrentLocaltime:            int64(res.CurrentLocaltime),
+		CurrentLocaltime:            res.CurrentLocaltime,
 		PeerType:                    PeerType(res.PeerType),
 		ConsensusBakerRunning:       res.ConsensusBakerRunning,
 		ConsensusRunning:            res.ConsensusRunning,
@@ -371,9 +381,9 @@ func (c *client) GetConsensusStatus(ctx context.Context) (*ConsensusStatus, erro
 	return s, err
 }
 
-func (c *client) GetBlockInfo(ctx context.Context, hash BlockHash) (*BlockInfo, error) {
+func (c *client) GetBlockInfo(ctx context.Context, b BlockHash) (*BlockInfo, error) {
 	res, err := c.grpc.GetBlockInfo(ctx, &grpc_api.BlockHash{
-		BlockHash: hash.String(),
+		BlockHash: b.String(),
 	})
 	if err != nil {
 		return nil, err
@@ -386,16 +396,13 @@ func (c *client) GetBlockInfo(ctx context.Context, hash BlockHash) (*BlockInfo, 
 	return i, err
 }
 
-func (c *client) GetAncestors(ctx context.Context, hash BlockHash, amount int) ([]BlockHash, error) {
+func (c *client) GetAncestors(ctx context.Context, blockHash BlockHash, amount int) ([]BlockHash, error) {
 	res, err := c.grpc.GetAncestors(ctx, &grpc_api.BlockHashAndAmount{
-		BlockHash: hash.String(),
+		BlockHash: blockHash.String(),
 		Amount:    uint64(amount),
 	})
 	if err != nil {
 		return nil, err
-	}
-	if res.GetValue() == "null" {
-		return nil, fmt.Errorf("not found")
 	}
 	var s []BlockHash
 	err = json.Unmarshal([]byte(res.GetValue()), &s)
@@ -407,14 +414,17 @@ func (c *client) GetBranches(ctx context.Context) (*Branch, error) {
 	if err != nil {
 		return nil, err
 	}
+	if res.GetValue() == "null" {
+		return nil, fmt.Errorf("not found")
+	}
 	b := &Branch{}
 	err = json.Unmarshal([]byte(res.GetValue()), b)
 	return b, err
 }
 
-func (c *client) GetBlocksAtHeight(ctx context.Context, height BlockHeight) ([]BlockHash, error) {
+func (c *client) GetBlocksAtHeight(ctx context.Context, blockHeight BlockHeight) ([]BlockHash, error) {
 	res, err := c.grpc.GetBlocksAtHeight(ctx, &grpc_api.BlockHeight{
-		BlockHeight: uint64(height),
+		BlockHeight: uint64(blockHeight),
 	})
 	if err != nil {
 		return nil, err
@@ -427,7 +437,7 @@ func (c *client) GetBlocksAtHeight(ctx context.Context, height BlockHeight) ([]B
 	return s, err
 }
 
-func (c *client) SendTransactionAsync(ctx context.Context, id NetworkId, request TransactionRequest) (TransactionHash, error) {
+func (c *client) SendTransactionAsync(ctx context.Context, networkId NetworkId, request TransactionRequest) (TransactionHash, error) {
 	b, err := request.Serialize()
 	if err != nil {
 		return "", fmt.Errorf("unable to serialize request: %w", err)
@@ -437,7 +447,7 @@ func (c *client) SendTransactionAsync(ctx context.Context, id NetworkId, request
 	p[1] = uint8(request.Kind())
 	copy(p[2:], b)
 	res, err := c.grpc.SendTransaction(ctx, &grpc_api.SendTransactionRequest{
-		NetworkId: uint32(id),
+		NetworkId: uint32(networkId),
 		Payload:   p,
 	})
 	if err != nil {
@@ -449,8 +459,8 @@ func (c *client) SendTransactionAsync(ctx context.Context, id NetworkId, request
 	return newTransactionHash(request.Kind(), b), nil
 }
 
-func (c *client) SendTransactionAwait(ctx context.Context, id NetworkId, request TransactionRequest) (*TransactionSummary, TransactionHash, error) {
-	hash, err := c.SendTransactionAsync(ctx, id, request)
+func (c *client) SendTransactionAwait(ctx context.Context, networkId NetworkId, request TransactionRequest) (*TransactionSummary, TransactionHash, error) {
+	hash, err := c.SendTransactionAsync(ctx, networkId, request)
 	if err != nil {
 		return nil, hash, fmt.Errorf("unable to send transaction: %w", err)
 	}
@@ -486,46 +496,40 @@ func (c *client) StopBaker(ctx context.Context) (bool, error) {
 	return res.GetValue(), nil
 }
 
-func (c *client) GetAccountList(ctx context.Context, hash BlockHash) ([]AccountAddress, error) {
+func (c *client) GetAccountList(ctx context.Context, blockHash BlockHash) ([]AccountAddress, error) {
 	res, err := c.grpc.GetAccountList(ctx, &grpc_api.BlockHash{
-		BlockHash: hash.String(),
+		BlockHash: blockHash.String(),
 	})
 	if err != nil {
 		return nil, err
-	}
-	if res.GetValue() == "null" {
-		return nil, fmt.Errorf("not found")
 	}
 	var s []AccountAddress
 	err = json.Unmarshal([]byte(res.GetValue()), &s)
 	return s, err
 }
 
-func (c *client) GetInstances(ctx context.Context, hash BlockHash) ([]*ContractAddress, error) {
+func (c *client) GetInstances(ctx context.Context, blockHash BlockHash) ([]*ContractAddress, error) {
 	res, err := c.grpc.GetInstances(ctx, &grpc_api.BlockHash{
-		BlockHash: hash.String(),
+		BlockHash: blockHash.String(),
 	})
 	if err != nil {
 		return nil, err
-	}
-	if res.GetValue() == "null" {
-		return nil, fmt.Errorf("not found")
 	}
 	var s []*ContractAddress
 	err = json.Unmarshal([]byte(res.GetValue()), &s)
 	return s, err
 }
 
-func (c *client) GetAccountInfo(ctx context.Context, hash BlockHash, address AccountAddress) (*AccountInfo, error) {
+func (c *client) GetAccountInfo(ctx context.Context, blockHash BlockHash, accountAddress AccountAddress) (*AccountInfo, error) {
 	res, err := c.grpc.GetAccountInfo(ctx, &grpc_api.GetAddressInfoRequest{
-		BlockHash: hash.String(),
-		Address:   address.String(),
+		BlockHash: blockHash.String(),
+		Address:   accountAddress.String(),
 	})
 	if err != nil {
 		return nil, err
 	}
 	if res.GetValue() == "null" {
-		return nil, fmt.Errorf("not found")
+		return nil, nil
 	}
 	i := &AccountInfo{}
 	err = json.Unmarshal([]byte(res.GetValue()), i)
@@ -686,7 +690,7 @@ func (c *client) GetBannedPeers(ctx context.Context) (*PeerList, error) {
 		l.Peers[i] = &PeerElement{
 			NodeId:        NodeId(e.NodeId.GetValue()),
 			Ip:            e.Ip.GetValue(),
-			Port:          int(e.Port.GetValue()),
+			Port:          e.Port.GetValue(),
 			CatchupStatus: PeerElementCatchupStatus(e.CatchupStatus),
 		}
 	}
