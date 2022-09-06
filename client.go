@@ -100,60 +100,63 @@ type Client interface {
 	// GetAccountInfo get the state of an account in the given block.
 	GetAccountInfo(ctx context.Context, blockHash BlockHash, accountAddress AccountAddress) (*AccountInfo, error)
 
-	// GetInstanceInfo see https://github.com/Concordium/concordium-node/blob/main/docs/grpc.md#getinstanceinfo--blockhash---contractaddress---contractinfo
-	GetInstanceInfo(ctx context.Context, hash BlockHash, address *ContractAddress) (*InstanceInfo, error)
+	// GetInstanceInfo get information about the given smart contract instance in the given block.
+	GetInstanceInfo(ctx context.Context, blockHash BlockHash, contractAddress *ContractAddress) (*InstanceInfo, error)
 
-	// InvokeContract see https://github.com/Concordium/concordium-node/blob/main/docs/grpc.md#invokecontract--blockhash---contractcontext---invokecontractresult
-	InvokeContract(ctx context.Context, hash BlockHash, context *ContractContext) (*InvokeContractResult, error)
+	// InvokeContract invokes a smart contract instance and view its results as if it had been
+	// updated at the end of the given block. Please note that this is not a transaction, so it
+	// won’t affect the contract on chain. It only simulates the invocation.
+	InvokeContract(ctx context.Context, blockHash BlockHash, context *ContractContext) (*InvokeContractResult, error)
 
-	// GetRewardStatus see https://github.com/Concordium/concordium-node/blob/main/docs/grpc.md#getrewardstatus-blockhash---rewardstatus
-	GetRewardStatus(ctx context.Context, hash BlockHash) (*RewardStatus, error)
+	// GetRewardStatus get an overview of the balance of special accounts in the given block.
+	GetRewardStatus(ctx context.Context, blockHash BlockHash) (*RewardStatus, error)
 
-	// GetBirkParameters see https://github.com/Concordium/concordium-node/blob/main/docs/grpc.md#getbirkparameters--blockhash---birkparameters
-	GetBirkParameters(ctx context.Context, hash BlockHash) (*BirkParameters, error)
+	// GetBirkParameters get an overview of the parameters used for baking.
+	GetBirkParameters(ctx context.Context, blockHash BlockHash) (*BirkParameters, error)
 
-	// GetModuleList see https://github.com/Concordium/concordium-node/blob/main/docs/grpc.md#getmodulelist--blockhash---moduleref
-	GetModuleList(ctx context.Context, hash BlockHash) ([]ModuleRef, error)
+	// GetModuleList get a list of all smart contract modules that exist in the state at the end of the given block.
+	GetModuleList(ctx context.Context, blockHash BlockHash) ([]ModuleRef, error)
 
-	// GetModuleSource see https://github.com/Concordium/concordium-node/blob/main/docs/grpc.md#getmodulesource--blockhash---moduleref---modulesource
-	GetModuleSource(ctx context.Context, hash BlockHash, ref ModuleRef) (io.Reader, error)
+	// GetModuleSource get the binary source of a smart contract module.
+	GetModuleSource(ctx context.Context, blockHash BlockHash, moduleRef ModuleRef) (io.Reader, error)
 
-	// GetIdentityProviders ...
-	GetIdentityProviders(ctx context.Context, hash BlockHash) ([]*IdentityProvider, error)
+	// GetIdentityProviders get a list of all identity providers that exist in the state at the end of the given block.
+	GetIdentityProviders(ctx context.Context, blockHash BlockHash) ([]*IdentityProvider, error)
 
-	// GetAnonymityRevokers ...
-	GetAnonymityRevokers(ctx context.Context, hash BlockHash) ([]*AnonymityRevoker, error)
+	// GetAnonymityRevokers get a list of all anonymity revokers that exist in the state at the end of the given block.
+	GetAnonymityRevokers(ctx context.Context, blockHash BlockHash) ([]*AnonymityRevoker, error)
 
-	// GetCryptographicParameters ...
-	GetCryptographicParameters(ctx context.Context, hash BlockHash) (*CryptographicParameters, error)
+	// GetCryptographicParameters get the cryptographic parameters used in the given block.
+	GetCryptographicParameters(ctx context.Context, blockHash BlockHash) (*CryptographicParameters, error)
 
-	// GetBannedPeers ...
+	// GetBannedPeers get a list of banned peers.
 	GetBannedPeers(ctx context.Context) (*PeerList, error)
 
-	// Shutdown ...
+	// Shutdown shut down the node.
 	Shutdown(ctx context.Context) (bool, error)
 
-	// DumpStart ...
+	// DumpStart start dumping packages into the specified file. Only available
+	// on a node built with the network_dump feature.
 	DumpStart(ctx context.Context, file string, raw bool) (bool, error)
 
-	// DumpStop ...
+	// DumpStop stop dumping packages. Only available on a node built with the network_dump feature.
 	DumpStop(ctx context.Context) (bool, error)
 
-	// GetTransactionStatus Query for the status of a transaction by its hash
+	// GetTransactionStatus
 	GetTransactionStatus(ctx context.Context, hash TransactionHash) (*TransactionSummary, error)
 
-	// GetTransactionStatusInBlock Query for transactions in a block by its hash
+	// GetTransactionStatusInBlock
 	GetTransactionStatusInBlock(ctx context.Context, hash TransactionHash, blockHash BlockHash) (*TransactionSummary, error)
 
-	// GetAccountNonFinalizedTransactions Query for non-finalized
-	// transactions present on an account by the account address
-	GetAccountNonFinalizedTransactions(ctx context.Context, address AccountAddress) ([]TransactionHash, error)
+	// GetAccountNonFinalizedTransactions get a list of non-finalized
+	// transactions present on an account.
+	GetAccountNonFinalizedTransactions(ctx context.Context, accountAddress AccountAddress) ([]TransactionHash, error)
 
-	// GetBlockSummary Request a summary for a block by its hash
-	GetBlockSummary(ctx context.Context, hash BlockHash) (*BlockSummary, error)
+	// GetBlockSummary get a summary of the transactions and data in a given block.
+	GetBlockSummary(ctx context.Context, blockHash BlockHash) (*BlockSummary, error)
 
-	// GetNextAccountNonce Request next nonce information for an account
-	GetNextAccountNonce(ctx context.Context, address AccountAddress) (*NextAccountNonce, error)
+	// GetNextAccountNonce returns the next available nonce for this account.
+	GetNextAccountNonce(ctx context.Context, accountAddress AccountAddress) (*NextAccountNonce, error)
 }
 
 type perRPCCredentials string
@@ -536,141 +539,132 @@ func (c *client) GetAccountInfo(ctx context.Context, blockHash BlockHash, accoun
 	return i, err
 }
 
-func (c *client) GetInstanceInfo(ctx context.Context, hash BlockHash, address *ContractAddress) (*InstanceInfo, error) {
-	b, err := json.Marshal(address)
+func (c *client) GetInstanceInfo(ctx context.Context, blockHash BlockHash, contractAddress *ContractAddress) (*InstanceInfo, error) {
+	b, err := json.Marshal(contractAddress)
 	if err != nil {
 		return nil, err
 	}
 	res, err := c.grpc.GetInstanceInfo(ctx, &grpc_api.GetAddressInfoRequest{
-		BlockHash: hash.String(),
+		BlockHash: blockHash.String(),
 		Address:   string(b),
 	})
 	if err != nil {
 		return nil, err
 	}
 	if res.GetValue() == "null" {
-		return nil, fmt.Errorf("not found")
+		return nil, nil
 	}
 	i := &InstanceInfo{}
 	err = json.Unmarshal([]byte(res.GetValue()), i)
 	return i, err
 }
 
-func (c *client) InvokeContract(ctx context.Context, hash BlockHash, context *ContractContext) (*InvokeContractResult, error) {
+func (c *client) InvokeContract(ctx context.Context, blockHash BlockHash, context *ContractContext) (*InvokeContractResult, error) {
 	b, err := json.Marshal(context)
 	if err != nil {
 		return nil, err
 	}
 	res, err := c.grpc.InvokeContract(ctx, &grpc_api.InvokeContractRequest{
-		BlockHash: hash.String(),
+		BlockHash: blockHash.String(),
 		Context:   string(b),
 	})
 	if err != nil {
 		return nil, err
+	}
+	if res.GetValue() == "null" {
+		return nil, nil
 	}
 	r := &InvokeContractResult{}
 	err = json.Unmarshal([]byte(res.GetValue()), r)
 	return r, nil
 }
 
-func (c *client) GetRewardStatus(ctx context.Context, hash BlockHash) (*RewardStatus, error) {
+func (c *client) GetRewardStatus(ctx context.Context, blockHash BlockHash) (*RewardStatus, error) {
 	res, err := c.grpc.GetRewardStatus(ctx, &grpc_api.BlockHash{
-		BlockHash: hash.String(),
+		BlockHash: blockHash.String(),
 	})
 	if err != nil {
 		return nil, err
 	}
 	if res.GetValue() == "null" {
-		return nil, fmt.Errorf("not found")
+		return nil, nil
 	}
 	s := &RewardStatus{}
 	err = json.Unmarshal([]byte(res.GetValue()), s)
 	return s, err
 }
 
-func (c *client) GetBirkParameters(ctx context.Context, hash BlockHash) (*BirkParameters, error) {
+func (c *client) GetBirkParameters(ctx context.Context, blockHash BlockHash) (*BirkParameters, error) {
 	res, err := c.grpc.GetBirkParameters(ctx, &grpc_api.BlockHash{
-		BlockHash: hash.String(),
+		BlockHash: blockHash.String(),
 	})
 	if err != nil {
 		return nil, err
 	}
 	if res.GetValue() == "null" {
-		return nil, fmt.Errorf("not found")
+		return nil, nil
 	}
 	p := &BirkParameters{}
 	err = json.Unmarshal([]byte(res.GetValue()), p)
 	return p, err
 }
 
-func (c *client) GetModuleList(ctx context.Context, hash BlockHash) ([]ModuleRef, error) {
+func (c *client) GetModuleList(ctx context.Context, b BlockHash) ([]ModuleRef, error) {
 	res, err := c.grpc.GetModuleList(ctx, &grpc_api.BlockHash{
-		BlockHash: hash.String(),
+		BlockHash: b.String(),
 	})
 	if err != nil {
 		return nil, err
-	}
-	if res.GetValue() == "null" {
-		return nil, fmt.Errorf("not found")
 	}
 	var s []ModuleRef
 	err = json.Unmarshal([]byte(res.GetValue()), &s)
 	return s, err
 }
 
-func (c *client) GetModuleSource(ctx context.Context, hash BlockHash, ref ModuleRef) (io.Reader, error) {
+func (c *client) GetModuleSource(ctx context.Context, blockHash BlockHash, moduleRef ModuleRef) (io.Reader, error) {
 	res, err := c.grpc.GetModuleSource(ctx, &grpc_api.GetModuleSourceRequest{
-		BlockHash: hash.String(),
-		ModuleRef: ref.String(),
+		BlockHash: blockHash.String(),
+		ModuleRef: moduleRef.String(),
 	})
 	if err != nil {
 		return nil, err
-	}
-	if len(res.GetValue()) == 0 {
-		return nil, fmt.Errorf("not found")
 	}
 	return bytes.NewReader(res.GetValue()), nil
 }
 
-func (c *client) GetIdentityProviders(ctx context.Context, hash BlockHash) ([]*IdentityProvider, error) {
+func (c *client) GetIdentityProviders(ctx context.Context, blockHash BlockHash) ([]*IdentityProvider, error) {
 	res, err := c.grpc.GetIdentityProviders(ctx, &grpc_api.BlockHash{
-		BlockHash: hash.String(),
+		BlockHash: blockHash.String(),
 	})
 	if err != nil {
 		return nil, err
-	}
-	if res.GetValue() == "null" {
-		return nil, fmt.Errorf("not found")
 	}
 	var s []*IdentityProvider
 	err = json.Unmarshal([]byte(res.GetValue()), &s)
 	return s, err
 }
 
-func (c *client) GetAnonymityRevokers(ctx context.Context, hash BlockHash) ([]*AnonymityRevoker, error) {
+func (c *client) GetAnonymityRevokers(ctx context.Context, blockHash BlockHash) ([]*AnonymityRevoker, error) {
 	res, err := c.grpc.GetAnonymityRevokers(ctx, &grpc_api.BlockHash{
-		BlockHash: hash.String(),
+		BlockHash: blockHash.String(),
 	})
 	if err != nil {
 		return nil, err
-	}
-	if res.GetValue() == "null" {
-		return nil, fmt.Errorf("not found")
 	}
 	var s []*AnonymityRevoker
 	err = json.Unmarshal([]byte(res.GetValue()), &s)
 	return s, err
 }
 
-func (c *client) GetCryptographicParameters(ctx context.Context, hash BlockHash) (*CryptographicParameters, error) {
+func (c *client) GetCryptographicParameters(ctx context.Context, blockHash BlockHash) (*CryptographicParameters, error) {
 	res, err := c.grpc.GetCryptographicParameters(ctx, &grpc_api.BlockHash{
-		BlockHash: hash.String(),
+		BlockHash: blockHash.String(),
 	})
 	if err != nil {
 		return nil, err
 	}
 	if res.GetValue() == "null" {
-		return nil, fmt.Errorf("not found")
+		return nil, nil
 	}
 	p := &CryptographicParameters{}
 	err = json.Unmarshal([]byte(res.GetValue()), p)
@@ -755,45 +749,42 @@ func (c *client) GetTransactionStatusInBlock(ctx context.Context, hash Transacti
 	return s, err
 }
 
-func (c *client) GetAccountNonFinalizedTransactions(ctx context.Context, address AccountAddress) ([]TransactionHash, error) {
+func (c *client) GetAccountNonFinalizedTransactions(ctx context.Context, accountAddress AccountAddress) ([]TransactionHash, error) {
 	res, err := c.grpc.GetAccountNonFinalizedTransactions(ctx, &grpc_api.AccountAddress{
-		AccountAddress: address.String(),
+		AccountAddress: accountAddress.String(),
 	})
 	if err != nil {
 		return nil, err
-	}
-	if res.GetValue() == "null" {
-		return nil, fmt.Errorf("not found")
 	}
 	var s []TransactionHash
 	err = json.Unmarshal([]byte(res.GetValue()), &s)
 	return s, nil
 }
 
-func (c *client) GetBlockSummary(ctx context.Context, hash BlockHash) (*BlockSummary, error) {
+func (c *client) GetBlockSummary(ctx context.Context, blockHash BlockHash) (*BlockSummary, error) {
 	res, err := c.grpc.GetBlockSummary(ctx, &grpc_api.BlockHash{
-		BlockHash: hash.String(),
+		BlockHash: blockHash.String(),
 	})
 	if err != nil {
 		return nil, err
 	}
 	if res.GetValue() == "null" {
-		return nil, fmt.Errorf("not found")
+		return nil, nil
 	}
 	s := &BlockSummary{}
 	err = json.Unmarshal([]byte(res.GetValue()), s)
 	return s, nil
 }
 
-func (c *client) GetNextAccountNonce(ctx context.Context, address AccountAddress) (*NextAccountNonce, error) {
+func (c *client) GetNextAccountNonce(ctx context.Context, accountAddress AccountAddress) (*NextAccountNonce, error) {
 	res, err := c.grpc.GetNextAccountNonce(ctx, &grpc_api.AccountAddress{
-		AccountAddress: address.String(),
+		AccountAddress: accountAddress.String(),
 	})
 	if err != nil {
 		return nil, err
 	}
 	if res.GetValue() == "null" {
-		return nil, fmt.Errorf("not found")
+		return nil, nil
 	}
 	n := &NextAccountNonce{}
 	err = json.Unmarshal([]byte(res.GetValue()), n)

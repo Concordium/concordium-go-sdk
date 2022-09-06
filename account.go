@@ -35,45 +35,14 @@ type AccountCredentialWithoutProofsType string
 
 type AccountNonce uint64
 
+// NextAccountNonce contains the best guess about the current account nonce,
+// with information about reliability.
 type NextAccountNonce struct {
-	AllFinal bool         `json:"allFinal"`
-	Nonce    AccountNonce `json:"nonce"`
-}
-
-// AccountEncryptionKey base-16 encoded string (192 characters)
-type AccountEncryptionKey []byte
-
-func NewAccountEncryptionKeyFromString(s string) (AccountEncryptionKey, error) {
-	k, err := hex.DecodeString(s)
-	if err != nil {
-		return nil, fmt.Errorf("hex decode: %w", err)
-	}
-	return k, nil
-}
-
-func MustNewAccountEncryptionKeyFromString(s string) AccountEncryptionKey {
-	k, err := NewAccountEncryptionKeyFromString(s)
-	if err != nil {
-		panic("MustNewAccountEncryptionKeyFromString: " + err.Error())
-	}
-	return k
-}
-
-func (k AccountEncryptionKey) MarshalJSON() ([]byte, error) {
-	b, err := hexMarshalJSON(k)
-	if err != nil {
-		return nil, fmt.Errorf("%T: %w", k, err)
-	}
-	return b, nil
-}
-
-func (k *AccountEncryptionKey) UnmarshalJSON(b []byte) error {
-	v, err := hexUnmarshalJSON(b)
-	if err != nil {
-		return fmt.Errorf("%T: %w", *k, err)
-	}
-	*k = v
-	return nil
+	// A flag indicating whether all known transactions are finalized.
+	// This can be used as an indicator of how reliable the `nonce` value is.
+	AllFinal bool `json:"allFinal"`
+	// The nonce that should be used.
+	Nonce AccountNonce `json:"nonce"`
 }
 
 // EncryptedAmount base-16 encoded string (384 characters)
@@ -129,7 +98,7 @@ type AccountInfo struct {
 	// The encrypted balance of the account.
 	AccountEncryptedAmount *AccountEncryptedAmount `json:"accountEncryptedAmount"`
 	// The public key for sending encrypted balances to the account.
-	AccountEncryptionKey AccountEncryptionKey `json:"accountEncryptionKey"`
+	AccountEncryptionKey PublicKey `json:"accountEncryptionKey"`
 	// Internal index of the account. Accounts on the chain get sequential indices. These
 	// should generally not be used outside of the chain, the account address is meant to
 	// be used to refer to accounts, however the account index serves the role of the baker

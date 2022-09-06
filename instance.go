@@ -7,4 +7,5 @@ type InstanceInfo struct {
 	Name         InitName       `json:"name"`
 	Model        Model          `json:"model"`
 	Methods      []ReceiveName  `json:"methods"`
+	Version      uint8          `json:"version"`
 }

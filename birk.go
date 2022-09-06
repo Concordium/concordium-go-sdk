@@ -7,10 +7,14 @@ import (
 
 const electionNonceSize = 32
 
+// BirkParameters is the state of consensus parameters, and allowed participants (i.e., bakers).
 type BirkParameters struct {
-	ElectionDifficulty float64       `json:"electionDifficulty"`
-	ElectionNonce      ElectionNonce `json:"electionNonce"`
-	Bakers             []*BakerInfo  `json:"bakers"`
+	// The list of active bakers.
+	Bakers []*BakerInfo `json:"bakers"`
+	// Current election difficulty.
+	ElectionDifficulty float64 `json:"electionDifficulty"`
+	// "Leadership election nonce for the current epoch.
+	ElectionNonce ElectionNonce `json:"electionNonce"`
 }
 
 type ElectionNonce [electionNonceSize]byte

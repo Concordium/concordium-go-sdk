@@ -1,87 +1,20 @@
 package concordium
 
-import (
-	"encoding/hex"
-	"fmt"
-)
-
+// CryptographicParameters is versioned cryptographic parameters.
 type CryptographicParameters struct {
-	V     int                           `json:"v"`
+	V     uint32                        `json:"v"`
 	Value *CryptographicParametersValue `json:"value"`
 }
 
+// CryptographicParametersValue is a set of cryptographic parameters that are particular
+// to the chain and shared by everybody that interacts with the chain.
 type CryptographicParametersValue struct {
-	BulletproofGenerators BulletproofGenerators `json:"bulletproofGenerators"`
-	GenesisString         string                `json:"genesisString"`
-	OnChainCommitmentKey  OnChainCommitmentKey  `json:"onChainCommitmentKey"`
-}
-
-type BulletproofGenerators []byte
-
-func NewBulletproofGeneratorsFromString(s string) (BulletproofGenerators, error) {
-	g, err := hex.DecodeString(s)
-	if err != nil {
-		return nil, fmt.Errorf("hex decode: %w", err)
-	}
-	return g, nil
-}
-
-func MustNewBulletproofGeneratorsFromString(s string) BulletproofGenerators {
-	g, err := NewBulletproofGeneratorsFromString(s)
-	if err != nil {
-		panic("MustNewBulletproofGeneratorsFromString: " + err.Error())
-	}
-	return g
-}
-
-func (g BulletproofGenerators) MarshalJSON() ([]byte, error) {
-	b, err := hexMarshalJSON(g)
-	if err != nil {
-		return nil, fmt.Errorf("%T: %w", g, err)
-	}
-	return b, nil
-}
-
-func (g *BulletproofGenerators) UnmarshalJSON(b []byte) error {
-	v, err := hexUnmarshalJSON(b)
-	if err != nil {
-		return fmt.Errorf("%T: %w", *g, err)
-	}
-	*g = v
-	return nil
-}
-
-type OnChainCommitmentKey []byte
-
-func NewOnChainCommitmentKeyFromString(s string) (OnChainCommitmentKey, error) {
-	g, err := hex.DecodeString(s)
-	if err != nil {
-		return nil, fmt.Errorf("hex decode: %w", err)
-	}
-	return g, nil
-}
-
-func MustNewOnChainCommitmentKeyFromString(s string) OnChainCommitmentKey {
-	k, err := NewOnChainCommitmentKeyFromString(s)
-	if err != nil {
-		panic("MustNewOnChainCommitmentKeyFromString: " + err.Error())
-	}
-	return k
-}
-
-func (k OnChainCommitmentKey) MarshalJSON() ([]byte, error) {
-	b, err := hexMarshalJSON(k)
-	if err != nil {
-		return nil, fmt.Errorf("%T: %w", k, err)
-	}
-	return b, nil
-}
-
-func (k *OnChainCommitmentKey) UnmarshalJSON(b []byte) error {
-	v, err := hexUnmarshalJSON(b)
-	if err != nil {
-		return fmt.Errorf("%T: %w", *k, err)
-	}
-	*k = v
-	return nil
+	// Generators for the bulletproofs. It is unclear what length we will require here,
+	// or whether we'll allow dynamic generation.
+	BulletproofGenerators PublicKey `json:"bulletproofGenerators"`
+	// A free-form string used to distinguish between different chains even if they share other parameters.
+	GenesisString string `json:"genesisString"`
+	// A shared commitment key known to the chain and the account holder (and therefore it is public).
+	// The account holder uses this commitment key to generate commitments to values in the attribute list.
+	OnChainCommitmentKey PublicKey `json:"onChainCommitmentKey"`
 }
