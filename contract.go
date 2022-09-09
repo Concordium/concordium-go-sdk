@@ -7,77 +7,16 @@ import (
 )
 
 const (
-	InvokeContractResultSuccess InvokeContractResultTag = "success"
-	InvokeContractResultFailure InvokeContractResultTag = "failure"
-
 	moduleRefSize       = 32
 	initNamePrefix      = "init_"
 	receiveNameSplitter = "."
-
-	RejectReasonTagModuleNotWF                            RejectReasonTag = "ModuleNotWF"
-	RejectReasonTagModuleHashAlreadyExists                RejectReasonTag = "ModuleHashAlreadyExists"
-	RejectReasonTagInvalidAccountReference                RejectReasonTag = "InvalidAccountReference"
-	RejectReasonTagInvalidInitMethod                      RejectReasonTag = "InvalidInitMethod"
-	RejectReasonTagInvalidReceiveMethod                   RejectReasonTag = "InvalidReceiveMethod"
-	RejectReasonTagInvalidModuleReference                 RejectReasonTag = "InvalidModuleReference"
-	RejectReasonTagInvalidContractAddress                 RejectReasonTag = "InvalidContractAddress"
-	RejectReasonTagRuntimeFailure                         RejectReasonTag = "RuntimeFailure"
-	RejectReasonTagAmountTooLarge                         RejectReasonTag = "AmountTooLarge"
-	RejectReasonTagSerializationFailure                   RejectReasonTag = "SerializationFailure"
-	RejectReasonTagOutOfEnergy                            RejectReasonTag = "OutOfEnergy"
-	RejectReasonTagRejectedInit                           RejectReasonTag = "RejectedInit"
-	RejectReasonTagRejectedReceive                        RejectReasonTag = "RejectedReceive"
-	RejectReasonTagNonExistentRewardAccount               RejectReasonTag = "NonExistentRewardAccount"
-	RejectReasonTagInvalidProof                           RejectReasonTag = "InvalidProof"
-	RejectReasonTagAlreadyABaker                          RejectReasonTag = "AlreadyABaker"
-	RejectReasonTagNotABaker                              RejectReasonTag = "NotABaker"
-	RejectReasonTagInsufficientBalanceForBakerStake       RejectReasonTag = "InsufficientBalanceForBakerStake"
-	RejectReasonTagStakeUnderMinimumThresholdForBaking    RejectReasonTag = "StakeUnderMinimumThresholdForBaking"
-	RejectReasonTagBakerInCooldown                        RejectReasonTag = "BakerInCooldown"
-	RejectReasonTagDuplicateAggregationKey                RejectReasonTag = "DuplicateAggregationKey"
-	RejectReasonTagNonExistentCredentialID                RejectReasonTag = "NonExistentCredentialID"
-	RejectReasonTagKeyIndexAlreadyInUse                   RejectReasonTag = "KeyIndexAlreadyInUse"
-	RejectReasonTagInvalidAccountThreshold                RejectReasonTag = "InvalidAccountThreshold"
-	RejectReasonTagInvalidCredentialKeySignThreshold      RejectReasonTag = "InvalidCredentialKeySignThreshold"
-	RejectReasonTagInvalidEncryptedAmountTransferProof    RejectReasonTag = "InvalidEncryptedAmountTransferProof"
-	RejectReasonTagInvalidTransferToPublicProof           RejectReasonTag = "InvalidTransferToPublicProof"
-	RejectReasonTagEncryptedAmountSelfTransfer            RejectReasonTag = "EncryptedAmountSelfTransfer"
-	RejectReasonTagInvalidIndexOnEncryptedTransfer        RejectReasonTag = "InvalidIndexOnEncryptedTransfer"
-	RejectReasonTagZeroScheduledAmount                    RejectReasonTag = "ZeroScheduledAmount"
-	RejectReasonTagNonIncreasingSchedule                  RejectReasonTag = "NonIncreasingSchedule"
-	RejectReasonTagFirstScheduledReleaseExpired           RejectReasonTag = "FirstScheduledReleaseExpired"
-	RejectReasonTagScheduledSelfTransfer                  RejectReasonTag = "ScheduledSelfTransfer"
-	RejectReasonTagInvalidCredentials                     RejectReasonTag = "InvalidCredentials"
-	RejectReasonTagDuplicateCredIDs                       RejectReasonTag = "DuplicateCredIDs"
-	RejectReasonTagNonExistentCredIDs                     RejectReasonTag = "NonExistentCredIDs"
-	RejectReasonTagRemoveFirstCredential                  RejectReasonTag = "RemoveFirstCredential"
-	RejectReasonTagCredentialHolderDidNotSign             RejectReasonTag = "CredentialHolderDidNotSign"
-	RejectReasonTagNotAllowedMultipleCredentials          RejectReasonTag = "NotAllowedMultipleCredentials"
-	RejectReasonTagNotAllowedToReceiveEncrypted           RejectReasonTag = "NotAllowedToReceiveEncrypted"
-	RejectReasonTagNotAllowedToHandleEncrypted            RejectReasonTag = "NotAllowedToHandleEncrypted"
-	RejectReasonTagMissingBakerAddParameters              RejectReasonTag = "MissingBakerAddParameters"
-	RejectReasonTagFinalizationRewardCommissionNotInRange RejectReasonTag = "FinalizationRewardCommissionNotInRange"
-	RejectReasonTagBakingRewardCommissionNotInRange       RejectReasonTag = "BakingRewardCommissionNotInRange"
-	RejectReasonTagTransactionFeeCommissionNotInRange     RejectReasonTag = "TransactionFeeCommissionNotInRange"
-	RejectReasonTagAlreadyADelegator                      RejectReasonTag = "AlreadyADelegator"
-	RejectReasonTagInsufficientBalanceForDelegationStake  RejectReasonTag = "InsufficientBalanceForDelegationStake"
-	RejectReasonTagMissingDelegationAddParameters         RejectReasonTag = "MissingDelegationAddParameters"
-	RejectReasonTagDelegatorInCooldown                    RejectReasonTag = "DelegatorInCooldown"
-	RejectReasonTagNotADelegator                          RejectReasonTag = "NotADelegator"
-	RejectReasonTagDelegationTargetNotABaker              RejectReasonTag = "DelegationTargetNotABaker"
-	RejectReasonTagStakeOverMaximumThresholdForPool       RejectReasonTag = "StakeOverMaximumThresholdForPool"
-	RejectReasonTagPoolWouldBecomeOverDelegated           RejectReasonTag = "PoolWouldBecomeOverDelegated"
-	RejectReasonTagPoolClosed                             RejectReasonTag = "PoolClosed"
 )
-
-type RejectReasonTag string
-
-type InvokeContractResultTag string
 
 // ModuleRef base-16 encoded module reference (64 characters)
 type ModuleRef [moduleRefSize]byte
 
-func NewModuleRefFromString(s string) (ModuleRef, error) {
+// NewModuleRef creates a new ModuleRef from string.
+func NewModuleRef(s string) (ModuleRef, error) {
 	b, err := hex.DecodeString(s)
 	if err != nil {
 		return ModuleRef{}, fmt.Errorf("hex decode: %w", err)
@@ -90,10 +29,11 @@ func NewModuleRefFromString(s string) (ModuleRef, error) {
 	return h, nil
 }
 
-func MustNewModuleRefFromString(s string) ModuleRef {
-	h, err := NewModuleRefFromString(s)
+// MustNewModuleRef calls the NewModuleRef. It panics in case of error.
+func MustNewModuleRef(s string) ModuleRef {
+	h, err := NewModuleRef(s)
 	if err != nil {
-		panic("MustNewModuleRefFromString: " + err.Error())
+		panic("MustNewModuleRef: " + err.Error())
 	}
 	return h
 }
@@ -225,6 +165,14 @@ type ContractContext struct {
 	Parameter Model `json:"parameter"`
 }
 
+// InvokeContractResultTag describes InvokeContractResult type. See related constants.
+type InvokeContractResultTag string
+
+const (
+	InvokeContractResultSuccess InvokeContractResultTag = "success"
+	InvokeContractResultFailure InvokeContractResultTag = "failure"
+)
+
 type InvokeContractResult struct {
 	Tag         InvokeContractResultTag `json:"tag"`
 	ReturnValue Model                   `json:"returnValue"`
@@ -280,193 +228,220 @@ type InstanceUpdatedEvent struct {
 	ReceiveName string `json:"receiveName"`
 }
 
+// RejectReasonTag describes RejectReason type. See related constants.
+type RejectReasonTag string
+
+const (
+	RejectReasonTagModuleNotWF                            RejectReasonTag = "ModuleNotWF"
+	RejectReasonTagModuleHashAlreadyExists                RejectReasonTag = "ModuleHashAlreadyExists"
+	RejectReasonTagInvalidAccountReference                RejectReasonTag = "InvalidAccountReference"
+	RejectReasonTagInvalidInitMethod                      RejectReasonTag = "InvalidInitMethod"
+	RejectReasonTagInvalidReceiveMethod                   RejectReasonTag = "InvalidReceiveMethod"
+	RejectReasonTagInvalidModuleReference                 RejectReasonTag = "InvalidModuleReference"
+	RejectReasonTagInvalidContractAddress                 RejectReasonTag = "InvalidContractAddress"
+	RejectReasonTagRuntimeFailure                         RejectReasonTag = "RuntimeFailure"
+	RejectReasonTagAmountTooLarge                         RejectReasonTag = "AmountTooLarge"
+	RejectReasonTagSerializationFailure                   RejectReasonTag = "SerializationFailure"
+	RejectReasonTagOutOfEnergy                            RejectReasonTag = "OutOfEnergy"
+	RejectReasonTagRejectedInit                           RejectReasonTag = "RejectedInit"
+	RejectReasonTagRejectedReceive                        RejectReasonTag = "RejectedReceive"
+	RejectReasonTagNonExistentRewardAccount               RejectReasonTag = "NonExistentRewardAccount"
+	RejectReasonTagInvalidProof                           RejectReasonTag = "InvalidProof"
+	RejectReasonTagAlreadyABaker                          RejectReasonTag = "AlreadyABaker"
+	RejectReasonTagNotABaker                              RejectReasonTag = "NotABaker"
+	RejectReasonTagInsufficientBalanceForBakerStake       RejectReasonTag = "InsufficientBalanceForBakerStake"
+	RejectReasonTagStakeUnderMinimumThresholdForBaking    RejectReasonTag = "StakeUnderMinimumThresholdForBaking"
+	RejectReasonTagBakerInCooldown                        RejectReasonTag = "BakerInCooldown"
+	RejectReasonTagDuplicateAggregationKey                RejectReasonTag = "DuplicateAggregationKey"
+	RejectReasonTagNonExistentCredentialID                RejectReasonTag = "NonExistentCredentialID"
+	RejectReasonTagKeyIndexAlreadyInUse                   RejectReasonTag = "KeyIndexAlreadyInUse"
+	RejectReasonTagInvalidAccountThreshold                RejectReasonTag = "InvalidAccountThreshold"
+	RejectReasonTagInvalidCredentialKeySignThreshold      RejectReasonTag = "InvalidCredentialKeySignThreshold"
+	RejectReasonTagInvalidEncryptedAmountTransferProof    RejectReasonTag = "InvalidEncryptedAmountTransferProof"
+	RejectReasonTagInvalidTransferToPublicProof           RejectReasonTag = "InvalidTransferToPublicProof"
+	RejectReasonTagEncryptedAmountSelfTransfer            RejectReasonTag = "EncryptedAmountSelfTransfer"
+	RejectReasonTagInvalidIndexOnEncryptedTransfer        RejectReasonTag = "InvalidIndexOnEncryptedTransfer"
+	RejectReasonTagZeroScheduledAmount                    RejectReasonTag = "ZeroScheduledAmount"
+	RejectReasonTagNonIncreasingSchedule                  RejectReasonTag = "NonIncreasingSchedule"
+	RejectReasonTagFirstScheduledReleaseExpired           RejectReasonTag = "FirstScheduledReleaseExpired"
+	RejectReasonTagScheduledSelfTransfer                  RejectReasonTag = "ScheduledSelfTransfer"
+	RejectReasonTagInvalidCredentials                     RejectReasonTag = "InvalidCredentials"
+	RejectReasonTagDuplicateCredIDs                       RejectReasonTag = "DuplicateCredIDs"
+	RejectReasonTagNonExistentCredIDs                     RejectReasonTag = "NonExistentCredIDs"
+	RejectReasonTagRemoveFirstCredential                  RejectReasonTag = "RemoveFirstCredential"
+	RejectReasonTagCredentialHolderDidNotSign             RejectReasonTag = "CredentialHolderDidNotSign"
+	RejectReasonTagNotAllowedMultipleCredentials          RejectReasonTag = "NotAllowedMultipleCredentials"
+	RejectReasonTagNotAllowedToReceiveEncrypted           RejectReasonTag = "NotAllowedToReceiveEncrypted"
+	RejectReasonTagNotAllowedToHandleEncrypted            RejectReasonTag = "NotAllowedToHandleEncrypted"
+	RejectReasonTagMissingBakerAddParameters              RejectReasonTag = "MissingBakerAddParameters"
+	RejectReasonTagFinalizationRewardCommissionNotInRange RejectReasonTag = "FinalizationRewardCommissionNotInRange"
+	RejectReasonTagBakingRewardCommissionNotInRange       RejectReasonTag = "BakingRewardCommissionNotInRange"
+	RejectReasonTagTransactionFeeCommissionNotInRange     RejectReasonTag = "TransactionFeeCommissionNotInRange"
+	RejectReasonTagAlreadyADelegator                      RejectReasonTag = "AlreadyADelegator"
+	RejectReasonTagInsufficientBalanceForDelegationStake  RejectReasonTag = "InsufficientBalanceForDelegationStake"
+	RejectReasonTagMissingDelegationAddParameters         RejectReasonTag = "MissingDelegationAddParameters"
+	RejectReasonTagDelegatorInCooldown                    RejectReasonTag = "DelegatorInCooldown"
+	RejectReasonTagNotADelegator                          RejectReasonTag = "NotADelegator"
+	RejectReasonTagDelegationTargetNotABaker              RejectReasonTag = "DelegationTargetNotABaker"
+	RejectReasonTagStakeOverMaximumThresholdForPool       RejectReasonTag = "StakeOverMaximumThresholdForPool"
+	RejectReasonTagPoolWouldBecomeOverDelegated           RejectReasonTag = "PoolWouldBecomeOverDelegated"
+	RejectReasonTagPoolClosed                             RejectReasonTag = "PoolClosed"
+)
+
 // RejectReason is the reason for why a transaction was rejected. Rejected means included in a block,
 // but the desired action was not achieved. The only effect of a rejected transaction is payment.
 // NOTE: Some of the variant definitions can look peculiar, but they are made to be compatible with
 // the serialization of the Haskell datatype.
 type RejectReason struct {
+	Tag RejectReasonTag `json:"tag"`
 	// Error raised when validating the Wasm module.
-	Tag string `json:"tag"` // ModuleNotWF
-
+	ModuleNotWF struct{} `json:"-"`
 	// As the name says.
-	Tag      string    `json:"tag"` // ModuleHashAlreadyExists
-	Contents ModuleRef `json:"contents"`
-
+	ModuleHashAlreadyExists struct {
+		Contents ModuleRef `json:"contents"`
+	} `json:"-"`
 	// Account does not exist.
-	Tag      string         `json:"tag"` // InvalidAccountReference
-	Contents AccountAddress `json:"contents"`
-
+	InvalidAccountReference struct {
+		Contents AccountAddress `json:"contents"`
+	} `json:"-"`
 	// Reference to a non-existing contract init method.
-	Tag      string    `json:"tag"` // InvalidInitMethod
-	Contents [2]string `json:"contents"`
-
+	InvalidInitMethod struct {
+		Contents [2]string `json:"contents"`
+	} `json:"-"`
 	// Reference to a non-existing contract receive method.
-	Tag      string    `json:"tag"` // InvalidReceiveMethod
-	Contents [2]string `json:"contents"`
-
+	InvalidReceiveMethod struct {
+		Contents [2]string `json:"contents"`
+	} `json:"-"`
 	// Reference to a non-existing module.
-	Tag      string    `json:"tag"` // InvalidModuleReference
-	Contents ModuleRef `json:"contents"`
-
+	InvalidModuleReference struct {
+		Contents ModuleRef `json:"contents"`
+	} `json:"-"`
 	// Contract instance does not exist.
-	Tag      string           `json:"tag"` // InvalidContractAddress
-	Contents *ContractAddress `json:"contents"`
-
+	InvalidContractAddress struct {
+		Contents *ContractAddress `json:"contents"`
+	} `json:"-"`
 	// Runtime exception occurred when running either the init or receive method.
-	Tag string `json:"tag"` // RuntimeFailure
-
+	RuntimeFailure struct{} `json:"-"`
 	// When one wishes to transfer an amount from A to B but there are not enough
 	// funds on account/contract A to make this possible. The data are the from
 	// address and the amount to transfer.
-	Tag      string `json:"tag"`      // AmountTooLarge
-	Contents [2]any `json:"contents"` // Address and Amount
-
+	AmountTooLarge struct {
+		Contents [2]any `json:"contents"` // Address and Amount
+	} `json:"-"`
 	// Serialization of the body failed.
-	Tag string `json:"tag"` // SerializationFailure
-
+	SerializationFailure struct{} `json:"-"`
 	// We ran of out energy to process this transaction.
-	Tag string `json:"tag"` // OutOfEnergy
-
+	OutOfEnergy struct{} `json:"-"`
 	// Rejected due to contract logic in init function of a contract.
-	Tag          string `json:"tag"` // RejectedInit
-	RejectReason int32  `json:"rejectReason"`
-
-	Tag             string           `json:"tag"` // RejectedReceive
-	ContractAddress *ContractAddress `json:"contractAddress"`
-	Parameter       Model            `json:"parameter"`
-	ReceiveName     string           `json:"receiveName"`
-	RejectReason    int32            `json:"rejectReason"`
-
+	RejectedInit struct {
+		RejectReason int32 `json:"rejectReason"`
+	} `json:"-"`
+	RejectedReceive struct {
+		ContractAddress *ContractAddress `json:"contractAddress"`
+		Parameter       Model            `json:"parameter"`
+		ReceiveName     string           `json:"receiveName"`
+		RejectReason    int32            `json:"rejectReason"`
+	} `json:"-"`
 	// Reward account desired by the baker does not exist.
-	Tag      string         `json:"tag"` // NonExistentRewardAccount
-	Contents AccountAddress `json:"contents"`
-
+	NonExistentRewardAccount struct {
+		Contents AccountAddress `json:"contents"`
+	} `json:"-"`
 	// Proof that the baker owns relevant private keys is not valid.
-	Tag string `json:"tag"` // InvalidProof
-
+	InvalidProof struct{} `json:"-"`
 	// Tried to add baker for an account that already has a baker
-	Tag      string `json:"tag"` // AlreadyABaker
-	Contents uint64 `json:"contents"`
-
+	AlreadyABaker struct {
+		Contents uint64 `json:"contents"`
+	} `json:"-"`
 	// Tried to remove a baker for an account that has no baker
-	Tag      string         `json:"tag"` // NotABaker
-	Contents AccountAddress `json:"contents"`
-
+	NotABaker struct {
+		Contents AccountAddress `json:"contents"`
+	} `json:"-"`
 	// The amount on the account was insufficient to cover the proposed stake
-	Tag string `json:"tag"` // InsufficientBalanceForBakerStake
-
+	InsufficientBalanceForBakerStake struct{} `json:"-"`
 	// The amount provided is under the threshold required for becoming a baker
-	Tag string `json:"tag"` // StakeUnderMinimumThresholdForBaking
-
+	StakeUnderMinimumThresholdForBaking struct{} `json:"-"`
 	// The change could not be made because the baker is in cooldown for another change
-	Tag string `json:"tag"` // BakerInCooldown
-
+	BakerInCooldown struct{} `json:"-"`
 	// A baker with the given aggregation key already exists
-	Tag      string `json:"tag"` // DuplicateAggregationKey
-	Contents string `json:"contents"`
-
+	DuplicateAggregationKey struct {
+		Contents string `json:"contents"`
+	} `json:"-"`
 	// Encountered credential ID that does not exist
-	Tag string `json:"tag"` // NonExistentCredentialID
-
+	NonExistentCredentialID struct{} `json:"-"`
 	// Attempted to add an account key to a key index already in use
-	Tag string `json:"tag"` // KeyIndexAlreadyInUse
-
+	KeyIndexAlreadyInUse struct{} `json:"-"`
 	// When the account threshold is updated, it must not exceed the amount of existing keys
-	Tag string `json:"tag"` // InvalidAccountThreshold
-
+	InvalidAccountThreshold struct{} `json:"-"`
 	// When the credential key threshold is updated, it must not exceed the amount of existing keys
-	Tag string `json:"tag"` // InvalidCredentialKeySignThreshold
-
+	InvalidCredentialKeySignThreshold struct{} `json:"-"`
 	// Proof for an encrypted amount transfer did not validate.
-	Tag string `json:"tag"` // InvalidEncryptedAmountTransferProof
-
+	InvalidEncryptedAmountTransferProof struct{} `json:"-"`
 	// Proof for a secret to public transfer did not validate.
-	Tag string `json:"tag"` // InvalidTransferToPublicProof
-
+	InvalidTransferToPublicProof struct{} `json:"-"`
 	// Account tried to transfer an encrypted amount to itself, that's not allowed.
-	Tag      string         `json:"tag"` // EncryptedAmountSelfTransfer
-	Contents AccountAddress `json:"contents"`
-
+	EncryptedAmountSelfTransfer struct {
+		Contents AccountAddress `json:"contents"`
+	} `json:"-"`
 	// The provided index is below the start index or above `startIndex + length incomingAmounts`
-	Tag string `json:"tag"` // InvalidIndexOnEncryptedTransfer
-
+	InvalidIndexOnEncryptedTransfer struct{} `json:"-"`
 	// The transfer with schedule is going to send 0 tokens
-	Tag string `json:"tag"` // ZeroScheduledAmount
-
+	ZeroScheduledAmount struct{} `json:"-"`
 	// The transfer with schedule has a non strictly increasing schedule
-	Tag string `json:"tag"` // NonIncreasingSchedule
-
+	NonIncreasingSchedule struct{} `json:"-"`
 	// The first scheduled release in a transfer with schedule has already expired
-	Tag string `json:"tag"` // FirstScheduledReleaseExpired
-
+	FirstScheduledReleaseExpired struct{} `json:"-"`
 	// Account tried to transfer with schedule to itself, that's not allowed.
-	Tag      string         `json:"tag"` // ScheduledSelfTransfer
-	Contents AccountAddress `json:"contents"`
-
+	ScheduledSelfTransfer struct {
+		Contents AccountAddress `json:"contents"`
+	} `json:"-"`
 	// At least one of the credentials was either malformed or its proof was incorrect.
-	Tag string `json:"tag"` // InvalidCredentials
-
+	InvalidCredentials struct{} `json:"-"`
 	// Some of the credential IDs already exist or are duplicated in the transaction.
-	Tag      string   `json:"tag"` // DuplicateCredIDs
-	Contents []string `json:"contents"`
-
+	DuplicateCredIDs struct {
+		Contents []string `json:"contents"`
+	} `json:"-"`
 	// A credential id that was to be removed is not part of the account.
-	Tag      string   `json:"tag"` // NonExistentCredIDs
-	Contents []string `json:"contents"`
-
+	NonExistentCredIDs struct {
+		Contents []string `json:"contents"`
+	} `json:"-"`
 	// Attemp to remove the first credential
-	Tag string `json:"tag"` // RemoveFirstCredential
-
+	RemoveFirstCredential struct{} `json:"-"`
 	// The credential holder of the keys to be updated did not sign the transaction
-	Tag string `json:"tag"` // CredentialHolderDidNotSign
-
+	CredentialHolderDidNotSign struct{} `json:"-"`
 	// Account is not allowed to have multiple credentials because it contains a non-zero encrypted transfer.
-	Tag string `json:"tag"` // NotAllowedMultipleCredentials
-
+	NotAllowedMultipleCredentials struct{} `json:"-"`
 	// The account is not allowed to receive encrypted transfers because it has multiple credentials.
-	Tag string `json:"tag"` // NotAllowedToReceiveEncrypted
-
+	NotAllowedToReceiveEncrypted struct{} `json:"-"`
 	// The account is not allowed to send encrypted transfers (or transfer from/to public to/from encrypted)
-	Tag string `json:"tag"` // NotAllowedToHandleEncrypted
-
+	NotAllowedToHandleEncrypted struct{} `json:"-"`
 	// A configure baker transaction is missing one or more arguments in order to add a baker.
-	Tag string `json:"tag"` // MissingBakerAddParameters
-
+	MissingBakerAddParameters struct{} `json:"-"`
 	// Finalization reward commission is not in the valid range for a baker
-	Tag string `json:"tag"` // FinalizationRewardCommissionNotInRange
-
+	FinalizationRewardCommissionNotInRange struct{} `json:"-"`
 	// Baking reward commission is not in the valid range for a baker
-	Tag string `json:"tag"` // BakingRewardCommissionNotInRange
-
+	BakingRewardCommissionNotInRange struct{} `json:"-"`
 	// Transaction fee commission is not in the valid range for a baker
-	Tag string `json:"tag"` // TransactionFeeCommissionNotInRange
-
+	TransactionFeeCommissionNotInRange struct{} `json:"-"`
 	// Tried to add baker for an account that already has a delegator.
-	Tag string `json:"tag"` // AlreadyADelegator
-
+	AlreadyADelegator struct{} `json:"-"`
 	// The amount on the account was insufficient to cover the proposed stake.
-	Tag string `json:"tag"` // InsufficientBalanceForDelegationStake
-
+	InsufficientBalanceForDelegationStake struct{} `json:"-"`
 	// A configure delegation transaction is missing one or more arguments in order to add a delegator.
-	Tag string `json:"tag"` // MissingDelegationAddParameters
-
+	MissingDelegationAddParameters struct{} `json:"-"`
 	// Account is not a delegation account.
-	Tag string `json:"tag"` // DelegatorInCooldown
-
+	DelegatorInCooldown struct{} `json:"-"`
 	// Account is not a delegation account.
-	Tag      string         `json:"tag"` // NotADelegator
-	Contents AccountAddress `json:"contents"`
-
+	NotADelegator struct {
+		Contents AccountAddress `json:"contents"`
+	} `json:"-"`
 	// Delegation target is not a baker
-	Tag      string `json:"tag"` // DelegationTargetNotABaker
-	Contents uint64 `json:"contents"`
-
+	DelegationTargetNotABaker struct {
+		Contents uint64 `json:"contents"`
+	} `json:"-"`
 	// The amount would result in pool capital higher than the maximum threshold.
-	Tag string `json:"tag"` // StakeOverMaximumThresholdForPool
-
+	StakeOverMaximumThresholdForPool struct{} `json:"-"`
 	// The amount would result in pool with a too high fraction of delegated capital.
-	Tag string `json:"tag"` // PoolWouldBecomeOverDelegated
-
+	PoolWouldBecomeOverDelegated struct{} `json:"-"`
 	// The pool is not open to delegators.
-	Tag string `json:"tag"` // PoolClosed
+	PoolClosed struct{} `json:"-"`
 }

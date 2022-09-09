@@ -14,9 +14,11 @@ type Deserializer interface {
 	Deserialize(b []byte) error
 }
 
-type PublicKey []byte
+// Hex represents base-16 encoded data.
+type Hex []byte
 
-func NewPublicKeyFromString(s string) (PublicKey, error) {
+// NewHex creates a new Hex from string.
+func NewHex(s string) (Hex, error) {
 	g, err := hex.DecodeString(s)
 	if err != nil {
 		return nil, fmt.Errorf("hex decode: %w", err)
@@ -24,29 +26,52 @@ func NewPublicKeyFromString(s string) (PublicKey, error) {
 	return g, nil
 }
 
-func MustNewPublicKeyFromString(s string) PublicKey {
-	g, err := NewPublicKeyFromString(s)
+// MustNewHex calls the NewHex. It panics in case of error.
+func MustNewHex(s string) Hex {
+	h, err := NewHex(s)
 	if err != nil {
-		panic("MustNewPublicKeyFromString: " + err.Error())
+		panic("MustNewHex: " + err.Error())
 	}
-	return g
+	return h
 }
 
-func (k PublicKey) MarshalJSON() ([]byte, error) {
-	b, err := hexMarshalJSON(k)
+func (h Hex) MarshalJSON() ([]byte, error) {
+	b, err := json.Marshal(hex.EncodeToString(h))
 	if err != nil {
-		return nil, fmt.Errorf("%T: %w", k, err)
+		return nil, fmt.Errorf("%T: %w", h, err)
 	}
 	return b, nil
 }
 
-func (k *PublicKey) UnmarshalJSON(b []byte) error {
-	v, err := hexUnmarshalJSON(b)
+func (h *Hex) UnmarshalJSON(b []byte) error {
+	var s string
+	err := json.Unmarshal(b, &s)
 	if err != nil {
-		return fmt.Errorf("%T: %w", *k, err)
+		return fmt.Errorf("%T: %w", *h, err)
 	}
-	*k = v
+	v, err := hex.DecodeString(s)
+	if err != nil {
+		return fmt.Errorf("%T: %w", *h, err)
+	}
+	*h = v
 	return nil
+}
+
+type PublicKey Hex
+
+// NewPublicKey creates a new PublicKey from string.
+func NewPublicKey(s string) (PublicKey, error) {
+	v, err := NewHex(s)
+	return PublicKey(v), err
+}
+
+// MustNewPublicKey calls the NewPublicKey. It panics in case of error.
+func MustNewPublicKey(s string) PublicKey {
+	v, err := NewPublicKey(s)
+	if err != nil {
+		panic("MustNewPublicKey: " + err.Error())
+	}
+	return v
 }
 
 // IdentityProvider is public information about an identity provider.

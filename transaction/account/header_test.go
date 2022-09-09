@@ -10,7 +10,7 @@ import (
 
 var (
 	testHeader = &header{
-		accountAddress: concordium.MustNewAccountAddressFromString("3TdFQK6hqoqoW38JQJGZ2y3RZfgVPzwB7dMKXbBdeYvdwPeF63"),
+		accountAddress: concordium.MustNewAccountAddress("3TdFQK6hqoqoW38JQJGZ2y3RZfgVPzwB7dMKXbBdeYvdwPeF63"),
 		nonce:          5,
 		energy:         1000,
 		bodySize:       10,

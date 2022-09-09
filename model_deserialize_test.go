@@ -146,7 +146,7 @@ func Test_DeserializeModel_Custom(t *testing.T) {
 		F2 AccountAddress `concordium:"model"`
 	}
 	var v s
-	a := MustNewAccountAddressFromString("3TdFQK6hqoqoW38JQJGZ2y3RZfgVPzwB7dMKXbBdeYvdwPeF63")
+	a := MustNewAccountAddress("3TdFQK6hqoqoW38JQJGZ2y3RZfgVPzwB7dMKXbBdeYvdwPeF63")
 	w := s{
 		//F1: &a,
 		F2: a,

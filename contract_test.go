@@ -6,7 +6,7 @@ import (
 
 var (
 	testModuleRefString = "1d40f9366f6fcb4586ac8e09ed391b5832cfd752fb63ee7bd38da0f3e77c4204"
-	testModuleRef       = MustNewModuleRefFromString(testModuleRefString)
+	testModuleRef       = MustNewModuleRef(testModuleRefString)
 
 	testContractName = ContractName("foo")
 

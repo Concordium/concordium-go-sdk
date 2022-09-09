@@ -14,12 +14,12 @@ const (
 var (
 	testBlockHashString = "7c9260d78b8cb702d25c9c9bb166276204f0ef617e867e597c6c7d53b8049267"
 	testBlockHashJSON   = []byte(`"` + testBlockHashString + `"`)
-	testBlockHash       = MustNewBlockHashFromString(testBlockHashString)
+	testBlockHash       = MustNewBlockHash(testBlockHashString)
 
 	testBlockInfo = &BlockInfo{
 		BlockHash:             testBlockHash,
-		BlockParent:           MustNewBlockHashFromString("1dd06682da815e86bc1589ec743103fda2039d0d9fa2ed919f400dc5a7c5b70b"),
-		BlockLastFinalized:    MustNewBlockHashFromString("1dd06682da815e86bc1589ec743103fda2039d0d9fa2ed919f400dc5a7c5b70b"),
+		BlockParent:           MustNewBlockHash("1dd06682da815e86bc1589ec743103fda2039d0d9fa2ed919f400dc5a7c5b70b"),
+		BlockLastFinalized:    MustNewBlockHash("1dd06682da815e86bc1589ec743103fda2039d0d9fa2ed919f400dc5a7c5b70b"),
 		BlockHeight:           2705072,
 		GenesisIndex:          2,
 		EraBlockHeight:        916798,
@@ -32,12 +32,12 @@ var (
 		TransactionCount:      0,
 		TransactionEnergyCost: 0,
 		TransactionsSize:      0,
-		BlockStateHash:        MustNewBlockHashFromString("e9730d53eed8dafda69c0b0440faabfd4a89e536553a151c657b62c3af827545"),
+		BlockStateHash:        MustNewBlockHash("e9730d53eed8dafda69c0b0440faabfd4a89e536553a151c657b62c3af827545"),
 	}
 
 	testBlockSummary = &BlockSummary{
 		FinalizationData: &FinalizationData{
-			FinalizationBlockPointer: MustNewBlockHashFromString("c7077bf80cefef660eb5ae99ad3fa9137c1f9cc7ed3ea019a8058d3e5c81aa07"),
+			FinalizationBlockPointer: MustNewBlockHash("c7077bf80cefef660eb5ae99ad3fa9137c1f9cc7ed3ea019a8058d3e5c81aa07"),
 			FinalizationDelay:        0,
 			FinalizationIndex:        530252,
 			Finalizers: []*Finalizer{
@@ -76,7 +76,7 @@ var (
 					},
 					Outcome: "success",
 				},
-				Sender: MustNewAccountAddressFromString("4hvvPeHb9HY4Lur7eUZv4KfL3tYBug8DRc4X9cVU8mpJLa1f2X"),
+				Sender: MustNewAccountAddress("4hvvPeHb9HY4Lur7eUZv4KfL3tYBug8DRc4X9cVU8mpJLa1f2X"),
 				Type: &TransactionType{
 					Contents: "initContract",
 					Type:     "accountTransaction",

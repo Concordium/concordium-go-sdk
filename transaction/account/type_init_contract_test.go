@@ -10,7 +10,7 @@ import (
 var (
 	testInitContractBody = newInitContractBody(
 		concordium.NewAmountZero(),
-		concordium.MustNewModuleRefFromString("2185f30bd3a4a6d29758799cc7d2a1330a98184acea622135014be858c5ff413"),
+		concordium.MustNewModuleRef("2185f30bd3a4a6d29758799cc7d2a1330a98184acea622135014be858c5ff413"),
 		"contract_name",
 	)
 	testInitContractBodyBytes = []byte{

@@ -1,15 +1,23 @@
 package concordium
 
-const (
-	NodeInfoNotInCommittee               = 0
-	NodeInfoAddedButNotActiveInCommittee = 1
-	NodeInfoAddedButWrongKeys            = 2
-	NodeInfoActiveInCommittee            = 3
-)
-
-type NodeInfoIsInBakingCommittee int
-
+// NodeId is a node identifier.
 type NodeId string
+
+type NodeInfoBakingCommittee int32
+
+const (
+	// NodeInfoNotInCommittee means that the node is not the baking committee.
+	NodeInfoNotInCommittee NodeInfoBakingCommittee = 0
+	// NodeInfoAddedButNotActiveInCommittee means that the node has baker keys, but the
+	// account is not currently a baker (and possibly never will be).
+	NodeInfoAddedButNotActiveInCommittee NodeInfoBakingCommittee = 1
+	// NodeInfoAddedButWrongKeys means that the node has baker keys, but they don't match
+	// the current keys on the baker account.
+	NodeInfoAddedButWrongKeys NodeInfoBakingCommittee = 2
+	// NodeInfoActiveInCommittee means that the node has valid baker keys and is active in
+	// the baker committee.
+	NodeInfoActiveInCommittee NodeInfoBakingCommittee = 3
+)
 
 // NodeInfo contains information about the node.
 type NodeInfo struct {
@@ -27,7 +35,7 @@ type NodeInfo struct {
 	// The node consensus type.
 	ConsensusType ConsensusType
 	// The baking status of the node.
-	ConsensusBakerCommittee NodeInfoIsInBakingCommittee
+	ConsensusBakerCommittee NodeInfoBakingCommittee
 	// Whether the node is part of the finalization committee.
 	ConsensusFinalizerCommittee bool
 	// The baker id. This will be 0 if the node is not a baker.

@@ -9,20 +9,24 @@ import (
 
 const amountSize = 8
 
+// Amount is a CCD amount.
 type Amount struct {
 	microCCD uint64
 }
 
+// NewAmountZero creates an empty amount.
 func NewAmountZero() *Amount {
 	return &Amount{}
 }
 
-func NewAmountFromMicroCCD(v int) *Amount {
-	return &Amount{microCCD: uint64(v)}
+// NewAmountFromMicroCCD created an amount with given micro CCD.
+func NewAmountFromMicroCCD(v uint64) *Amount {
+	return &Amount{microCCD: v}
 }
 
-func (a *Amount) MicroCCD() int {
-	return int(a.microCCD)
+// MicroCCD returns micro CCD value.
+func (a *Amount) MicroCCD() uint64 {
+	return a.microCCD
 }
 
 func (a *Amount) MarshalJSON() ([]byte, error) {

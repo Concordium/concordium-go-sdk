@@ -19,7 +19,8 @@ type BirkParameters struct {
 
 type ElectionNonce [electionNonceSize]byte
 
-func NewElectionNonceFromString(s string) (ElectionNonce, error) {
+// NewElectionNonce creates a new ElectionNonce from string.
+func NewElectionNonce(s string) (ElectionNonce, error) {
 	b, err := hex.DecodeString(s)
 	if err != nil {
 		return ElectionNonce{}, fmt.Errorf("hex decode: %w", err)
@@ -32,10 +33,11 @@ func NewElectionNonceFromString(s string) (ElectionNonce, error) {
 	return n, nil
 }
 
-func MustNewElectionNonceFromString(s string) ElectionNonce {
-	a, err := NewElectionNonceFromString(s)
+// MustNewElectionNonce calls the NewElectionNonce. It panics in case of error.
+func MustNewElectionNonce(s string) ElectionNonce {
+	a, err := NewElectionNonce(s)
 	if err != nil {
-		panic("MustNewElectionNonceFromString: " + err.Error())
+		panic("MustNewElectionNonce: " + err.Error())
 	}
 	return a
 }

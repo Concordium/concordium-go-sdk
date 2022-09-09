@@ -1,8 +1,6 @@
 package concordium
 
 import (
-	"encoding/hex"
-	"fmt"
 	"time"
 )
 
@@ -10,28 +8,10 @@ const (
 	OpenStatusOpenForAll   OpenStatus = "openForAll"
 	OpenStatusClosedForNew OpenStatus = "closedForNew"
 	OpenStatusClosedForAll OpenStatus = "closedForAll"
-
-	DelegationTargetTypePassive DelegationTargetType = "Passive"
-	DelegationTargetTypeBaker   DelegationTargetType = "Baker"
-
-	StakePendingChangeTypeReduce StakePendingChangeType = "ReduceStake"
-	StakePendingChangeTypeRemove StakePendingChangeType = "RemoveStake"
-
-	AccountCredentialWithoutProofsTypeInitial AccountCredentialWithoutProofsType = "initial"
-	AccountCredentialWithoutProofsTypeNormal  AccountCredentialWithoutProofsType = "normal"
 )
 
 // OpenStatus is the status of whether a baking pool allows delegators to join.
 type OpenStatus string
-
-// DelegationTargetType is type of the DelegationTarget
-type DelegationTargetType string
-
-// StakePendingChangeType is type of StakePendingChange
-type StakePendingChangeType string
-
-// AccountCredentialWithoutProofsType is type of AccountCredentialWithoutProofs
-type AccountCredentialWithoutProofsType string
 
 type AccountNonce uint64
 
@@ -46,39 +26,21 @@ type NextAccountNonce struct {
 }
 
 // EncryptedAmount base-16 encoded string (384 characters)
-type EncryptedAmount []byte
+type EncryptedAmount Hex
 
-func NewEncryptedAmountFromString(s string) (EncryptedAmount, error) {
-	a, err := hex.DecodeString(s)
-	if err != nil {
-		return nil, fmt.Errorf("hex decode: %w", err)
-	}
-	return a, nil
+// NewEncryptedAmount creates a new EncryptedAmount from string.
+func NewEncryptedAmount(s string) (EncryptedAmount, error) {
+	v, err := NewHex(s)
+	return EncryptedAmount(v), err
 }
 
-func MustNewEncryptedAmountFromString(s string) EncryptedAmount {
-	a, err := NewEncryptedAmountFromString(s)
+// MustNewEncryptedAmount calls the NewEncryptedAmount. It panics in case of error.
+func MustNewEncryptedAmount(s string) EncryptedAmount {
+	a, err := NewEncryptedAmount(s)
 	if err != nil {
-		panic("MustNewEncryptedAmountFromString: " + err.Error())
+		panic("MustNewEncryptedAmount: " + err.Error())
 	}
 	return a
-}
-
-func (a EncryptedAmount) MarshalJSON() ([]byte, error) {
-	b, err := hexMarshalJSON(a)
-	if err != nil {
-		return nil, fmt.Errorf("%T: %w", a, err)
-	}
-	return b, nil
-}
-
-func (a *EncryptedAmount) UnmarshalJSON(b []byte) error {
-	v, err := hexUnmarshalJSON(b)
-	if err != nil {
-		return fmt.Errorf("%T: %w", *a, err)
-	}
-	*a = v
-	return nil
 }
 
 // AccountInfo contains account information exposed via the node's API. This is always
@@ -165,6 +127,14 @@ type CommissionRates struct {
 	TransactionCommission float64 `json:"transactionCommission"`
 }
 
+// StakePendingChangeType is type of StakePendingChange
+type StakePendingChangeType string
+
+const (
+	StakePendingChangeTypeReduce StakePendingChangeType = "ReduceStake"
+	StakePendingChangeTypeRemove StakePendingChangeType = "RemoveStake"
+)
+
 // StakePendingChange is the pending change in the baker's stake.
 type StakePendingChange struct {
 	// Is StakePendingChangeTypeReduce if the stake is being reduced and StakePendingChangeTypeRemove if baker
@@ -174,6 +144,14 @@ type StakePendingChange struct {
 	// Provided only if StakePendingChange.Change is StakePendingChangeTypeRemove
 	NewStake *Amount `json:"newStake"`
 }
+
+// DelegationTargetType is type of the DelegationTarget
+type DelegationTargetType string
+
+const (
+	DelegationTargetTypePassive DelegationTargetType = "Passive"
+	DelegationTargetTypeBaker   DelegationTargetType = "Baker"
+)
 
 type DelegationTarget struct {
 	DelegateType DelegationTargetType `json:"delegateType"`
@@ -230,6 +208,14 @@ type AccountCredentials struct {
 	Value AccountCredentialWithoutProofs `json:"value"`
 }
 
+// AccountCredentialWithoutProofsType is type of AccountCredentialWithoutProofs
+type AccountCredentialWithoutProofsType string
+
+const (
+	AccountCredentialWithoutProofsTypeInitial AccountCredentialWithoutProofsType = "initial"
+	AccountCredentialWithoutProofsTypeNormal  AccountCredentialWithoutProofsType = "normal"
+)
+
 // AccountCredentialWithoutProofs is account credential with values and commitments, but without proofs.
 // Serialization must match the serialization of AccountCredential in Haskell.
 type AccountCredentialWithoutProofs struct {
@@ -260,14 +246,14 @@ type AccountCredentialWithoutProofsContent struct {
 	// Policy of this credential object.
 	Policy *CredentialPolicy `json:"policy"`
 	// Credential registration id of the credential.
-	RegId string `json:"regId"` // TODO hex
+	RegId Hex `json:"regId"`
 	// Anonymity revocation data. List of anonymity revokers which can revoke identity.
 	// NB: The order is important since it is the same order as that signed by the identity provider,
 	// and permuting the list will invalidate the signature from the identity provider.
 	ArData      *ChainArData                     `json:"arData"`
 	Commitments *CredentialDeploymentCommitments `json:"commitments"`
 	// Credential registration id of the credential.
-	CredId string `json:"credId"` // TODO hex
+	CredId Hex `json:"credId"`
 	// Credential keys (i.e. account holder keys).
 	// Anonymity revocation threshold. Must be <= length of ar_data.
 	RevocationThreshold uint8 `json:"revocationThreshold"`
@@ -307,14 +293,14 @@ type CredentialDeploymentCommitments struct {
 	// List of commitments to the attributes that are not revealed. For the purposes of
 	// checking signatures, the commitments to those that are revealed as part of the
 	// policy are going to be computed by the verifier.
-	CmmAttributes string `json:"cmmAttributes"` // TODO hex
+	CmmAttributes Hex `json:"cmmAttributes"`
 	// commitment to credential counter
-	CmmCredCounter string `json:"cmmCredCounter"` // TODO hex
+	CmmCredCounter Hex `json:"cmmCredCounter"`
 	// commitments to the coefficients of the polynomial used to share
 	// id_cred_sec S + b1 X + b2 X^2... where S is id_cred_sec"
-	CmmIdCredSecSharingCoeff []string `json:"cmmIdCredSecSharingCoeff"` // TODO hex
+	CmmIdCredSecSharingCoeff []Hex `json:"cmmIdCredSecSharingCoeff"`
 	// commitment to the max account number.
-	CmmMaxAccounts string `json:"cmmMaxAccounts"` // TODO hex
+	CmmMaxAccounts Hex `json:"cmmMaxAccounts"`
 	// commitment to the prf key
-	CmmPrf string `json:"cmmPrf"` // TODO hex
+	CmmPrf Hex `json:"cmmPrf"`
 }

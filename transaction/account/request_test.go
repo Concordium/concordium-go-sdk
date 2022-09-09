@@ -22,7 +22,7 @@ func (b *testBody) BaseEnergy() int {
 var (
 	testRequest = newRequest(
 		testCredentials,
-		concordium.MustNewAccountAddressFromString("3TdFQK6hqoqoW38JQJGZ2y3RZfgVPzwB7dMKXbBdeYvdwPeF63"),
+		concordium.MustNewAccountAddress("3TdFQK6hqoqoW38JQJGZ2y3RZfgVPzwB7dMKXbBdeYvdwPeF63"),
 		5,
 		time.Unix(1622334455, 0),
 		&testBody{},

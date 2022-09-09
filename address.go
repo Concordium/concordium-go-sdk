@@ -21,17 +21,20 @@ const (
 	contractAddressJsonType = "AddressContract"
 )
 
+// Address carries either AccountAddress or ContractAddress.
 type Address struct {
 	account  AccountAddress
 	contract *ContractAddress
 }
 
+// WrapAccountAddress wraps AccountAddress into Address.
 func WrapAccountAddress(addr AccountAddress) *Address {
 	return &Address{
 		account: addr,
 	}
 }
 
+// WrapContractAddress wraps ContractAddress into Address.
 func WrapContractAddress(addr *ContractAddress) *Address {
 	return &Address{
 		contract: addr,
@@ -126,7 +129,8 @@ func (a *Address) DeserializeModel(b []byte) (int, error) {
 // AccountAddress base-58 check with version byte 1 encoded address (with Bitcoin mapping table)
 type AccountAddress [accountAddressSize]byte
 
-func NewAccountAddressFromString(s string) (AccountAddress, error) {
+// NewAccountAddress creates a new AccountAddress from string.
+func NewAccountAddress(s string) (AccountAddress, error) {
 	b, _, err := base58.CheckDecode(s)
 	if err != nil {
 		return AccountAddress{}, fmt.Errorf("base58 decode: %w", err)
@@ -139,10 +143,11 @@ func NewAccountAddressFromString(s string) (AccountAddress, error) {
 	return a, nil
 }
 
-func MustNewAccountAddressFromString(s string) AccountAddress {
-	a, err := NewAccountAddressFromString(s)
+// MustNewAccountAddress calls the NewAccountAddress. It panics in case of error.
+func MustNewAccountAddress(s string) AccountAddress {
+	a, err := NewAccountAddress(s)
 	if err != nil {
-		panic("MustNewAccountAddressFromString: " + err.Error())
+		panic("MustNewAccountAddress: " + err.Error())
 	}
 	return a
 }
@@ -169,7 +174,7 @@ func (a *AccountAddress) UnmarshalJSON(b []byte) error {
 	if err != nil {
 		return fmt.Errorf("%T: %w", *a, err)
 	}
-	v, err := NewAccountAddressFromString(s)
+	v, err := NewAccountAddress(s)
 	if err != nil {
 		return fmt.Errorf("%T: %w", *a, err)
 	}
@@ -196,7 +201,7 @@ func (a *AccountAddress) DeserializeModel(b []byte) (int, error) {
 	return accountAddressSize, a.Deserialize(b)
 }
 
-// ContractAddress is a JSON record with two fields {index : Int, subindex : Int}
+// ContractAddress is a JSON record with two fields {index : uint64, subindex : uint64}
 type ContractAddress struct {
 	Index    uint64 `json:"index"`
 	SubIndex uint64 `json:"subindex"`

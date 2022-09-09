@@ -122,7 +122,7 @@ func Test_SerializeModel_StructOption(t *testing.T) {
 		F2 *AccountAddress `concordium:"model,option"`
 		F3 *AccountAddress `concordium:"model,option"`
 	}
-	a := MustNewAccountAddressFromString("3TdFQK6hqoqoW38JQJGZ2y3RZfgVPzwB7dMKXbBdeYvdwPeF63")
+	a := MustNewAccountAddress("3TdFQK6hqoqoW38JQJGZ2y3RZfgVPzwB7dMKXbBdeYvdwPeF63")
 	d, err := a.SerializeModel()
 	if err != nil {
 		t.Errorf("AccountAddress.ModelSerializer() error = %v", err)
@@ -146,7 +146,7 @@ func Test_SerializeModel_Custom(t *testing.T) {
 		// check when field contains non-pointer value
 		F2 AccountAddress `concordium:"model"`
 	}
-	a := MustNewAccountAddressFromString("3TdFQK6hqoqoW38JQJGZ2y3RZfgVPzwB7dMKXbBdeYvdwPeF63")
+	a := MustNewAccountAddress("3TdFQK6hqoqoW38JQJGZ2y3RZfgVPzwB7dMKXbBdeYvdwPeF63")
 	v := s{
 		F1: &a,
 		F2: a,

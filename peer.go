@@ -1,17 +1,30 @@
 package concordium
 
-const (
-	PeerElementUpToDate   PeerElementCatchupStatus = 0
-	PeerElementPending    PeerElementCatchupStatus = 1
-	PeerElementCatchingUp PeerElementCatchupStatus = 2
+type PeerElementCatchupStatus int32
 
+const (
+	// PeerElementUpToDate means that the peer does not have any data unknown to us. If we receive a message from the
+	// peer that refers to unknown data (e.g., an unknown block) the peer is marked as pending.
+	PeerElementUpToDate PeerElementCatchupStatus = 0
+	// PeerElementPending means that the peer might have some data unknown to us. A peer can be in this state either because
+	// it sent a message that refers to data unknown to us, or before we have established a baseline with it.
+	// The latter happens during node startup, as well as upon protocol updates until the initial catchup handshake
+	// completes.
+	PeerElementPending PeerElementCatchupStatus = 1
+	// PeerElementCatchingUp means that the node is currently catching up by requesting blocks from this peer.
+	// There will be at most one peer with this status at a time.
+	// Once the peer has responded to the request, its status will be changed to:
+	// - 'UPTODATE' if the peer has no more data that is not known to us
+	// - 'PENDING' if the node has more data that is unknown to us.
+	PeerElementCatchingUp PeerElementCatchupStatus = 2
+)
+
+type PeerType string
+
+const (
 	PeerTypeNode         PeerType = "Node"
 	PeerTypeBootstrapper PeerType = "Bootstrapper"
 )
-
-type PeerElementCatchupStatus int
-
-type PeerType string
 
 // PeerElement is a peer node.
 type PeerElement struct {

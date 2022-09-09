@@ -10,7 +10,7 @@ const testdataBirkParameters = "testdata/birk_parameters.json"
 var (
 	testElectionNonceString = "139b2dfddd24aa32b5260a8f3908331c814f567ae133de57065d6395db0e8cd6"
 	testElectionNonceJSON   = []byte(`"` + testElectionNonceString + `"`)
-	testElectionNonce       = MustNewElectionNonceFromString(testElectionNonceString)
+	testElectionNonce       = MustNewElectionNonce(testElectionNonceString)
 
 	testBirkParameters = &BirkParameters{
 		ElectionDifficulty: 2.5e-2,

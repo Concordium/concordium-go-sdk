@@ -8,12 +8,12 @@ import (
 const testdataConsensusStatus = "testdata/consensus_status.json"
 
 var testConsensusStatus = &ConsensusStatus{
-	BestBlock:                MustNewBlockHashFromString("8671be6e747c09b9ee694c33f909bcd04e5a3497efcf5858a71e27b42d569e39"),
-	GenesisBlock:             MustNewBlockHashFromString("b6078154d6717e909ce0da4a45a25151b592824f31624b755900a74429e3073d"),
+	BestBlock:                MustNewBlockHash("8671be6e747c09b9ee694c33f909bcd04e5a3497efcf5858a71e27b42d569e39"),
+	GenesisBlock:             MustNewBlockHash("b6078154d6717e909ce0da4a45a25151b592824f31624b755900a74429e3073d"),
 	GenesisTime:              testTimeMustParse(time.RFC3339, "2021-05-07T12:00:00Z"),
 	SlotDuration:             250,
 	EpochDuration:            3600000,
-	LastFinalizedBlock:       MustNewBlockHashFromString("8671be6e747c09b9ee694c33f909bcd04e5a3497efcf5858a71e27b42d569e39"),
+	LastFinalizedBlock:       MustNewBlockHash("8671be6e747c09b9ee694c33f909bcd04e5a3497efcf5858a71e27b42d569e39"),
 	BestBlockHeight:          2965925,
 	LastFinalizedBlockHeight: 2965925,
 	BlocksReceivedCount:      1200833,
@@ -36,7 +36,7 @@ var testConsensusStatus = &ConsensusStatus{
 	FinalizationPeriodEMSD:   14.942897961412053,
 	ProtocolVersion:          3,
 	GenesisIndex:             2,
-	CurrentEraGenesisBlock:   MustNewBlockHashFromString("396e1ac6b3cd4aef76fbd463275f270dbacf70294d3e33eee8e28cfb51aa1625"),
+	CurrentEraGenesisBlock:   MustNewBlockHash("396e1ac6b3cd4aef76fbd463275f270dbacf70294d3e33eee8e28cfb51aa1625"),
 	CurrentEraGenesisTime:    testTimeMustParse(time.RFC3339, "2021-12-06T11:00:03Z"),
 }
 
