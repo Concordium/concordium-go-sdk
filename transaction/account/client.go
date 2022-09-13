@@ -6,147 +6,118 @@ import (
 	"io"
 	"time"
 
-	cc "github.com/Concordium/concordium-go-sdk"
+	"github.com/Concordium/concordium-go-sdk"
 )
 
+// Context contains main parameters for all the account transaction.
 type Context struct {
-	Context     context.Context
-	NetworkId   cc.NetworkId
-	Credentials cc.Credentials
-	Sender      cc.AccountAddress
-	Expiry      time.Time
+	Context context.Context
+	// Concordium network identifier
+	NetworkId concordium.NetworkId
+	// Sender's credentials
+	Credentials concordium.Credentials
+	// The transaction sender
+	Sender concordium.AccountAddress
+	// Expiry date for the transaction
+	Expiry time.Time
 }
 
+// Client is a helper to work with account transactions
 type Client interface {
-	DeployModule(ctx *Context, wasm io.Reader) (cc.ModuleRef, error)
+	// DeployModule sends DeployModule account transactions and awaits for its finalization.
+	DeployModule(ctx *Context, wasm io.Reader) (*concordium.EventModuleDeployed, error)
 
-	InitContract(ctx *Context, moduleRef cc.ModuleRef, name cc.ContractName, params ...any) (*cc.ContractAddress, error)
+	// InitContract sends InitContract account transactions and awaits for its finalization.
+	InitContract(ctx *Context, params *InitContractParams) (*concordium.EventContractInitialized, error)
 
-	UpdateContract(ctx *Context, contractAddress *cc.ContractAddress, receiveName cc.ReceiveName, amount *cc.Amount, params ...any) ([]*UpdateContractResultEvent, error)
+	// UpdateContract sends UpdateContract account transactions and awaits for its finalization.
+	UpdateContract(ctx *Context, params *UpdateContractParams) (concordium.Events, error)
 
-	SimpleTransfer(ctx *Context, to cc.AccountAddress, amount *cc.Amount) error
+	// SimpleTransfer sends SimpleTransfer account transactions and awaits for its finalization.
+	SimpleTransfer(ctx *Context, params *SimpleTransferParams) (*concordium.EventTransferred, error)
 }
 
-func NewClient(cli cc.Client) Client {
+// NewClient is a Client constructor.
+func NewClient(cli concordium.Client) Client {
 	return &client{
 		cli: cli,
 	}
 }
 
 type client struct {
-	cli cc.Client
+	cli concordium.Client
 }
 
-func (c *client) DeployModule(ctx *Context, wasm io.Reader) (cc.ModuleRef, error) {
+// DeployModule implements Client.DeployModule method.
+func (c *client) DeployModule(ctx *Context, wasm io.Reader) (*concordium.EventModuleDeployed, error) {
 	b, err := io.ReadAll(wasm)
 	if err != nil {
-		return cc.ModuleRef{}, fmt.Errorf("unable to read wasm: %w", err)
+		return nil, fmt.Errorf("unable to read wasm: %w", err)
 	}
-	s, h, err := c.sendRequestAwait(ctx, newDeployModuleBody(b))
-	if err != nil {
-		return cc.ModuleRef{}, err
-	}
-	_, o, ok := s.Outcomes.First()
-	if !ok {
-		return cc.ModuleRef{}, fmt.Errorf("%q has no outcomes", h)
-	}
-	if o.Result.Outcome != cc.TransactionResultSuccess {
-		r, err := NewDeployModuleRejectReason(o.Result.RejectReason)
-		if err != nil {
-			return cc.ModuleRef{}, err
-		}
-		return cc.ModuleRef{}, r.Error()
-	}
-	if len(o.Result.Events) != 1 {
-		return cc.ModuleRef{}, fmt.Errorf("unexpected events count in transaction %q", o.Hash)
-	}
-	e, err := NewDeployModuleResultEvent(o.Result.Events[0])
-	if err != nil {
-		return cc.ModuleRef{}, err
-	}
-	return e.Contents, nil
-}
-
-func (c *client) InitContract(ctx *Context, moduleRef cc.ModuleRef, name cc.ContractName, params ...any) (*cc.ContractAddress, error) {
-	s, h, err := c.sendRequestAwait(ctx, newInitContractBody(cc.NewAmountZero(), moduleRef, name, params...))
+	s, err := c.sendRequestAwait(ctx, newDeployModuleBody(b))
 	if err != nil {
 		return nil, err
 	}
-	_, o, ok := s.Outcomes.First()
-	if !ok {
-		return nil, fmt.Errorf("%q has no outcomes", h)
+	if s.Result.Outcome != concordium.BlockItemResultOutcomeSuccess {
+		return nil, s.Result.RejectReason.Error()
 	}
-	if o.Result.Outcome != cc.TransactionResultSuccess {
-		r, err := NewInitContractRejectReason(o.Result.RejectReason)
-		if err != nil {
-			return nil, err
-		}
-		return nil, r.Error()
+	if len(s.Result.Events) != 1 {
+		return nil, fmt.Errorf("unexpected events count in transaction %q", s.Hash)
 	}
-	if len(o.Result.Events) != 1 {
-		return nil, fmt.Errorf("unexpected events count in transaction %q", o.Hash)
-	}
-	e, err := NewInitContractResultEvent(o.Result.Events[0])
+	return s.Result.Events[0].ModuleDeployed, nil
+}
+
+// InitContract implements Client.InitContract method.
+func (c *client) InitContract(ctx *Context, params *InitContractParams) (*concordium.EventContractInitialized, error) {
+	s, err := c.sendRequestAwait(ctx, newInitContractBody(concordium.NewAmountZero(), params.ModuleRef, params.Name, params.Params...))
 	if err != nil {
 		return nil, err
 	}
-	return e.Address, nil
+	if s.Result.Outcome != concordium.BlockItemResultOutcomeSuccess {
+		return nil, s.Result.RejectReason.Error()
+	}
+	if len(s.Result.Events) != 1 {
+		return nil, fmt.Errorf("unexpected events count in transaction %q", s.Hash)
+	}
+	return s.Result.Events[0].ContractInitialized, nil
 }
 
-func (c *client) UpdateContract(ctx *Context, contractAddress *cc.ContractAddress, receiveName cc.ReceiveName, amount *cc.Amount, params ...any) ([]*UpdateContractResultEvent, error) {
-	s, h, err := c.sendRequestAwait(ctx, newUpdateContractBody(amount, contractAddress, receiveName, params...))
+// UpdateContract implements Client.UpdateContract method.
+func (c *client) UpdateContract(ctx *Context, params *UpdateContractParams) (concordium.Events, error) {
+	s, err := c.sendRequestAwait(ctx, newUpdateContractBody(params.Amount, params.ContractAddress, params.ReceiveName, params.Params...))
 	if err != nil {
 		return nil, err
 	}
-	_, o, ok := s.Outcomes.First()
-	if !ok {
-		return nil, fmt.Errorf("%q has no outcomes", h)
+	if s.Result.Outcome != concordium.BlockItemResultOutcomeSuccess {
+		return nil, s.Result.RejectReason.Error()
 	}
-	if o.Result.Outcome != cc.TransactionResultSuccess {
-		r, err := NewUpdateContractRejectReason(o.Result.RejectReason)
-		if err != nil {
-			return nil, err
-		}
-		return nil, r.Error()
-	}
-	v := make([]*UpdateContractResultEvent, len(o.Result.Events))
-	for n, i := range o.Result.Events {
-		v[n], err = NewUpdateContractResultEvent(i)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return v, nil
+	return s.Result.Events, nil
 }
 
-func (c *client) SimpleTransfer(ctx *Context, to cc.AccountAddress, amount *cc.Amount) error {
-	s, h, err := c.sendRequestAwait(ctx, newSimpleTransferBody(to, amount))
+// SimpleTransfer implements Client.SimpleTransfer method.
+func (c *client) SimpleTransfer(ctx *Context, params *SimpleTransferParams) (*concordium.EventTransferred, error) {
+	s, err := c.sendRequestAwait(ctx, newSimpleTransferBody(params.To, params.Amount))
 	if err != nil {
-		return err
+		return nil, err
 	}
-	_, o, ok := s.Outcomes.First()
-	if !ok {
-		return fmt.Errorf("%q has no outcomes", h)
+	if s.Result.Outcome != concordium.BlockItemResultOutcomeSuccess {
+		return nil, s.Result.RejectReason.Error()
 	}
-	if o.Result.Outcome != cc.TransactionResultSuccess {
-		r, err := NewSimpleTransferRejectReason(o.Result.RejectReason)
-		if err != nil {
-			return err
-		}
-		return r.Error()
+	if len(s.Result.Events) != 1 {
+		return nil, fmt.Errorf("unexpected events count in transaction %q", s.Hash)
 	}
-	return nil
+	return s.Result.Events[0].Transferred, nil
 }
 
-func (c *client) sendRequestAwait(ctx *Context, body body) (*cc.TransactionSummary, cc.TransactionHash, error) {
+func (c *client) sendRequestAwait(ctx *Context, body body) (*concordium.BlockItemSummary, error) {
 	if ctx == nil {
-		return nil, "", fmt.Errorf("nil context not allowed")
+		return nil, fmt.Errorf("nil context not allowed")
 	}
 	if ctx.Sender.IsZero() {
-		return nil, "", fmt.Errorf("empty sender not allowed")
+		return nil, fmt.Errorf("empty sender not allowed")
 	}
 	if len(ctx.Credentials) == 0 {
-		return nil, "", fmt.Errorf("empty credentials not allowed")
+		return nil, fmt.Errorf("empty credentials not allowed")
 	}
 	ct := ctx.Context
 	if ct == nil {
@@ -154,25 +125,24 @@ func (c *client) sendRequestAwait(ctx *Context, body body) (*cc.TransactionSumma
 	}
 	net := ctx.NetworkId
 	if net == 0 {
-		net = cc.DefaultNetworkId
+		net = concordium.DefaultNetworkId
 	}
 	expiry := ctx.Expiry
 	if ctx.Expiry.IsZero() {
-		expiry = time.Now().Add(cc.DefaultExpiry)
+		expiry = time.Now().Add(concordium.DefaultExpiry)
 	}
 	nonce, err := c.cli.GetNextAccountNonce(ct, ctx.Sender)
 	if err != nil {
-		return nil, "", fmt.Errorf("unable to get next nonce: %w", err)
-	}
-	// TODO what to do in case of false
-	if !nonce.AllFinal {
-		return nil, "", fmt.Errorf("account nonce is not reliable")
+		return nil, fmt.Errorf("unable to get next nonce: %w", err)
 	}
 	req := newRequest(ctx.Credentials, ctx.Sender, nonce.Nonce, expiry, body)
 
 	s, hash, err := c.cli.SendTransactionAwait(ct, net, req)
 	if err != nil {
-		return nil, hash, fmt.Errorf("unable to await for transaction: %w", err)
+		return nil, fmt.Errorf("unable to await for transaction: %w", err)
 	}
-	return s, hash, nil
+	for _, v := range s.Outcomes {
+		return v, nil
+	}
+	return nil, fmt.Errorf("%q has no outcomes", hash)
 }

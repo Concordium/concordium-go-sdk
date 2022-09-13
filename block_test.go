@@ -27,7 +27,7 @@ var (
 		BlockArriveTime:       testTimeMustParse(time.RFC3339, "2022-03-23T20:58:16Z"),
 		BlockSlot:             37122774,
 		BlockSlotTime:         testTimeMustParse(time.RFC3339, "2022-03-23T20:58:16.5Z"),
-		BlockBaker:            5,
+		BlockBaker:            pointer(uint64(5)),
 		Finalized:             true,
 		TransactionCount:      0,
 		TransactionEnergyCost: 0,
@@ -36,11 +36,11 @@ var (
 	}
 
 	testBlockSummary = &BlockSummary{
-		FinalizationData: &FinalizationData{
+		FinalizationData: &FinalizationSummary{
 			FinalizationBlockPointer: MustNewBlockHash("c7077bf80cefef660eb5ae99ad3fa9137c1f9cc7ed3ea019a8058d3e5c81aa07"),
 			FinalizationDelay:        0,
 			FinalizationIndex:        530252,
-			Finalizers: []*Finalizer{
+			Finalizers: []*FinalizationSummaryParty{
 				{
 					BakerId: 0,
 					Signed:  true,
@@ -49,79 +49,89 @@ var (
 			},
 		},
 		ProtocolVersion: 4,
-		SpecialEvents: []*SpecialEvent{
+		SpecialEvents: []*SpecialTransactionOutcome{
 			{
 				BakerId:          5,
-				BakerReward:      "758296",
-				FoundationCharge: "167207",
-				NewGASAccount:    "769692",
-				OldGASAccount:    "23138",
-				PassiveReward:    "10",
+				BakerReward:      NewAmountFromMicroCCD(758296),
+				FoundationCharge: NewAmountFromMicroCCD(167207),
+				NewGASAccount:    NewAmountFromMicroCCD(769692),
+				OldGASAccount:    NewAmountFromMicroCCD(23138),
+				PassiveReward:    NewAmountFromMicroCCD(10),
 				Tag:              "BlockAccrueReward",
-				TransactionFees:  "1672067",
+				TransactionFees:  NewAmountFromMicroCCD(1672067),
 			},
 		},
-		TransactionSummaries: []*TransactionOutcome{
+		TransactionSummaries: []*BlockItemSummary{
 			{
 				Cost:       NewAmountFromMicroCCD(1672067),
 				EnergyCost: 999,
 				Hash:       "71eda267f1e717fad5867c64eb2e362dc6467abbb01807528e91edcb3dc65e41",
 				Index:      0,
-				Result: &TransactionResult{
-					Events: TransactionResultEvents{
+				Result: &BlockItemResult{
+					Events: Events{
 						{
 							Tag: "ContractInitialized",
-							Raw: []byte(`{"tag": "ContractInitialized"}`),
+							ContractInitialized: &EventContractInitialized{
+								Address: &ContractAddress{
+									Index:    888,
+									SubIndex: 0,
+								},
+								Amount:          NewAmountFromMicroCCD(0),
+								ContractVersion: 1,
+								Events:          []Model{},
+								InitName:        "init_a",
+								Ref:             MustNewModuleRef("935d17711a4dea10ba5a851df4f19cfdd7cdbd79c8d6ec9abfe5cacff873f6d0"),
+							},
 						},
 					},
 					Outcome: "success",
 				},
-				Sender: MustNewAccountAddress("4hvvPeHb9HY4Lur7eUZv4KfL3tYBug8DRc4X9cVU8mpJLa1f2X"),
-				Type: &TransactionType{
-					Contents: "initContract",
-					Type:     "accountTransaction",
+				Sender: pointer(MustNewAccountAddress("4hvvPeHb9HY4Lur7eUZv4KfL3tYBug8DRc4X9cVU8mpJLa1f2X")),
+				Type: &BlockItemType{
+					Type:               "accountTransaction",
+					AccountTransaction: "initContract",
 				},
 			},
 		},
-		Updates: &Updates{
+		Updates: &UpdateState{
 			ChainParameters: &ChainParameters{
 				AccountCreationLimit: 10,
-				BakingCommissionRange: &CommissionRange{
+				BakingCommissionRange: &InclusiveRange{
 					Max: 0.1,
 					Min: 0.1,
 				},
 				CapitalBound:       0.1,
 				DelegatorCooldown:  1209600,
-				ElectionDifficulty: 0.025,
-				EuroPerEnergy: &Fraction{
+				ElectionDifficulty: 2.5e-2,
+				EuroPerEnergy: &ExchangeRate{
 					Denominator: 50000,
 					Numerator:   1,
 				},
-				FinalizationCommissionRange: &CommissionRange{
+				FinalizationCommissionRange: &InclusiveRange{
 					Max: 1.0,
 					Min: 1.0,
 				},
 				FoundationAccountIndex: 11,
-				LeverageBound: &Fraction{
+				LeverageBound: &LeverageFactor{
 					Denominator: 1,
 					Numerator:   3,
 				},
-				MicroGTUPerEuro: &Fraction{
+				MicroGTUPerEuro: &ExchangeRate{
 					Denominator: 103736215559,
 					Numerator:   8681372131440148480,
 				},
-				MinimumEquityCapital:          "14000000000",
-				MintPerPayday:                 0.000261157877,
+				MinimumEquityCapital:          NewAmountFromMicroCCD(14000000000),
+				MintPerPayday:                 2.61157877e-4,
 				PassiveBakingCommission:       0.12,
 				PassiveFinalizationCommission: 1.0,
 				PassiveTransactionCommission:  0.12,
 				PoolOwnerCooldown:             1814400,
 				RewardParameters: &RewardParameters{
 					GASRewards: &GASRewards{
-						AccountCreation:   0.02,
+						AccountCreation:   2.0e-2,
 						Baker:             0.25,
-						ChainUpdate:       0.005,
-						FinalizationProof: 0.005,
+						ChainUpdate:       5.0e-3,
+						FinalizationProof: 5.0e-3,
 					},
 					MintDistribution: &MintDistribution{
 						BakingReward:       0.6,
@@ -133,14 +143,14 @@ var (
 					},
 				},
 				RewardPeriodLength: 24,
-				TransactionCommissionRange: &CommissionRange{
+				TransactionCommissionRange: &InclusiveRange{
 					Max: 0.1,
 					Min: 0.1,
 				},
 			},
 			Keys: &UpdateKeys{
-				Level1Keys: &Level1Keys{
-					Keys: []*Level1Key{
+				Level1Keys: &HigherLevelKeys{
+					Keys: []*VerifyKey{
 						{
 							SchemeId:  "Ed25519",
 							VerifyKey: "55721372d942742db382c3680737a424fe3234cf82a80d42da008d6b47179500",
@@ -148,188 +158,166 @@ var (
 					},
 					Threshold: 7,
 				},
-				Level2Keys: &Level2Keys{
-					AddAnonymityRevoker: &Level2Key{
-						AuthorizedKeys: []int{
-							0,
-						},
-						Threshold: 7,
-					},
-					AddIdentityProvider: &Level2Key{
-						AuthorizedKeys: []int{
-							0,
-						},
-						Threshold: 7,
-					},
-					CooldownParameters: &Level2Key{
-						AuthorizedKeys: []int{
-							0,
-						},
-						Threshold: 7,
-					},
-					ElectionDifficulty: &Level2Key{
-						AuthorizedKeys: []int{
-							0,
-						},
-						Threshold: 7,
-					},
-					Emergency: &Level2Key{
-						AuthorizedKeys: []int{
-							0,
-						},
-						Threshold: 7,
-					},
-					EuroPerEnergy: &Level2Key{
-						AuthorizedKeys: []int{
-							0,
-						},
-						Threshold: 7,
-					},
-					FoundationAccount: &Level2Key{
-						AuthorizedKeys: []int{
-							0,
-						},
-						Threshold: 7,
-					},
-					Keys: []*Level1Key{
+				Level2Keys: &Authorizations{
+					Keys: []*VerifyKey{
 						{
 							SchemeId:  "Ed25519",
 							VerifyKey: "b8ddf4505a37eee2c046671f634b74cf3630f3958ad70a04f39dc843041965be",
 						},
 					},
-					MicroGTUPerEuro: &Level2Key{
-						AuthorizedKeys: []int{
+					AddAnonymityRevoker: &AccessStructure{
+						AuthorizedKeys: []uint16{
 							0,
 						},
 						Threshold: 7,
 					},
-					MintDistribution: &Level2Key{
-						AuthorizedKeys: []int{
+					AddIdentityProvider: &AccessStructure{
+						AuthorizedKeys: []uint16{
 							0,
 						},
 						Threshold: 7,
 					},
-					ParamGASRewards: &Level2Key{
-						AuthorizedKeys: []int{
+					CooldownParameters: &AccessStructure{
+						AuthorizedKeys: []uint16{
 							0,
 						},
 						Threshold: 7,
 					},
-					PoolParameters: &Level2Key{
-						AuthorizedKeys: []int{
+					ElectionDifficulty: &AccessStructure{
+						AuthorizedKeys: []uint16{
 							0,
 						},
 						Threshold: 7,
 					},
-					Protocol: &Level2Key{
-						AuthorizedKeys: []int{
+					Emergency: &AccessStructure{
+						AuthorizedKeys: []uint16{
 							0,
 						},
 						Threshold: 7,
 					},
-					TimeParameters: &Level2Key{
-						AuthorizedKeys: []int{
+					EuroPerEnergy: &AccessStructure{
+						AuthorizedKeys: []uint16{
 							0,
 						},
 						Threshold: 7,
 					},
-					TransactionFeeDistribution: &Level2Key{
-						AuthorizedKeys: []int{
+					FoundationAccount: &AccessStructure{
+						AuthorizedKeys: []uint16{
+							0,
+						},
+						Threshold: 7,
+					},
+					MicroGTUPerEuro: &AccessStructure{
+						AuthorizedKeys: []uint16{
+							0,
+						},
+						Threshold: 7,
+					},
+					MintDistribution: &AccessStructure{
+						AuthorizedKeys: []uint16{
+							0,
+						},
+						Threshold: 7,
+					},
+					ParamGASRewards: &AccessStructure{
+						AuthorizedKeys: []uint16{
+							0,
+						},
+						Threshold: 7,
+					},
+					PoolParameters: &AccessStructure{
+						AuthorizedKeys: []uint16{
+							0,
+						},
+						Threshold: 7,
+					},
+					Protocol: &AccessStructure{
+						AuthorizedKeys: []uint16{
+							0,
+						},
+						Threshold: 7,
+					},
+					TransactionFeeDistribution: &AccessStructure{
+						AuthorizedKeys: []uint16{
 							0,
 						},
 						Threshold: 7,
 					},
 				},
-				RootKeys: &Level1Keys{
-					Keys: []*Level1Key{
+				RootKeys: &HigherLevelKeys{
+					Keys: []*VerifyKey{
 						{
 							SchemeId:  "Ed25519",
 							VerifyKey: "f4c9fb9da8d2b00cb6e1fd241b6271a0c4afcb3784e7e6c323bda7ed0b80a478",
 						},
 					},
-					Threshold: 7,
+					Threshold: 5,
 				},
 			},
-			UpdateQueues: &UpdateQueues{
-				AddAnonymityRevoker: &UpdateQueue{
+			UpdateQueues: &PendingUpdates{
+				AddAnonymityRevoker: &UpdateQueue[*AnonymityRevoker]{
 					NextSequenceNumber: 1,
-					Queue:              []any{},
+					Queue:              []*ScheduledUpdate[*AnonymityRevoker]{},
 				},
-				AddIdentityProvider: &UpdateQueue{
+				AddIdentityProvider: &UpdateQueue[*IdentityProvider]{
 					NextSequenceNumber: 1,
-					Queue:              []any{},
+					Queue:              []*ScheduledUpdate[*IdentityProvider]{},
 				},
-				CooldownParameters: &UpdateQueue{
+				CooldownParameters: &UpdateQueue[*CooldownParameters]{
 					NextSequenceNumber: 1,
-					Queue:              []any{},
+					Queue:              []*ScheduledUpdate[*CooldownParameters]{},
 				},
-				ElectionDifficulty: &UpdateQueue{
+				ElectionDifficulty: &UpdateQueue[float64]{
 					NextSequenceNumber: 1,
-					Queue:              []any{},
+					Queue:              []*ScheduledUpdate[float64]{},
 				},
-				EuroPerEnergy: &UpdateQueue{
+				EuroPerEnergy: &UpdateQueue[*ExchangeRate]{
 					NextSequenceNumber: 1,
-					Queue:              []any{},
+					Queue:              []*ScheduledUpdate[*ExchangeRate]{},
 				},
-				FoundationAccount: &UpdateQueue{
+				FoundationAccount: &UpdateQueue[uint64]{
 					NextSequenceNumber: 1,
-					Queue:              []any{},
+					Queue:              []*ScheduledUpdate[uint64]{},
 				},
-				GasRewards: &UpdateQueue{
+				GasRewards: &UpdateQueue[*GASRewards]{
 					NextSequenceNumber: 1,
-					Queue:              []any{},
+					Queue:              []*ScheduledUpdate[*GASRewards]{},
 				},
-				Level1Keys: &UpdateQueue{
+				Level1Keys: &UpdateQueue[*HigherLevelKeys]{
 					NextSequenceNumber: 1,
-					Queue:              []any{},
+					Queue:              []*ScheduledUpdate[*HigherLevelKeys]{},
 				},
-				Level2Keys: &UpdateQueue{
+				Level2Keys: &UpdateQueue[*Authorizations]{
 					NextSequenceNumber: 1,
-					Queue:              []any{},
+					Queue:              []*ScheduledUpdate[*Authorizations]{},
 				},
-				MicroGTUPerEuro: &UpdateQueue{
-					NextSequenceNumber: 1,
-					Queue:              []any{},
+				MicroGTUPerEuro: &UpdateQueue[*ExchangeRate]{
+					NextSequenceNumber: 3354,
+					Queue:              []*ScheduledUpdate[*ExchangeRate]{},
 				},
-				MintDistribution: &UpdateQueue{
+				MintDistribution: &UpdateQueue[*MintDistribution]{
 					NextSequenceNumber: 1,
-					Queue:              []any{},
+					Queue:              []*ScheduledUpdate[*MintDistribution]{},
 				},
-				PoolParameters: &UpdateQueue{
-					NextSequenceNumber: 1,
-					Queue:              []any{},
+				Protocol: &UpdateQueue[*ProtocolUpdate]{
+					NextSequenceNumber: 2,
+					Queue:              []*ScheduledUpdate[*ProtocolUpdate]{},
 				},
-				Protocol: &UpdateQueue{
+				RootKeys: &UpdateQueue[*HigherLevelKeys]{
 					NextSequenceNumber: 1,
-					Queue:              []any{},
+					Queue:              []*ScheduledUpdate[*HigherLevelKeys]{},
 				},
-				RootKeys: &UpdateQueue{
+				TransactionFeeDistribution: &UpdateQueue[*TransactionFeeDistribution]{
 					NextSequenceNumber: 1,
-					Queue:              []any{},
-				},
-				TimeParameters: &UpdateQueue{
-					NextSequenceNumber: 1,
-					Queue:              []any{},
-				},
-				TransactionFeeDistribution: &UpdateQueue{
-					NextSequenceNumber: 1,
-					Queue:              []any{},
+					Queue:              []*ScheduledUpdate[*TransactionFeeDistribution]{},
 				},
 			},
 		},
 	}
 )
 
-func TestBlockInfo_MarshalJSON(t *testing.T) {
-	testFileMarshalJSON(t, testBlockInfo, testdataBlockInfo)
-}
-
 func TestBlockInfo_UnmarshalJSON(t *testing.T) {
 	testFileUnmarshalJSON(t, &BlockInfo{}, testBlockInfo, testdataBlockInfo)
-}
-
-func TestBlockSummary_MarshalJSON(t *testing.T) {
-	testFileMarshalJSON(t, testBlockSummary, testdataBlockSummary)
 }
 
 func TestBlockSummary_UnmarshalJSON(t *testing.T) {

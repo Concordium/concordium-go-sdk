@@ -12,10 +12,6 @@ var testRewardStatus = &RewardStatus{
 	GasAccount:                NewAmountFromMicroCCD(3),
 }
 
-func TestRewardStatus_MarshalJSON(t *testing.T) {
-	testFileMarshalJSON(t, testRewardStatus, testdataRewardStatus)
-}
-
 func TestRewardStatus_UnmarshalJSON(t *testing.T) {
 	testFileUnmarshalJSON(t, &RewardStatus{}, testRewardStatus, testdataRewardStatus)
 }

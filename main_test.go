@@ -10,61 +10,22 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
+var (
+	testHexString = "c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+	testHexJSON   = []byte(`"` + testHexString + `"`)
+	testHex       = MustNewHex(testHexString)
+)
+
+func pointer[T any](v T) *T {
+	return &v
+}
+
 func testTimeMustParse(f, v string) time.Time {
 	t, err := time.Parse(f, v)
 	if err != nil {
 		panic(err)
 	}
 	return t
-}
-
-func testEqualJSON(a, b []byte) (bool, error) {
-	var i, j any
-	if err := json.Unmarshal(a, &i); err != nil {
-		return false, err
-	}
-	if err := json.Unmarshal(b, &j); err != nil {
-		return false, err
-	}
-	return reflect.DeepEqual(j, i), nil
-}
-
-func testHexMarshalJSON(t *testing.T, v any, w []byte) {
-	b, err := json.Marshal(v)
-	if err != nil {
-		t.Fatalf("MarshalJSON() error = %v", err)
-	}
-	if !reflect.DeepEqual(b, w) {
-		t.Errorf("MarshalJSON() got = %v, w %v", b, w)
-	}
-}
-
-func testHexUnmarshalJSON(t *testing.T, v, w any, b []byte) {
-	err := json.Unmarshal(b, v)
-	if err != nil {
-		t.Fatalf("UnmarshalJSON() error = %v", err)
-	}
-	if !reflect.DeepEqual(v, w) {
-		t.Errorf("UnmarshalJSON() got = %v, w %v", v, w)
-	}
-}
-
-func testFileMarshalJSON(t *testing.T, v any, td string) {
-	b, err := json.MarshalIndent(v, "", "  ")
-	if err != nil {
-		t.Fatalf("json.Marshal() error = %v", err)
-	}
-	d, err := os.ReadFile(td)
-	if err != nil {
-		t.Fatalf("os.ReadFile() error = %v", err)
-	}
-	ok, err := testEqualJSON(b, d)
-	if err != nil {
-		t.Fatalf("testEqualJSON() error = %v", err)
-	}
-	if !ok {
-		t.Errorf("MarshalJSON() got = %s, w %s", b, d)
-	}
 }
 
 func testFileUnmarshalJSON(t *testing.T, v, w any, td string) {
@@ -122,5 +83,68 @@ func testDeserializeModel(t *testing.T, v ModelDeserializer, w any, b []byte) {
 	}
 	if !reflect.DeepEqual(v, w) {
 		t.Errorf("DeserializeModel() got = %v, want %v", v, w)
+	}
+}
+
+func TestHex_MarshalJSON(t *testing.T) {
+	b, err := json.Marshal(testHex)
+	if err != nil {
+		t.Fatalf("MarshalJSON() error = %v", err)
+	}
+	if !reflect.DeepEqual(b, testHexJSON) {
+		t.Errorf("MarshalJSON() got = %v, w %v", b, testHexJSON)
+	}
+}
+
+func TestHex_UnmarshalJSON(t *testing.T) {
+	var h Hex
+	err := json.Unmarshal(testHexJSON, &h)
+	if err != nil {
+		t.Fatalf("UnmarshalJSON() error = %v", err)
+	}
+	if !reflect.DeepEqual(h, testHex) {
+		t.Errorf("UnmarshalJSON() got = %v, w %v", h, testHex)
+	}
+}
+
+func TestPairTuple_UnmarshalJSON(t *testing.T) {
+	tests := []struct {
+		name string
+		w    any
+		v    any
+		b    []byte
+	}{
+		{
+			name: "Int and String",
+			w: &PairTuple[int, string]{
+				First:  10,
+				Second: "foo",
+			},
+			v: &PairTuple[int, string]{},
+			b: []byte(`[10, "foo"]`),
+		},
+		{
+			name: "Int and ContractAddress",
+			w: &PairTuple[int, *ContractAddress]{
+				First: 10,
+				Second: &ContractAddress{
+					Index:    10,
+					SubIndex: 11,
+				},
+			},
+			v: &PairTuple[int, *ContractAddress]{},
+			b: []byte(`[10, {"index": 10, "subindex": 11}]`),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := json.Unmarshal(tt.b, tt.v)
+			if err != nil {
+				t.Fatalf("UnmarshalJSON() error = %v", err)
+			}
+			if !cmp.Equal(tt.v, tt.w) {
+				t.Errorf("UnmarshalJSON() got = %v, w %v", tt.v, tt.w)
+			}
+		})
 	}
 }

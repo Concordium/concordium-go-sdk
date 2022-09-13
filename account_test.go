@@ -17,7 +17,6 @@ var (
 	testEncryptionKey       = MustNewPublicKey(testEncryptionKeyString)
 
 	testEncryptedAmountString = "c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
-	testEncryptedAmountJSON   = []byte(`"` + testEncryptedAmountString + `"`)
 	testEncryptedAmount       = MustNewEncryptedAmount(testEncryptedAmountString)
 )
 
@@ -39,27 +38,10 @@ var testAccountInfo = &AccountInfo{
 	AccountAddress:       MustNewAccountAddress("4tUQrKhVKPN5pEev5joobH6n8RR5sXX6u6REdWZxi7NVvoZhVc"),
 }
 
-func TestNextAccountNonce_MarshalJSON(t *testing.T) {
-	testFileMarshalJSON(t, testNextAccountNonce, testdataNextAccountNonce)
-}
-
 func TestNextAccountNonce_UnmarshalJSON(t *testing.T) {
 	testFileUnmarshalJSON(t, &NextAccountNonce{}, testNextAccountNonce, testdataNextAccountNonce)
 }
 
-func TestAccountInfo_MarshalJSON(t *testing.T) {
-	testFileMarshalJSON(t, testAccountInfo, testdataAccountInfo)
-}
-
 func TestAccountInfo_UnmarshalJSON(t *testing.T) {
 	testFileUnmarshalJSON(t, &AccountInfo{}, testAccountInfo, testdataAccountInfo)
-}
-
-func TestEncryptedAmount_MarshalJSON(t *testing.T) {
-	testHexMarshalJSON(t, testEncryptedAmount, testEncryptedAmountJSON)
-}
-
-func TestEncryptedAmount_UnmarshalJSON(t *testing.T) {
-	var a EncryptedAmount
-	testHexUnmarshalJSON(t, &a, &testEncryptedAmount, testEncryptedAmountJSON)
 }

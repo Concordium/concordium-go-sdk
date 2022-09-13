@@ -17,31 +17,27 @@ var testConsensusStatus = &ConsensusStatus{
 	BestBlockHeight:          2965925,
 	LastFinalizedBlockHeight: 2965925,
 	BlocksReceivedCount:      1200833,
-	BlockLastReceivedTime:    testTimeMustParse(time.RFC3339, "2022-04-23T11:38:05.519319626Z"),
+	BlockLastReceivedTime:    pointer(testTimeMustParse(time.RFC3339, "2022-04-23T11:38:05.519319626Z")),
 	BlockReceiveLatencyEMA:   0.39017566218808836,
 	BlockReceiveLatencyEMSD:  0.14564296734552024,
-	BlockReceivePeriodEMA:    12.264950053211724,
-	BlockReceivePeriodEMSD:   14.771515854036915,
+	BlockReceivePeriodEMA:    pointer(12.264950053211724),
+	BlockReceivePeriodEMSD:   pointer(14.771515854036915),
 	BlocksVerifiedCount:      1200833,
-	BlockLastArrivedTime:     testTimeMustParse(time.RFC3339, "2022-04-23T11:38:05.52783592Z"),
+	BlockLastArrivedTime:     pointer(testTimeMustParse(time.RFC3339, "2022-04-23T11:38:05.52783592Z")),
 	BlockArriveLatencyEMA:    0.39862098584103156,
 	BlockArriveLatencyEMSD:   0.14664278987775503,
-	BlockArrivePeriodEMA:     12.264957938805841,
-	BlockArrivePeriodEMSD:    14.772069494891108,
+	BlockArrivePeriodEMA:     pointer(12.264957938805841),
+	BlockArrivePeriodEMSD:    pointer(14.772069494891108),
 	TransactionsPerBlockEMA:  2.7856107500049184e-3,
 	TransactionsPerBlockEMSD: 5.2705323485886274e-2,
 	FinalizationCount:        1022079,
-	LastFinalizedTime:        testTimeMustParse(time.RFC3339, "2022-04-23T11:38:06.860688322Z"),
-	FinalizationPeriodEMA:    13.033186677708576,
-	FinalizationPeriodEMSD:   14.942897961412053,
+	LastFinalizedTime:        pointer(testTimeMustParse(time.RFC3339, "2022-04-23T11:38:06.860688322Z")),
+	FinalizationPeriodEMA:    pointer(13.033186677708576),
+	FinalizationPeriodEMSD:   pointer(14.942897961412053),
 	ProtocolVersion:          3,
 	GenesisIndex:             2,
 	CurrentEraGenesisBlock:   MustNewBlockHash("396e1ac6b3cd4aef76fbd463275f270dbacf70294d3e33eee8e28cfb51aa1625"),
 	CurrentEraGenesisTime:    testTimeMustParse(time.RFC3339, "2021-12-06T11:00:03Z"),
-}
-
-func TestConsensusStatus_MarshalJSON(t *testing.T) {
-	testFileMarshalJSON(t, testConsensusStatus, testdataConsensusStatus)
 }
 
 func TestConsensusStatus_UnmarshalJSON(t *testing.T) {

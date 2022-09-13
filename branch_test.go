@@ -11,10 +11,6 @@ var testBranch = &Branch{
 	Children:  []*Branch{},
 }
 
-func TestBranch_MarshalJSON(t *testing.T) {
-	testFileMarshalJSON(t, testBranch, testdataBranch)
-}
-
 func TestBranch_UnmarshalJSON(t *testing.T) {
 	testFileUnmarshalJSON(t, &Branch{}, testBranch, testdataBranch)
 }

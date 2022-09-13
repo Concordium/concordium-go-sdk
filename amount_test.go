@@ -30,16 +30,15 @@ func TestNewAmountZero(t *testing.T) {
 }
 
 func TestNewAmountFromMicroCCD(t *testing.T) {
-	v := 1
-	w := uint64(v)
-	a := NewAmountFromMicroCCD(v)
+	w := uint64(1)
+	a := NewAmountFromMicroCCD(w)
 	if a.microCCD != w {
 		t.Errorf("NewAmountFromMicroCCD() got = %v, w %v", a.microCCD, w)
 	}
 }
 
 func TestAmount_MicroCCD(t *testing.T) {
-	v := 1
+	v := uint64(1)
 	a := NewAmountFromMicroCCD(v)
 	if a.MicroCCD() != v {
 		t.Errorf("MicroCCD() got = %v, w %v", a.MicroCCD(), v)
@@ -47,7 +46,7 @@ func TestAmount_MicroCCD(t *testing.T) {
 }
 
 func TestAmount_MarshalJSON(t *testing.T) {
-	v := 1
+	v := uint64(1)
 	w := []byte(fmt.Sprintf(`"%d"`, v))
 	a := NewAmountFromMicroCCD(v)
 	b, err := json.Marshal(a)
@@ -60,7 +59,7 @@ func TestAmount_MarshalJSON(t *testing.T) {
 }
 
 func TestAmount_UnmarshalJSON(t *testing.T) {
-	v := 1
+	v := uint64(1)
 	b := []byte(fmt.Sprintf(`"%d"`, v))
 	a := &Amount{}
 	err := json.Unmarshal(b, a)

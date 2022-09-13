@@ -19,10 +19,6 @@ var (
 	}
 )
 
-func TestBirkParameters_MarshalJSON(t *testing.T) {
-	testFileMarshalJSON(t, testBirkParameters, testdataBirkParameters)
-}
-
 func TestBirkParameters_UnmarshalJSON(t *testing.T) {
 	testFileUnmarshalJSON(t, &BirkParameters{}, testBirkParameters, testdataBirkParameters)
 }

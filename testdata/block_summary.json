@@ -32,7 +32,18 @@
       "index": 0,
       "result": {
         "events": [
-          {"tag": "ContractInitialized"}
+          {
+            "address": {
+              "index": 888,
+              "subindex": 0
+            },
+            "amount": "0",
+            "contractVersion": 1,
+            "events": [],
+            "initName": "init_a",
+            "ref": "935d17711a4dea10ba5a851df4f19cfdd7cdbd79c8d6ec9abfe5cacff873f6d0",
+            "tag": "ContractInitialized"
+          }
         ],
         "outcome": "success"
       },
@@ -52,7 +63,7 @@
       },
       "capitalBound": 0.1,
       "delegatorCooldown": 1209600,
-      "electionDifficulty": 0.025,
+      "electionDifficulty": 2.5e-2,
       "euroPerEnergy": {
         "denominator": 50000,
         "numerator": 1
@@ -71,17 +82,17 @@
         "numerator": 8681372131440148480
       },
       "minimumEquityCapital": "14000000000",
-      "mintPerPayday": 0.000261157877,
+      "mintPerPayday": 2.61157877e-4,
       "passiveBakingCommission": 0.12,
       "passiveFinalizationCommission": 1.0,
       "passiveTransactionCommission": 0.12,
       "poolOwnerCooldown": 1814400,
       "rewardParameters": {
         "gASRewards": {
-          "accountCreation": 0.02,
+          "accountCreation": 2.0e-2,
           "baker": 0.25,
-          "chainUpdate": 0.005,
-          "finalizationProof": 0.005
+          "chainUpdate": 5.0e-3,
+          "finalizationProof": 5.0e-3
         },
         "mintDistribution": {
           "bakingReward": 0.6,
@@ -207,7 +218,7 @@
             "verifyKey": "f4c9fb9da8d2b00cb6e1fd241b6271a0c4afcb3784e7e6c323bda7ed0b80a478"
           }
         ],
-        "threshold": 7
+        "threshold": 5
       }
     },
     "updateQueues": {
@@ -248,7 +259,7 @@
         "queue": []
       },
       "microGTUPerEuro": {
-        "nextSequenceNumber": 1,
+        "nextSequenceNumber": 3354,
         "queue": []
       },
       "mintDistribution": {
@@ -260,7 +271,7 @@
         "queue": []
       },
       "protocol": {
-        "nextSequenceNumber": 1,
+        "nextSequenceNumber": 2,
         "queue": []
       },
       "rootKeys": {

@@ -1,6 +1,7 @@
 package concordium
 
 import (
+	"encoding/json"
 	"time"
 )
 
@@ -43,6 +44,16 @@ func MustNewEncryptedAmount(s string) EncryptedAmount {
 	return a
 }
 
+func (a *EncryptedAmount) UnmarshalJSON(b []byte) error {
+	var h Hex
+	err := json.Unmarshal(b, &h)
+	if err != nil {
+		return err
+	}
+	*a = EncryptedAmount(h)
+	return nil
+}
+
 // AccountInfo contains account information exposed via the node's API. This is always
 // the state of an account in a specific block.
 type AccountInfo struct {
@@ -69,7 +80,7 @@ type AccountInfo struct {
 	// Next nonce to be used for transactions signed from this account.
 	AccountNonce AccountNonce `json:"accountNonce"`
 	// Release schedule for any locked up amount. This could be an empty release schedule.
-	AccountReleaseSchedule AccountReleaseSchedule `json:"accountReleaseSchedule"`
+	AccountReleaseSchedule *AccountReleaseSchedule `json:"accountReleaseSchedule"`
 	// Lower bound on how many credentials must sign any given transaction from this account.
 	AccountThreshold uint8 `json:"accountThreshold"`
 }
@@ -182,7 +193,7 @@ type Release struct {
 type AccountEncryptedAmount struct {
 	// If ['Some'], the amount that has resulted from aggregating other amounts and the
 	// number of aggregated amounts (must be at least 2 if present).
-	AggregatedAmount []EncryptedAmount `json:"aggregatedAmount"` // TODO item can be uint32
+	AggregatedAmount *PairTuple[EncryptedAmount, uint32] `json:"aggregatedAmount"`
 	// Amounts starting at `start_index` (or at `start_index + 1` if there is an aggregated
 	// amount present). They are assumed to be numbered sequentially. The length of this
 	// list is bounded by the maximum number of incoming amounts on the accounts, which is

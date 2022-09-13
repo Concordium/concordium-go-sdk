@@ -3,6 +3,8 @@ package concordium
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -466,8 +468,8 @@ func (c *client) SendTransactionAsync(ctx context.Context, networkId NetworkId, 
 		return "", fmt.Errorf("unable to serialize request: %w", err)
 	}
 	p := make([]byte, 2+len(b))
-	p[0] = uint8(request.Version())
-	p[1] = uint8(request.Kind())
+	p[0] = request.Version()
+	p[1] = request.Kind()
 	copy(p[2:], b)
 	res, err := c.grpc.SendTransaction(ctx, &grpc_api.SendTransactionRequest{
 		NetworkId: uint32(networkId),
@@ -479,7 +481,10 @@ func (c *client) SendTransactionAsync(ctx context.Context, networkId NetworkId, 
 	if !res.Value {
 		return "", fmt.Errorf("transaction was rejected")
 	}
-	return newTransactionHash(request.Kind(), b), nil
+	h := sha256.New()
+	h.Write([]byte{request.Kind()})
+	h.Write(b)
+	return TransactionHash(hex.EncodeToString(h.Sum(nil))), nil
 }
 
 // SendTransactionAwait implements Client.SendTransactionAwait method.

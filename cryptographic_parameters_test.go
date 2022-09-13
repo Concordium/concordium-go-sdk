@@ -23,10 +23,6 @@ var testCryptographicParameters = &CryptographicParameters{
 	},
 }
 
-func TestCryptographicParameters_MarshalJSON(t *testing.T) {
-	testFileMarshalJSON(t, testCryptographicParameters, testdataCryptographicParameters)
-}
-
 func TestCryptographicParameters_UnmarshalJSON(t *testing.T) {
 	testFileUnmarshalJSON(t, &CryptographicParameters{}, testCryptographicParameters, testdataCryptographicParameters)
 }

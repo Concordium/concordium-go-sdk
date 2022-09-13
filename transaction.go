@@ -1,8 +1,6 @@
 package concordium
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
 	"time"
 )
 
@@ -10,34 +8,15 @@ const (
 	DefaultExpiry = 10 * time.Minute
 )
 
-const (
-	BlockItemVersion0 BlockItemVersion = 0
-
-	BlockItemKindAccountTransaction   BlockItemKind = 0
-	BlockItemKindCredentialDeployment BlockItemKind = 1
-	BlockItemKindUpdateInstruction    BlockItemKind = 2
-)
-
-type BlockItemVersion uint8
-
-type BlockItemKind uint8
-
 type TransactionRequest interface {
 	Serializer
-	Version() BlockItemVersion
-	Kind() BlockItemKind
+	Version() uint8
+	Kind() uint8
 	ExpiredAt() time.Time
 }
 
 // TransactionHash base-16 encoded hash of a transaction (64 characters)
 type TransactionHash string
-
-func newTransactionHash(kind BlockItemKind, b []byte) TransactionHash {
-	h := sha256.New()
-	h.Write([]byte{uint8(kind)})
-	h.Write(b)
-	return TransactionHash(hex.EncodeToString(h.Sum(nil)))
-}
 
 type TransactionStatusStatus string
 
@@ -58,5 +37,5 @@ const (
 type TransactionStatus struct {
 	Status TransactionStatusStatus `json:"status"`
 	// Absents is TransactionStatus.Status is TransactionStatusStatusReceived
-	Outcomes *BlockItemSummary `json:"outcomes"`
+	Outcomes map[TransactionHash]*BlockItemSummary `json:"outcomes"`
 }

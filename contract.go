@@ -326,7 +326,7 @@ type RejectReason struct {
 	// funds on account/contract A to make this possible. The data are the from
 	// address and the amount to transfer.
 	AmountTooLarge struct {
-		Contents [2]any `json:"contents"` // Address and Amount
+		Contents *PairTuple[*Address, *Amount] `json:"contents"`
 	} `json:"-"`
 	// Serialization of the body failed.
 	SerializationFailure struct{} `json:"-"`
@@ -444,4 +444,12 @@ type RejectReason struct {
 	PoolWouldBecomeOverDelegated struct{} `json:"-"`
 	// The pool is not open to delegators.
 	PoolClosed struct{} `json:"-"`
+}
+
+func (r *RejectReason) Error() error {
+	if r == nil {
+		return nil
+	}
+	// TODO add more details
+	return fmt.Errorf("%s", r.Tag)
 }

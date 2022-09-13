@@ -33,12 +33,12 @@ func newRequest(
 	}
 }
 
-func (r *request) Version() concordium.BlockItemVersion {
-	return concordium.BlockItemVersion0
+func (r *request) Version() uint8 {
+	return 0
 }
 
-func (r *request) Kind() concordium.BlockItemKind {
-	return concordium.BlockItemKindAccountTransaction
+func (r *request) Kind() uint8 {
+	return 0
 }
 
 func (r *request) ExpiredAt() time.Time {

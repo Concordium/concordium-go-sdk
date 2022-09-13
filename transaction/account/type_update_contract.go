@@ -1,54 +1,18 @@
 package account
 
 import (
-	"encoding/json"
-	"fmt"
-
 	"github.com/Concordium/concordium-go-sdk"
 )
 
-type UpdateContractResultEvent struct {
-	Tag             concordium.TransactionResultEventTag `json:"tag"`
-	ContractVersion int                                  `json:"contractVersion"` // Updated
-	Address         *concordium.ContractAddress          `json:"address"`         // Updated, Interrupted, Resumed
-	Instigator      *concordium.Address                  `json:"instigator"`      // Updated
-	Amount          *concordium.Amount                   `json:"amount"`          // Updated, Transferred
-	Message         concordium.Model                     `json:"message"`         // Updated
-	ReceiveName     concordium.ReceiveName               `json:"receiveName"`     // Updated
-	Events          []concordium.Model                   `json:"events"`          // Updated, Interrupted
-	From            *concordium.Address                  `json:"from"`            // Transferred
-	To              *concordium.Address                  `json:"to"`              // Transferred
-	Success         bool                                 `json:"success"`         // Resumed
-}
-
-func NewUpdateContractResultEvent(origin *concordium.TransactionResultEvent) (*UpdateContractResultEvent, error) {
-	e := &UpdateContractResultEvent{}
-	err := json.Unmarshal(origin.Raw, e)
-	if err != nil {
-		return nil, err
-	}
-	return e, nil
-}
-
-type UpdateContractRejectReason struct {
-	Tag             concordium.TransactionRejectReasonTag `json:"tag"`
-	RejectReason    int                                   `json:"rejectReason"`
-	ContractAddress *concordium.ContractAddress           `json:"contractAddress"`
-	ReceiveName     concordium.ReceiveName                `json:"receiveName"`
-	Parameter       concordium.Model                      `json:"parameter"`
-}
-
-func NewUpdateContractRejectReason(origin *concordium.TransactionRejectReason) (*UpdateContractRejectReason, error) {
-	r := &UpdateContractRejectReason{}
-	err := json.Unmarshal(origin.Raw, r)
-	if err != nil {
-		return nil, err
-	}
-	return r, nil
-}
-
-func (r *UpdateContractRejectReason) Error() error {
-	return fmt.Errorf("%q rejected with reason %d", r.ReceiveName, r.RejectReason)
+type UpdateContractParams struct {
+	// Invoked contract address
+	ContractAddress *concordium.ContractAddress
+	// Method to invoke
+	ReceiveName concordium.ReceiveName
+	// Amount
+	Amount *concordium.Amount
+	// Incoming parameters for invoked method
+	Params []any
 }
 
 type updateContractBody struct {

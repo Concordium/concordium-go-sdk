@@ -14,16 +14,38 @@ type Deserializer interface {
 	Deserialize(b []byte) error
 }
 
+type PairTuple[T any, V any] struct {
+	First  T
+	Second V
+}
+
+func (t *PairTuple[T, V]) UnmarshalJSON(b []byte) error {
+	var v [2]json.RawMessage
+	err := json.Unmarshal(b, &v)
+	if err != nil {
+		return fmt.Errorf("%T: %w", *t, err)
+	}
+	err = json.Unmarshal(v[0], &t.First)
+	if err != nil {
+		return fmt.Errorf("%T [%T]: %w", *t, t.First, err)
+	}
+	err = json.Unmarshal(v[1], &t.Second)
+	if err != nil {
+		return fmt.Errorf("%T [%T]: %w", *t, t.Second, err)
+	}
+	return nil
+}
+
 // Hex represents base-16 encoded data.
 type Hex []byte
 
 // NewHex creates a new Hex from string.
 func NewHex(s string) (Hex, error) {
-	g, err := hex.DecodeString(s)
+	h, err := hex.DecodeString(s)
 	if err != nil {
 		return nil, fmt.Errorf("hex decode: %w", err)
 	}
-	return g, nil
+	return h, nil
 }
 
 // MustNewHex calls the NewHex. It panics in case of error.
@@ -72,6 +94,16 @@ func MustNewPublicKey(s string) PublicKey {
 		panic("MustNewPublicKey: " + err.Error())
 	}
 	return v
+}
+
+func (k *PublicKey) UnmarshalJSON(b []byte) error {
+	var h Hex
+	err := json.Unmarshal(b, &h)
+	if err != nil {
+		return err
+	}
+	*k = PublicKey(h)
+	return nil
 }
 
 // IdentityProvider is public information about an identity provider.
