@@ -152,6 +152,7 @@ func MustNewAccountAddress(s string) AccountAddress {
 	return a
 }
 
+// IsZero returns true if the AccountAddress array does not contain a value.
 func (a *AccountAddress) IsZero() bool {
 	return *a == AccountAddress{}
 }
@@ -201,7 +202,7 @@ func (a *AccountAddress) DeserializeModel(b []byte) (int, error) {
 	return accountAddressSize, a.Deserialize(b)
 }
 
-// ContractAddress is a JSON record with two fields {index : uint64, subindex : uint64}
+// ContractAddress is the address of a deployed and instantiated module on the chain.
 type ContractAddress struct {
 	Index    uint64 `json:"index"`
 	SubIndex uint64 `json:"subindex"`

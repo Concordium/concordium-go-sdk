@@ -152,7 +152,7 @@ type StakePendingChange struct {
 	// will be removed at the end of the given epoch
 	Change        StakePendingChangeType `json:"change"`
 	EffectiveTime time.Time              `json:"effectiveTime"`
-	// Provided only if StakePendingChange.Change is StakePendingChangeTypeRemove
+	// Provided only if StakePendingChange.Change is StakePendingChangeTypeReduce
 	NewStake *Amount `json:"newStake"`
 }
 
@@ -160,8 +160,10 @@ type StakePendingChange struct {
 type DelegationTargetType string
 
 const (
+	// DelegationTargetTypePassive when delegate passively, i.e., to no specific baker.
 	DelegationTargetTypePassive DelegationTargetType = "Passive"
-	DelegationTargetTypeBaker   DelegationTargetType = "Baker"
+	// DelegationTargetTypeBaker when delegate to a specific baker.
+	DelegationTargetTypeBaker DelegationTargetType = "Baker"
 )
 
 type DelegationTarget struct {

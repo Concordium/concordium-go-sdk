@@ -9,7 +9,6 @@ import (
 var (
 	// TODO move to env
 	testIntegrationGrpcTarget      = "34.71.98.161:10001"
-	testIntegrationGrpcToken       = "rpcadmin"
 	testIntegrationBlockHash       = MustNewBlockHash("7f25ab75a1045321220d6a54ef76d5cd1b107228046b8cc349c69d90f2bf7fae")
 	testIntegrationBlockHeight     = BlockHeight(3335575)
 	testIntegrationAccountAddress  = MustNewAccountAddress("4hvvPeHb9HY4Lur7eUZv4KfL3tYBug8DRc4X9cVU8mpJLa1f2X")
@@ -21,7 +20,7 @@ var (
 
 func TestMain(m *testing.M) {
 	var err error
-	testIntegrationBaseClient, err = NewClient(context.Background(), testIntegrationGrpcTarget, testIntegrationGrpcToken)
+	testIntegrationBaseClient, err = NewClient(context.Background(), testIntegrationGrpcTarget)
 	if err != nil {
 		panic(err)
 	}

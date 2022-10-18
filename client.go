@@ -24,8 +24,8 @@ type Client interface {
 	// addresses list if they are on it.
 	PeerDisconnect(ctx context.Context, ip string, port int32) (bool, error)
 
-	// PeerUptime returns the uptime of the node in milliseconds.
-	PeerUptime(ctx context.Context) (uint64, error)
+	// PeerUptime returns the uptime of the node.
+	PeerUptime(ctx context.Context) (time.Duration, error)
 
 	// PeerTotalSent returns the total number of packets sent by the node.
 	PeerTotalSent(ctx context.Context) (uint64, error)
@@ -68,7 +68,7 @@ type Client interface {
 
 	// GetAncestors returns a list of the blocks preceding the given block. The list will contain
 	// at most amount blocks.
-	GetAncestors(ctx context.Context, blockHash BlockHash, amount int) ([]BlockHash, error)
+	GetAncestors(ctx context.Context, blockHash BlockHash, amount uint64) ([]BlockHash, error)
 
 	// GetBranches returns the branches of the tree. This is the part of the tree above the last
 	// finalized block.
@@ -173,19 +173,33 @@ func (c perRPCCredentials) RequireTransportSecurity() bool {
 	return false
 }
 
+type ClientOptionsFunc func(cli *client)
+
+func WithToken(token string) ClientOptionsFunc {
+	return func(cli *client) {
+		cli.token = token
+	}
+}
+
 type client struct {
-	grpc grpc_api.P2PClient
+	token string
+	grpc  grpc_api.P2PClient
 }
 
 // NewClient is a Client constructor.
-func NewClient(ctx context.Context, target, token string) (Client, error) {
-	conn, err := grpc.DialContext(ctx, target, grpc.WithInsecure(), grpc.WithPerRPCCredentials(perRPCCredentials(token)))
+func NewClient(ctx context.Context, target string, options ...ClientOptionsFunc) (Client, error) {
+	cli := &client{}
+	for _, i := range options {
+		i(cli)
+	}
+	if cli.token == "" {
+		cli.token = "rpcadmin"
+	}
+	conn, err := grpc.DialContext(ctx, target, grpc.WithInsecure(), grpc.WithPerRPCCredentials(perRPCCredentials(cli.token)))
 	if err != nil {
 		return nil, err
 	}
-	cli := &client{
-		grpc: grpc_api.NewP2PClient(conn),
-	}
+	cli.grpc = grpc_api.NewP2PClient(conn)
 	return cli, nil
 }
 
@@ -222,12 +236,12 @@ func (c *client) PeerDisconnect(ctx context.Context, ip string, port int32) (boo
 }
 
 // PeerUptime implements Client.PeerUptime method.
-func (c *client) PeerUptime(ctx context.Context) (uint64, error) {
+func (c *client) PeerUptime(ctx context.Context) (time.Duration, error) {
 	res, err := c.grpc.PeerUptime(ctx, &grpc_api.Empty{})
 	if err != nil {
 		return 0, err
 	}
-	return res.GetValue(), nil
+	return time.Duration(res.GetValue()) * time.Millisecond, nil
 }
 
 // PeerTotalSent implements Client.PeerTotalSent method.
@@ -418,10 +432,10 @@ func (c *client) GetBlockInfo(ctx context.Context, b BlockHash) (*BlockInfo, err
 }
 
 // GetAncestors implements Client.GetAncestors method.
-func (c *client) GetAncestors(ctx context.Context, blockHash BlockHash, amount int) ([]BlockHash, error) {
+func (c *client) GetAncestors(ctx context.Context, blockHash BlockHash, amount uint64) ([]BlockHash, error) {
 	res, err := c.grpc.GetAncestors(ctx, &grpc_api.BlockHashAndAmount{
 		BlockHash: blockHash.String(),
-		Amount:    uint64(amount),
+		Amount:    amount,
 	})
 	if err != nil {
 		return nil, err
