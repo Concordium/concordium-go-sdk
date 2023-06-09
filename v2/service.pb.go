@@ -4,10 +4,9 @@
 // 	protoc        v3.17.3
 // source: service.proto
 
-package pb
+package v2
 
 import (
-	"concordium-go-sdk/v2"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -297,63 +296,63 @@ var file_service_proto_rawDesc = []byte{
 }
 
 var file_service_proto_goTypes = []interface{}{
-	(*v2.Empty)(nil),                      // 0: concordium.v2.Empty
-	(*v2.AccountInfoRequest)(nil),         // 1: concordium.v2.AccountInfoRequest
-	(*v2.BlockHashInput)(nil),             // 2: concordium.v2.BlockHashInput
-	(*v2.AncestorsRequest)(nil),           // 3: concordium.v2.AncestorsRequest
-	(*v2.ModuleSourceRequest)(nil),        // 4: concordium.v2.ModuleSourceRequest
-	(*v2.InstanceInfoRequest)(nil),        // 5: concordium.v2.InstanceInfoRequest
-	(*v2.InstanceStateLookupRequest)(nil), // 6: concordium.v2.InstanceStateLookupRequest
-	(*v2.AccountAddress)(nil),             // 7: concordium.v2.AccountAddress
-	(*v2.TransactionHash)(nil),            // 8: concordium.v2.TransactionHash
-	(*v2.PoolInfoRequest)(nil),            // 9: concordium.v2.PoolInfoRequest
-	(*v2.BlocksAtHeightRequest)(nil),      // 10: concordium.v2.BlocksAtHeightRequest
-	(*v2.InvokeInstanceRequest)(nil),      // 11: concordium.v2.InvokeInstanceRequest
-	(*v2.GetPoolDelegatorsRequest)(nil),   // 12: concordium.v2.GetPoolDelegatorsRequest
-	(*v2.IpSocketAddress)(nil),            // 13: concordium.v2.IpSocketAddress
-	(*v2.PeerToBan)(nil),                  // 14: concordium.v2.PeerToBan
-	(*v2.BannedPeer)(nil),                 // 15: concordium.v2.BannedPeer
-	(*v2.DumpRequest)(nil),                // 16: concordium.v2.DumpRequest
-	(*v2.SendBlockItemRequest)(nil),       // 17: concordium.v2.SendBlockItemRequest
-	(*v2.PreAccountTransaction)(nil),      // 18: concordium.v2.PreAccountTransaction
-	(*v2.ArrivedBlockInfo)(nil),           // 19: concordium.v2.ArrivedBlockInfo
-	(*v2.FinalizedBlockInfo)(nil),         // 20: concordium.v2.FinalizedBlockInfo
-	(*v2.AccountInfo)(nil),                // 21: concordium.v2.AccountInfo
-	(*v2.ModuleRef)(nil),                  // 22: concordium.v2.ModuleRef
-	(*v2.BlockHash)(nil),                  // 23: concordium.v2.BlockHash
-	(*v2.VersionedModuleSource)(nil),      // 24: concordium.v2.VersionedModuleSource
-	(*v2.ContractAddress)(nil),            // 25: concordium.v2.ContractAddress
-	(*v2.InstanceInfo)(nil),               // 26: concordium.v2.InstanceInfo
-	(*v2.InstanceStateKVPair)(nil),        // 27: concordium.v2.InstanceStateKVPair
-	(*v2.InstanceStateValueAtKey)(nil),    // 28: concordium.v2.InstanceStateValueAtKey
-	(*v2.NextAccountSequenceNumber)(nil),  // 29: concordium.v2.NextAccountSequenceNumber
-	(*v2.ConsensusInfo)(nil),              // 30: concordium.v2.ConsensusInfo
-	(*v2.BlockItemStatus)(nil),            // 31: concordium.v2.BlockItemStatus
-	(*v2.CryptographicParameters)(nil),    // 32: concordium.v2.CryptographicParameters
-	(*v2.BlockInfo)(nil),                  // 33: concordium.v2.BlockInfo
-	(*v2.BakerId)(nil),                    // 34: concordium.v2.BakerId
-	(*v2.PoolInfoResponse)(nil),           // 35: concordium.v2.PoolInfoResponse
-	(*v2.PassiveDelegationInfo)(nil),      // 36: concordium.v2.PassiveDelegationInfo
-	(*v2.BlocksAtHeightResponse)(nil),     // 37: concordium.v2.BlocksAtHeightResponse
-	(*v2.TokenomicsInfo)(nil),             // 38: concordium.v2.TokenomicsInfo
-	(*v2.InvokeInstanceResponse)(nil),     // 39: concordium.v2.InvokeInstanceResponse
-	(*v2.DelegatorInfo)(nil),              // 40: concordium.v2.DelegatorInfo
-	(*v2.DelegatorRewardPeriodInfo)(nil),  // 41: concordium.v2.DelegatorRewardPeriodInfo
-	(*v2.Branch)(nil),                     // 42: concordium.v2.Branch
-	(*v2.ElectionInfo)(nil),               // 43: concordium.v2.ElectionInfo
-	(*v2.IpInfo)(nil),                     // 44: concordium.v2.IpInfo
-	(*v2.ArInfo)(nil),                     // 45: concordium.v2.ArInfo
-	(*v2.BlockItemSummary)(nil),           // 46: concordium.v2.BlockItemSummary
-	(*v2.BlockSpecialEvent)(nil),          // 47: concordium.v2.BlockSpecialEvent
-	(*v2.PendingUpdate)(nil),              // 48: concordium.v2.PendingUpdate
-	(*v2.NextUpdateSequenceNumbers)(nil),  // 49: concordium.v2.NextUpdateSequenceNumbers
-	(*v2.BannedPeers)(nil),                // 50: concordium.v2.BannedPeers
-	(*v2.PeersInfo)(nil),                  // 51: concordium.v2.PeersInfo
-	(*v2.NodeInfo)(nil),                   // 52: concordium.v2.NodeInfo
-	(*v2.AccountTransactionSignHash)(nil), // 53: concordium.v2.AccountTransactionSignHash
-	(*v2.ChainParameters)(nil),            // 54: concordium.v2.ChainParameters
-	(*v2.BlockFinalizationSummary)(nil),   // 55: concordium.v2.BlockFinalizationSummary
-	(*v2.BlockItem)(nil),                  // 56: concordium.v2.BlockItem
+	(*Empty)(nil),                      // 0: concordium.v2.Empty
+	(*AccountInfoRequest)(nil),         // 1: concordium.v2.AccountInfoRequest
+	(*BlockHashInput)(nil),             // 2: concordium.v2.BlockHashInput
+	(*AncestorsRequest)(nil),           // 3: concordium.v2.AncestorsRequest
+	(*ModuleSourceRequest)(nil),        // 4: concordium.v2.ModuleSourceRequest
+	(*InstanceInfoRequest)(nil),        // 5: concordium.v2.InstanceInfoRequest
+	(*InstanceStateLookupRequest)(nil), // 6: concordium.v2.InstanceStateLookupRequest
+	(*AccountAddress)(nil),             // 7: concordium.v2.AccountAddress
+	(*TransactionHash)(nil),            // 8: concordium.v2.TransactionHash
+	(*PoolInfoRequest)(nil),            // 9: concordium.v2.PoolInfoRequest
+	(*BlocksAtHeightRequest)(nil),      // 10: concordium.v2.BlocksAtHeightRequest
+	(*InvokeInstanceRequest)(nil),      // 11: concordium.v2.InvokeInstanceRequest
+	(*GetPoolDelegatorsRequest)(nil),   // 12: concordium.v2.GetPoolDelegatorsRequest
+	(*IpSocketAddress)(nil),            // 13: concordium.v2.IpSocketAddress
+	(*PeerToBan)(nil),                  // 14: concordium.v2.PeerToBan
+	(*BannedPeer)(nil),                 // 15: concordium.v2.BannedPeer
+	(*DumpRequest)(nil),                // 16: concordium.v2.DumpRequest
+	(*SendBlockItemRequest)(nil),       // 17: concordium.v2.SendBlockItemRequest
+	(*PreAccountTransaction)(nil),      // 18: concordium.v2.PreAccountTransaction
+	(*ArrivedBlockInfo)(nil),           // 19: concordium.v2.ArrivedBlockInfo
+	(*FinalizedBlockInfo)(nil),         // 20: concordium.v2.FinalizedBlockInfo
+	(*AccountInfo)(nil),                // 21: concordium.v2.AccountInfo
+	(*ModuleRef)(nil),                  // 22: concordium.v2.ModuleRef
+	(*BlockHash)(nil),                  // 23: concordium.v2.BlockHash
+	(*VersionedModuleSource)(nil),      // 24: concordium.v2.VersionedModuleSource
+	(*ContractAddress)(nil),            // 25: concordium.v2.ContractAddress
+	(*InstanceInfo)(nil),               // 26: concordium.v2.InstanceInfo
+	(*InstanceStateKVPair)(nil),        // 27: concordium.v2.InstanceStateKVPair
+	(*InstanceStateValueAtKey)(nil),    // 28: concordium.v2.InstanceStateValueAtKey
+	(*NextAccountSequenceNumber)(nil),  // 29: concordium.v2.NextAccountSequenceNumber
+	(*ConsensusInfo)(nil),              // 30: concordium.v2.ConsensusInfo
+	(*BlockItemStatus)(nil),            // 31: concordium.v2.BlockItemStatus
+	(*CryptographicParameters)(nil),    // 32: concordium.v2.CryptographicParameters
+	(*BlockInfo)(nil),                  // 33: concordium.v2.BlockInfo
+	(*BakerId)(nil),                    // 34: concordium.v2.BakerId
+	(*PoolInfoResponse)(nil),           // 35: concordium.v2.PoolInfoResponse
+	(*PassiveDelegationInfo)(nil),      // 36: concordium.v2.PassiveDelegationInfo
+	(*BlocksAtHeightResponse)(nil),     // 37: concordium.v2.BlocksAtHeightResponse
+	(*TokenomicsInfo)(nil),             // 38: concordium.v2.TokenomicsInfo
+	(*InvokeInstanceResponse)(nil),     // 39: concordium.v2.InvokeInstanceResponse
+	(*DelegatorInfo)(nil),              // 40: concordium.v2.DelegatorInfo
+	(*DelegatorRewardPeriodInfo)(nil),  // 41: concordium.v2.DelegatorRewardPeriodInfo
+	(*Branch)(nil),                     // 42: concordium.v2.Branch
+	(*ElectionInfo)(nil),               // 43: concordium.v2.ElectionInfo
+	(*IpInfo)(nil),                     // 44: concordium.v2.IpInfo
+	(*ArInfo)(nil),                     // 45: concordium.v2.ArInfo
+	(*BlockItemSummary)(nil),           // 46: concordium.v2.BlockItemSummary
+	(*BlockSpecialEvent)(nil),          // 47: concordium.v2.BlockSpecialEvent
+	(*PendingUpdate)(nil),              // 48: concordium.v2.PendingUpdate
+	(*NextUpdateSequenceNumbers)(nil),  // 49: concordium.v2.NextUpdateSequenceNumbers
+	(*BannedPeers)(nil),                // 50: concordium.v2.BannedPeers
+	(*PeersInfo)(nil),                  // 51: concordium.v2.PeersInfo
+	(*NodeInfo)(nil),                   // 52: concordium.v2.NodeInfo
+	(*AccountTransactionSignHash)(nil), // 53: concordium.v2.AccountTransactionSignHash
+	(*ChainParameters)(nil),            // 54: concordium.v2.ChainParameters
+	(*BlockFinalizationSummary)(nil),   // 55: concordium.v2.BlockFinalizationSummary
+	(*BlockItem)(nil),                  // 56: concordium.v2.BlockItem
 }
 var file_service_proto_depIdxs = []int32{
 	0,  // 0: concordium.v2.Queries.GetBlocks:input_type -> concordium.v2.Empty
@@ -468,7 +467,7 @@ func file_service_proto_init() {
 	if File_service_proto != nil {
 		return
 	}
-	v2.file_types_proto_init()
+	file_types_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

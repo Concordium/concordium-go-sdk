@@ -1,30 +1,23 @@
 package examples_test
 
 import (
-	"concordium-go-sdk/v2"
 	"context"
-	"github.com/stretchr/testify/require"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"testing"
 
-	"concordium-go-sdk/v2/pb"
+	"github.com/stretchr/testify/require"
+
+	"concordium-go-sdk/v2"
 )
 
 func TestExamples(t *testing.T) {
-	conn, err := grpc.Dial(
-		"node.testnet.concordium.com:20000",
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	)
+	client, err := v2.NewClient(v2.Config{
+		NodeAddress: "node.testnet.concordium.com:20000",
+	})
 	require.NoError(t, err)
-	require.NotNil(t, conn)
-
-	defer conn.Close()
-
-	client := pb.NewQueriesClient(conn)
+	require.NotNil(t, client)
 
 	t.Run("GetBlocks", func(t *testing.T) {
-		stream, err := client.GetBlocks(context.Background(), new(v2.Empty))
+		stream, err := client.GetBlocks(context.Background())
 		require.NoError(t, err)
 		require.NotNil(t, stream)
 
@@ -34,7 +27,7 @@ func TestExamples(t *testing.T) {
 	})
 
 	t.Run("GetFinalizedBlocks", func(t *testing.T) {
-		stream, err := client.GetFinalizedBlocks(context.Background(), new(v2.Empty))
+		stream, err := client.GetFinalizedBlocks(context.Background())
 		require.NoError(t, err)
 		require.NotNil(t, stream)
 
@@ -44,7 +37,7 @@ func TestExamples(t *testing.T) {
 	})
 
 	t.Run("GetAccountList", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background(), new(v2.Empty))
+		blocksStream, err := client.GetFinalizedBlocks(context.Background())
 		require.NoError(t, err)
 		require.NotNil(t, blocksStream)
 
@@ -62,7 +55,7 @@ func TestExamples(t *testing.T) {
 	})
 
 	t.Run("GetAccountInfo", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background(), new(v2.Empty))
+		blocksStream, err := client.GetFinalizedBlocks(context.Background())
 		require.NoError(t, err)
 		require.NotNil(t, blocksStream)
 
@@ -99,7 +92,7 @@ func TestExamples(t *testing.T) {
 	})
 
 	t.Run("GetModuleList", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background(), new(v2.Empty))
+		blocksStream, err := client.GetFinalizedBlocks(context.Background())
 		require.NoError(t, err)
 		require.NotNil(t, blocksStream)
 
@@ -121,7 +114,7 @@ func TestExamples(t *testing.T) {
 	})
 
 	t.Run("GetAncestors", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background(), new(v2.Empty))
+		blocksStream, err := client.GetFinalizedBlocks(context.Background())
 		require.NoError(t, err)
 		require.NotNil(t, blocksStream)
 
@@ -152,7 +145,7 @@ func TestExamples(t *testing.T) {
 	})
 
 	t.Run("invalid options", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background(), new(v2.Empty))
+		blocksStream, err := client.GetFinalizedBlocks(context.Background())
 		require.NoError(t, err)
 		require.NotNil(t, blocksStream)
 
@@ -185,7 +178,7 @@ func TestExamples(t *testing.T) {
 	})
 
 	t.Run("GetInstanceList", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background(), new(v2.Empty))
+		blocksStream, err := client.GetFinalizedBlocks(context.Background())
 		require.NoError(t, err)
 		require.NotNil(t, blocksStream)
 
@@ -207,7 +200,7 @@ func TestExamples(t *testing.T) {
 	})
 
 	t.Run("GetInstanceInfo", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background(), new(v2.Empty))
+		blocksStream, err := client.GetFinalizedBlocks(context.Background())
 		require.NoError(t, err)
 		require.NotNil(t, blocksStream)
 
@@ -243,7 +236,7 @@ func TestExamples(t *testing.T) {
 	})
 
 	t.Run("GetInstanceState", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background(), new(v2.Empty))
+		blocksStream, err := client.GetFinalizedBlocks(context.Background())
 		require.NoError(t, err)
 		require.NotNil(t, blocksStream)
 
@@ -283,7 +276,7 @@ func TestExamples(t *testing.T) {
 	})
 
 	t.Run("InstanceStateLookup", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background(), new(v2.Empty))
+		blocksStream, err := client.GetFinalizedBlocks(context.Background())
 		require.NoError(t, err)
 		require.NotNil(t, blocksStream)
 
@@ -338,7 +331,7 @@ func TestExamples(t *testing.T) {
 	})
 
 	t.Run("GetNextAccountSequenceNumber", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background(), new(v2.Empty))
+		blocksStream, err := client.GetFinalizedBlocks(context.Background())
 		require.NoError(t, err)
 		require.NotNil(t, blocksStream)
 
@@ -366,7 +359,7 @@ func TestExamples(t *testing.T) {
 	})
 
 	t.Run("GetConsensusInfo", func(t *testing.T) {
-		consensusInfo, err := client.GetConsensusInfo(context.Background(), new(v2.Empty))
+		consensusInfo, err := client.GetConsensusInfo(context.Background())
 		require.NoError(t, err)
 		require.NotNil(t, consensusInfo)
 	})
@@ -385,7 +378,7 @@ func TestExamples(t *testing.T) {
 	})
 
 	t.Run("GetCryptographicParameters", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background(), new(v2.Empty))
+		blocksStream, err := client.GetFinalizedBlocks(context.Background())
 		require.NoError(t, err)
 		require.NotNil(t, blocksStream)
 
@@ -403,7 +396,7 @@ func TestExamples(t *testing.T) {
 	})
 
 	t.Run("GetBlockInfo", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background(), new(v2.Empty))
+		blocksStream, err := client.GetFinalizedBlocks(context.Background())
 		require.NoError(t, err)
 		require.NotNil(t, blocksStream)
 
@@ -431,5 +424,27 @@ func TestExamples(t *testing.T) {
 		})
 		require.NoError(t, err)
 		require.NotNil(t, itemStatus)
+	})
+
+	t.Run("GetBakerList", func(t *testing.T) {
+		blocksStream, err := client.GetFinalizedBlocks(context.Background())
+		require.NoError(t, err)
+		require.NotNil(t, blocksStream)
+
+		block, err := blocksStream.Recv()
+		require.NoError(t, err)
+		require.NotNil(t, block)
+
+		bakerStream, err := client.GetBakerList(context.Background(), &v2.BlockHashInput{
+			BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
+				AbsoluteHeight: &v2.AbsoluteBlockHeight{
+					Value: block.Height.Value,
+				}}})
+		require.NoError(t, err)
+		require.NotNil(t, bakerStream)
+
+		baker, err := bakerStream.Recv()
+		require.NoError(t, err)
+		require.NotNil(t, baker)
 	})
 }

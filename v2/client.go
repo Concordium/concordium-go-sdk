@@ -4,8 +4,6 @@ import (
 	"github.com/zeebo/errs"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-
-	"concordium-go-sdk/v2/pb"
 )
 
 // Error represents error received while communication with node.
@@ -19,7 +17,7 @@ type Config struct {
 
 // Client provides grpc connection with node.
 type Client struct {
-	grpcClient pb.QueriesClient
+	grpcClient QueriesClient
 	config     Config
 }
 
@@ -32,9 +30,8 @@ func NewClient(config Config) (_ *Client, err error) {
 	if err != nil {
 		return nil, err
 	}
-	defer func() { err = errs.Combine(err, conn.Close()) }()
 
-	client := pb.NewQueriesClient(conn)
+	client := NewQueriesClient(conn)
 
 	return &Client{grpcClient: client, config: config}, nil
 }
