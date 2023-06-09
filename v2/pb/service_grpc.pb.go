@@ -7,6 +7,7 @@
 package pb
 
 import (
+	"concordium-go-sdk/v2"
 	context "context"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
@@ -24,154 +25,154 @@ const _ = grpc.SupportPackageIsVersion7
 type QueriesClient interface {
 	// Return a stream of blocks that arrive from the time the query is made onward.
 	// This can be used to listen for incoming blocks.
-	GetBlocks(ctx context.Context, in *Empty, opts ...grpc.CallOption) (Queries_GetBlocksClient, error)
+	GetBlocks(ctx context.Context, in *v2.Empty, opts ...grpc.CallOption) (Queries_GetBlocksClient, error)
 	// Return a stream of blocks that are finalized from the time the query is
 	// made onward. This can be used to listen for newly finalized blocks. Note
 	// that there is no guarantee that blocks will not be skipped if the client is
 	// too slow in processing the stream, however blocks will always be sent by
 	// increasing block height.
-	GetFinalizedBlocks(ctx context.Context, in *Empty, opts ...grpc.CallOption) (Queries_GetFinalizedBlocksClient, error)
+	GetFinalizedBlocks(ctx context.Context, in *v2.Empty, opts ...grpc.CallOption) (Queries_GetFinalizedBlocksClient, error)
 	// Retrieve the information about the given account in the given block.
-	GetAccountInfo(ctx context.Context, in *AccountInfoRequest, opts ...grpc.CallOption) (*AccountInfo, error)
+	GetAccountInfo(ctx context.Context, in *v2.AccountInfoRequest, opts ...grpc.CallOption) (*v2.AccountInfo, error)
 	// Retrieve the list of accounts that exist at the end of the given block.
-	GetAccountList(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (Queries_GetAccountListClient, error)
+	GetAccountList(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (Queries_GetAccountListClient, error)
 	// Get a list of all smart contract modules. The stream will end
 	// when all modules that exist in the state at the end of the given
 	// block have been returned.
-	GetModuleList(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (Queries_GetModuleListClient, error)
+	GetModuleList(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (Queries_GetModuleListClient, error)
 	// Get a stream of ancestors for the provided block.
 	// Starting with the provided block itself, moving backwards until no more
 	// ancestors or the requested number of ancestors has been returned.
-	GetAncestors(ctx context.Context, in *AncestorsRequest, opts ...grpc.CallOption) (Queries_GetAncestorsClient, error)
+	GetAncestors(ctx context.Context, in *v2.AncestorsRequest, opts ...grpc.CallOption) (Queries_GetAncestorsClient, error)
 	// Get the source of a smart contract module.
-	GetModuleSource(ctx context.Context, in *ModuleSourceRequest, opts ...grpc.CallOption) (*VersionedModuleSource, error)
+	GetModuleSource(ctx context.Context, in *v2.ModuleSourceRequest, opts ...grpc.CallOption) (*v2.VersionedModuleSource, error)
 	// Get a list of addresses for all smart contract instances. The stream
 	// will end when all instances that exist in the state at the end of the
 	// given block has been returned.
-	GetInstanceList(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (Queries_GetInstanceListClient, error)
+	GetInstanceList(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (Queries_GetInstanceListClient, error)
 	// Get info about a smart contract instance as it appears at the end of the
 	// given block.
-	GetInstanceInfo(ctx context.Context, in *InstanceInfoRequest, opts ...grpc.CallOption) (*InstanceInfo, error)
+	GetInstanceInfo(ctx context.Context, in *v2.InstanceInfoRequest, opts ...grpc.CallOption) (*v2.InstanceInfo, error)
 	// Get the exact state of a specific contract instance, streamed as a list of
 	// key-value pairs. The list is streamed in lexicographic order of keys.
-	GetInstanceState(ctx context.Context, in *InstanceInfoRequest, opts ...grpc.CallOption) (Queries_GetInstanceStateClient, error)
+	GetInstanceState(ctx context.Context, in *v2.InstanceInfoRequest, opts ...grpc.CallOption) (Queries_GetInstanceStateClient, error)
 	// Get the value at a specific key of a contract state. In contrast to
 	// `GetInstanceState` this is more efficient, but requires the user to know
 	// the specific key to look for.
-	InstanceStateLookup(ctx context.Context, in *InstanceStateLookupRequest, opts ...grpc.CallOption) (*InstanceStateValueAtKey, error)
+	InstanceStateLookup(ctx context.Context, in *v2.InstanceStateLookupRequest, opts ...grpc.CallOption) (*v2.InstanceStateValueAtKey, error)
 	// Get the best guess as to what the next account sequence number should be.
 	// If all account transactions are finalized then this information is reliable.
 	// Otherwise this is the best guess, assuming all other transactions will be
 	// committed to blocks and eventually finalized.
-	GetNextAccountSequenceNumber(ctx context.Context, in *AccountAddress, opts ...grpc.CallOption) (*NextAccountSequenceNumber, error)
+	GetNextAccountSequenceNumber(ctx context.Context, in *v2.AccountAddress, opts ...grpc.CallOption) (*v2.NextAccountSequenceNumber, error)
 	// Get information about the current state of consensus.
-	GetConsensusInfo(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*ConsensusInfo, error)
+	GetConsensusInfo(ctx context.Context, in *v2.Empty, opts ...grpc.CallOption) (*v2.ConsensusInfo, error)
 	// Get the status of and information about a specific block item (transaction).
-	GetBlockItemStatus(ctx context.Context, in *TransactionHash, opts ...grpc.CallOption) (*BlockItemStatus, error)
+	GetBlockItemStatus(ctx context.Context, in *v2.TransactionHash, opts ...grpc.CallOption) (*v2.BlockItemStatus, error)
 	// Get the cryptographic parameters in a given block.
-	GetCryptographicParameters(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (*CryptographicParameters, error)
+	GetCryptographicParameters(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (*v2.CryptographicParameters, error)
 	// Get information, such as height, timings, and transaction counts for the given block.
-	GetBlockInfo(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (*BlockInfo, error)
+	GetBlockInfo(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (*v2.BlockInfo, error)
 	// Get all the bakers at the end of the given block.
-	GetBakerList(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (Queries_GetBakerListClient, error)
+	GetBakerList(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (Queries_GetBakerListClient, error)
 	// Get information about a given pool at the end of a given block.
-	GetPoolInfo(ctx context.Context, in *PoolInfoRequest, opts ...grpc.CallOption) (*PoolInfoResponse, error)
+	GetPoolInfo(ctx context.Context, in *v2.PoolInfoRequest, opts ...grpc.CallOption) (*v2.PoolInfoResponse, error)
 	// Get information about the passive delegators at the end of a given block.
-	GetPassiveDelegationInfo(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (*PassiveDelegationInfo, error)
+	GetPassiveDelegationInfo(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (*v2.PassiveDelegationInfo, error)
 	// Get a list of live blocks at a given height.
-	GetBlocksAtHeight(ctx context.Context, in *BlocksAtHeightRequest, opts ...grpc.CallOption) (*BlocksAtHeightResponse, error)
+	GetBlocksAtHeight(ctx context.Context, in *v2.BlocksAtHeightRequest, opts ...grpc.CallOption) (*v2.BlocksAtHeightResponse, error)
 	// Get information about tokenomics at the end of a given block.
-	GetTokenomicsInfo(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (*TokenomicsInfo, error)
+	GetTokenomicsInfo(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (*v2.TokenomicsInfo, error)
 	// Run the smart contract entrypoint in a given context and in the state at
 	// the end of the given block.
-	InvokeInstance(ctx context.Context, in *InvokeInstanceRequest, opts ...grpc.CallOption) (*InvokeInstanceResponse, error)
+	InvokeInstance(ctx context.Context, in *v2.InvokeInstanceRequest, opts ...grpc.CallOption) (*v2.InvokeInstanceResponse, error)
 	// Get the registered delegators of a given pool at the end of a given block.
 	// In contrast to the `GetPoolDelegatorsRewardPeriod` which returns delegators
 	// that are fixed for the reward period of the block, this endpoint returns the
 	// list of delegators that are registered in the block. Any changes to delegators
 	// are immediately visible in this list.
 	// The stream will end when all the delegators has been returned.
-	GetPoolDelegators(ctx context.Context, in *GetPoolDelegatorsRequest, opts ...grpc.CallOption) (Queries_GetPoolDelegatorsClient, error)
+	GetPoolDelegators(ctx context.Context, in *v2.GetPoolDelegatorsRequest, opts ...grpc.CallOption) (Queries_GetPoolDelegatorsClient, error)
 	// Get the fixed delegators of a given pool for the reward period of the given block.
 	// In contracts to the `GetPoolDelegators` which returns delegators registered
 	// for the given block, this endpoint returns the fixed delegators contributing
 	// stake in the reward period containing the given block.
 	// The stream will end when all the delegators has been returned.
-	GetPoolDelegatorsRewardPeriod(ctx context.Context, in *GetPoolDelegatorsRequest, opts ...grpc.CallOption) (Queries_GetPoolDelegatorsRewardPeriodClient, error)
+	GetPoolDelegatorsRewardPeriod(ctx context.Context, in *v2.GetPoolDelegatorsRequest, opts ...grpc.CallOption) (Queries_GetPoolDelegatorsRewardPeriodClient, error)
 	// Get the registered passive delegators at the end of a given block.
 	// In contrast to the `GetPassiveDelegatorsRewardPeriod` which returns delegators
 	// that are fixed for the reward period of the block, this endpoint returns the
 	// list of delegators that are registered in the block. Any changes to delegators
 	// are immediately visible in this list.
 	// The stream will end when all the delegators has been returned.
-	GetPassiveDelegators(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (Queries_GetPassiveDelegatorsClient, error)
+	GetPassiveDelegators(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (Queries_GetPassiveDelegatorsClient, error)
 	// Get the fixed passive delegators for the reward period of the given block.
 	// In contracts to the `GetPassiveDelegators` which returns delegators registered
 	// for the given block, this endpoint returns the fixed delegators contributing
 	// stake in the reward period containing the given block.
 	// The stream will end when all the delegators has been returned.
-	GetPassiveDelegatorsRewardPeriod(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (Queries_GetPassiveDelegatorsRewardPeriodClient, error)
+	GetPassiveDelegatorsRewardPeriod(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (Queries_GetPassiveDelegatorsRewardPeriodClient, error)
 	// Get the current branches of blocks starting from and including the last finalized block.
-	GetBranches(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Branch, error)
+	GetBranches(ctx context.Context, in *v2.Empty, opts ...grpc.CallOption) (*v2.Branch, error)
 	// Get information related to the baker election for a particular block.
-	GetElectionInfo(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (*ElectionInfo, error)
+	GetElectionInfo(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (*v2.ElectionInfo, error)
 	// Get the identity providers registered as of the end of a given block.
 	// The stream will end when all the identity providers have been returned.
-	GetIdentityProviders(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (Queries_GetIdentityProvidersClient, error)
+	GetIdentityProviders(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (Queries_GetIdentityProvidersClient, error)
 	// Get the anonymity revokers registered as of the end of a given block.
 	// The stream will end when all the anonymity revokers have been returned.
-	GetAnonymityRevokers(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (Queries_GetAnonymityRevokersClient, error)
+	GetAnonymityRevokers(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (Queries_GetAnonymityRevokersClient, error)
 	// Get a list of non-finalized transaction hashes for a given account. This
 	// endpoint is not expected to return a large amount of data in most cases,
 	// but in bad network condtions it might. The stream will end when all the
 	// non-finalized transaction hashes have been returned.
-	GetAccountNonFinalizedTransactions(ctx context.Context, in *AccountAddress, opts ...grpc.CallOption) (Queries_GetAccountNonFinalizedTransactionsClient, error)
+	GetAccountNonFinalizedTransactions(ctx context.Context, in *v2.AccountAddress, opts ...grpc.CallOption) (Queries_GetAccountNonFinalizedTransactionsClient, error)
 	// Get a list of transaction events in a given block.
 	// The stream will end when all the transaction events for a given block have been returned.
-	GetBlockTransactionEvents(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (Queries_GetBlockTransactionEventsClient, error)
+	GetBlockTransactionEvents(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (Queries_GetBlockTransactionEventsClient, error)
 	// Get a list of special events in a given block. These are events generated
 	// by the protocol, such as minting and reward payouts. They are not directly
 	// generated by any transaction. The stream will end when all the special
 	// events for a given block have been returned.
-	GetBlockSpecialEvents(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (Queries_GetBlockSpecialEventsClient, error)
+	GetBlockSpecialEvents(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (Queries_GetBlockSpecialEventsClient, error)
 	// Get the pending updates to chain parameters at the end of a given block.
 	// The stream will end when all the pending updates for a given block have been returned.
-	GetBlockPendingUpdates(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (Queries_GetBlockPendingUpdatesClient, error)
+	GetBlockPendingUpdates(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (Queries_GetBlockPendingUpdatesClient, error)
 	// Get next available sequence numbers for updating chain parameters after a given block.
-	GetNextUpdateSequenceNumbers(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (*NextUpdateSequenceNumbers, error)
+	GetNextUpdateSequenceNumbers(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (*v2.NextUpdateSequenceNumbers, error)
 	// Shut down the node.
 	// Return a GRPC error if the shutdown failed.
-	Shutdown(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error)
+	Shutdown(ctx context.Context, in *v2.Empty, opts ...grpc.CallOption) (*v2.Empty, error)
 	// Suggest to a peer to connect to the submitted peer details.
 	// This, if successful, adds the peer to the list of given addresses.
 	// Otherwise return a GRPC error.
 	// Note. The peer might not be connected to instantly, in that case
 	// the node will try to establish the connection in near future. This
 	// function returns a GRPC status 'Ok' in this case.
-	PeerConnect(ctx context.Context, in *IpSocketAddress, opts ...grpc.CallOption) (*Empty, error)
+	PeerConnect(ctx context.Context, in *v2.IpSocketAddress, opts ...grpc.CallOption) (*v2.Empty, error)
 	// Disconnect from the peer and remove them from the given addresses list
 	// if they are on it. Return if the request was processed successfully.
 	// Otherwise return a GRPC error.
-	PeerDisconnect(ctx context.Context, in *IpSocketAddress, opts ...grpc.CallOption) (*Empty, error)
+	PeerDisconnect(ctx context.Context, in *v2.IpSocketAddress, opts ...grpc.CallOption) (*v2.Empty, error)
 	// Get a list of banned peers.
-	GetBannedPeers(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*BannedPeers, error)
+	GetBannedPeers(ctx context.Context, in *v2.Empty, opts ...grpc.CallOption) (*v2.BannedPeers, error)
 	// Ban the given peer.
 	// Returns a GRPC error if the action failed.
-	BanPeer(ctx context.Context, in *PeerToBan, opts ...grpc.CallOption) (*Empty, error)
+	BanPeer(ctx context.Context, in *v2.PeerToBan, opts ...grpc.CallOption) (*v2.Empty, error)
 	// Unban the banned peer.
 	// Returns a GRPC error if the action failed.
-	UnbanPeer(ctx context.Context, in *BannedPeer, opts ...grpc.CallOption) (*Empty, error)
+	UnbanPeer(ctx context.Context, in *v2.BannedPeer, opts ...grpc.CallOption) (*v2.Empty, error)
 	// Start dumping packages into the specified file.
 	// Only enabled if the node was built with the `network_dump` feature.
 	// Returns a GRPC error if the network dump failed to start.
-	DumpStart(ctx context.Context, in *DumpRequest, opts ...grpc.CallOption) (*Empty, error)
+	DumpStart(ctx context.Context, in *v2.DumpRequest, opts ...grpc.CallOption) (*v2.Empty, error)
 	// Stop dumping packages.
 	// Only enabled if the node was built with the `network_dump` feature.
 	// Returns a GRPC error if the network dump failed to be stopped.
-	DumpStop(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error)
+	DumpStop(ctx context.Context, in *v2.Empty, opts ...grpc.CallOption) (*v2.Empty, error)
 	/// Get a list of the peers that the node is connected to
 	/// and assoicated network related information for each peer.
-	GetPeersInfo(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*PeersInfo, error)
+	GetPeersInfo(ctx context.Context, in *v2.Empty, opts ...grpc.CallOption) (*v2.PeersInfo, error)
 	// Get information about the node.
 	// The `NodeInfo` includes information of
 	// * Meta information such as the, version of the node, type of the node, uptime and the local time of the node.
@@ -179,7 +180,7 @@ type QueriesClient interface {
 	//   average bytes per second sent/received.
 	// * ConsensusInfo. The `ConsensusInfo` returned depends on if the node supports
 	//   the protocol on chain and whether the node is configured as a baker or not.
-	GetNodeInfo(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*NodeInfo, error)
+	GetNodeInfo(ctx context.Context, in *v2.Empty, opts ...grpc.CallOption) (*v2.NodeInfo, error)
 	// Send a block item. A block item is either an `AccountTransaction`, which is
 	// a transaction signed and paid for by an account, a `CredentialDeployment`,
 	// which creates a new account, or `UpdateInstruction`, which is an
@@ -188,7 +189,7 @@ type QueriesClient interface {
 	//
 	// Returns a hash of the block item, which can be used with
 	// `GetBlockItemStatus`.
-	SendBlockItem(ctx context.Context, in *SendBlockItemRequest, opts ...grpc.CallOption) (*TransactionHash, error)
+	SendBlockItem(ctx context.Context, in *v2.SendBlockItemRequest, opts ...grpc.CallOption) (*v2.TransactionHash, error)
 	// Get the hash to be signed for an account transaction. The hash returned
 	// should be signed and the signatures included as an
 	// AccountTransactionSignature when calling `SendBlockItem`. This is provided as
@@ -196,13 +197,13 @@ type QueriesClient interface {
 	// interacting with the node. If an SDK is available then it is strongly
 	// recommended to compute this hash off-line using it. That reduces the trust
 	// in the node, removes networking failure modes, and will perform better.
-	GetAccountTransactionSignHash(ctx context.Context, in *PreAccountTransaction, opts ...grpc.CallOption) (*AccountTransactionSignHash, error)
+	GetAccountTransactionSignHash(ctx context.Context, in *v2.PreAccountTransaction, opts ...grpc.CallOption) (*v2.AccountTransactionSignHash, error)
 	// Get the values of chain parameters in effect in the given block.
-	GetBlockChainParameters(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (*ChainParameters, error)
+	GetBlockChainParameters(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (*v2.ChainParameters, error)
 	// Get the summary of the finalization data in a given block.
-	GetBlockFinalizationSummary(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (*BlockFinalizationSummary, error)
+	GetBlockFinalizationSummary(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (*v2.BlockFinalizationSummary, error)
 	// Get the items of a block.
-	GetBlockItems(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (Queries_GetBlockItemsClient, error)
+	GetBlockItems(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (Queries_GetBlockItemsClient, error)
 }
 
 type queriesClient struct {
@@ -213,7 +214,7 @@ func NewQueriesClient(cc grpc.ClientConnInterface) QueriesClient {
 	return &queriesClient{cc}
 }
 
-func (c *queriesClient) GetBlocks(ctx context.Context, in *Empty, opts ...grpc.CallOption) (Queries_GetBlocksClient, error) {
+func (c *queriesClient) GetBlocks(ctx context.Context, in *v2.Empty, opts ...grpc.CallOption) (Queries_GetBlocksClient, error) {
 	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[0], "/concordium.v2.Queries/GetBlocks", opts...)
 	if err != nil {
 		return nil, err
@@ -229,7 +230,7 @@ func (c *queriesClient) GetBlocks(ctx context.Context, in *Empty, opts ...grpc.C
 }
 
 type Queries_GetBlocksClient interface {
-	Recv() (*ArrivedBlockInfo, error)
+	Recv() (*v2.ArrivedBlockInfo, error)
 	grpc.ClientStream
 }
 
@@ -237,15 +238,15 @@ type queriesGetBlocksClient struct {
 	grpc.ClientStream
 }
 
-func (x *queriesGetBlocksClient) Recv() (*ArrivedBlockInfo, error) {
-	m := new(ArrivedBlockInfo)
+func (x *queriesGetBlocksClient) Recv() (*v2.ArrivedBlockInfo, error) {
+	m := new(v2.ArrivedBlockInfo)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
-func (c *queriesClient) GetFinalizedBlocks(ctx context.Context, in *Empty, opts ...grpc.CallOption) (Queries_GetFinalizedBlocksClient, error) {
+func (c *queriesClient) GetFinalizedBlocks(ctx context.Context, in *v2.Empty, opts ...grpc.CallOption) (Queries_GetFinalizedBlocksClient, error) {
 	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[1], "/concordium.v2.Queries/GetFinalizedBlocks", opts...)
 	if err != nil {
 		return nil, err
@@ -261,7 +262,7 @@ func (c *queriesClient) GetFinalizedBlocks(ctx context.Context, in *Empty, opts 
 }
 
 type Queries_GetFinalizedBlocksClient interface {
-	Recv() (*FinalizedBlockInfo, error)
+	Recv() (*v2.FinalizedBlockInfo, error)
 	grpc.ClientStream
 }
 
@@ -269,16 +270,16 @@ type queriesGetFinalizedBlocksClient struct {
 	grpc.ClientStream
 }
 
-func (x *queriesGetFinalizedBlocksClient) Recv() (*FinalizedBlockInfo, error) {
-	m := new(FinalizedBlockInfo)
+func (x *queriesGetFinalizedBlocksClient) Recv() (*v2.FinalizedBlockInfo, error) {
+	m := new(v2.FinalizedBlockInfo)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
-func (c *queriesClient) GetAccountInfo(ctx context.Context, in *AccountInfoRequest, opts ...grpc.CallOption) (*AccountInfo, error) {
-	out := new(AccountInfo)
+func (c *queriesClient) GetAccountInfo(ctx context.Context, in *v2.AccountInfoRequest, opts ...grpc.CallOption) (*v2.AccountInfo, error) {
+	out := new(v2.AccountInfo)
 	err := c.cc.Invoke(ctx, "/concordium.v2.Queries/GetAccountInfo", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -286,7 +287,7 @@ func (c *queriesClient) GetAccountInfo(ctx context.Context, in *AccountInfoReque
 	return out, nil
 }
 
-func (c *queriesClient) GetAccountList(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (Queries_GetAccountListClient, error) {
+func (c *queriesClient) GetAccountList(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (Queries_GetAccountListClient, error) {
 	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[2], "/concordium.v2.Queries/GetAccountList", opts...)
 	if err != nil {
 		return nil, err
@@ -302,7 +303,7 @@ func (c *queriesClient) GetAccountList(ctx context.Context, in *BlockHashInput, 
 }
 
 type Queries_GetAccountListClient interface {
-	Recv() (*AccountAddress, error)
+	Recv() (*v2.AccountAddress, error)
 	grpc.ClientStream
 }
 
@@ -310,15 +311,15 @@ type queriesGetAccountListClient struct {
 	grpc.ClientStream
 }
 
-func (x *queriesGetAccountListClient) Recv() (*AccountAddress, error) {
-	m := new(AccountAddress)
+func (x *queriesGetAccountListClient) Recv() (*v2.AccountAddress, error) {
+	m := new(v2.AccountAddress)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
-func (c *queriesClient) GetModuleList(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (Queries_GetModuleListClient, error) {
+func (c *queriesClient) GetModuleList(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (Queries_GetModuleListClient, error) {
 	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[3], "/concordium.v2.Queries/GetModuleList", opts...)
 	if err != nil {
 		return nil, err
@@ -334,7 +335,7 @@ func (c *queriesClient) GetModuleList(ctx context.Context, in *BlockHashInput, o
 }
 
 type Queries_GetModuleListClient interface {
-	Recv() (*ModuleRef, error)
+	Recv() (*v2.ModuleRef, error)
 	grpc.ClientStream
 }
 
@@ -342,15 +343,15 @@ type queriesGetModuleListClient struct {
 	grpc.ClientStream
 }
 
-func (x *queriesGetModuleListClient) Recv() (*ModuleRef, error) {
-	m := new(ModuleRef)
+func (x *queriesGetModuleListClient) Recv() (*v2.ModuleRef, error) {
+	m := new(v2.ModuleRef)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
-func (c *queriesClient) GetAncestors(ctx context.Context, in *AncestorsRequest, opts ...grpc.CallOption) (Queries_GetAncestorsClient, error) {
+func (c *queriesClient) GetAncestors(ctx context.Context, in *v2.AncestorsRequest, opts ...grpc.CallOption) (Queries_GetAncestorsClient, error) {
 	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[4], "/concordium.v2.Queries/GetAncestors", opts...)
 	if err != nil {
 		return nil, err
@@ -366,7 +367,7 @@ func (c *queriesClient) GetAncestors(ctx context.Context, in *AncestorsRequest, 
 }
 
 type Queries_GetAncestorsClient interface {
-	Recv() (*BlockHash, error)
+	Recv() (*v2.BlockHash, error)
 	grpc.ClientStream
 }
 
@@ -374,16 +375,16 @@ type queriesGetAncestorsClient struct {
 	grpc.ClientStream
 }
 
-func (x *queriesGetAncestorsClient) Recv() (*BlockHash, error) {
-	m := new(BlockHash)
+func (x *queriesGetAncestorsClient) Recv() (*v2.BlockHash, error) {
+	m := new(v2.BlockHash)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
-func (c *queriesClient) GetModuleSource(ctx context.Context, in *ModuleSourceRequest, opts ...grpc.CallOption) (*VersionedModuleSource, error) {
-	out := new(VersionedModuleSource)
+func (c *queriesClient) GetModuleSource(ctx context.Context, in *v2.ModuleSourceRequest, opts ...grpc.CallOption) (*v2.VersionedModuleSource, error) {
+	out := new(v2.VersionedModuleSource)
 	err := c.cc.Invoke(ctx, "/concordium.v2.Queries/GetModuleSource", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -391,7 +392,7 @@ func (c *queriesClient) GetModuleSource(ctx context.Context, in *ModuleSourceReq
 	return out, nil
 }
 
-func (c *queriesClient) GetInstanceList(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (Queries_GetInstanceListClient, error) {
+func (c *queriesClient) GetInstanceList(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (Queries_GetInstanceListClient, error) {
 	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[5], "/concordium.v2.Queries/GetInstanceList", opts...)
 	if err != nil {
 		return nil, err
@@ -407,7 +408,7 @@ func (c *queriesClient) GetInstanceList(ctx context.Context, in *BlockHashInput,
 }
 
 type Queries_GetInstanceListClient interface {
-	Recv() (*ContractAddress, error)
+	Recv() (*v2.ContractAddress, error)
 	grpc.ClientStream
 }
 
@@ -415,16 +416,16 @@ type queriesGetInstanceListClient struct {
 	grpc.ClientStream
 }
 
-func (x *queriesGetInstanceListClient) Recv() (*ContractAddress, error) {
-	m := new(ContractAddress)
+func (x *queriesGetInstanceListClient) Recv() (*v2.ContractAddress, error) {
+	m := new(v2.ContractAddress)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
-func (c *queriesClient) GetInstanceInfo(ctx context.Context, in *InstanceInfoRequest, opts ...grpc.CallOption) (*InstanceInfo, error) {
-	out := new(InstanceInfo)
+func (c *queriesClient) GetInstanceInfo(ctx context.Context, in *v2.InstanceInfoRequest, opts ...grpc.CallOption) (*v2.InstanceInfo, error) {
+	out := new(v2.InstanceInfo)
 	err := c.cc.Invoke(ctx, "/concordium.v2.Queries/GetInstanceInfo", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -432,7 +433,7 @@ func (c *queriesClient) GetInstanceInfo(ctx context.Context, in *InstanceInfoReq
 	return out, nil
 }
 
-func (c *queriesClient) GetInstanceState(ctx context.Context, in *InstanceInfoRequest, opts ...grpc.CallOption) (Queries_GetInstanceStateClient, error) {
+func (c *queriesClient) GetInstanceState(ctx context.Context, in *v2.InstanceInfoRequest, opts ...grpc.CallOption) (Queries_GetInstanceStateClient, error) {
 	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[6], "/concordium.v2.Queries/GetInstanceState", opts...)
 	if err != nil {
 		return nil, err
@@ -448,7 +449,7 @@ func (c *queriesClient) GetInstanceState(ctx context.Context, in *InstanceInfoRe
 }
 
 type Queries_GetInstanceStateClient interface {
-	Recv() (*InstanceStateKVPair, error)
+	Recv() (*v2.InstanceStateKVPair, error)
 	grpc.ClientStream
 }
 
@@ -456,16 +457,16 @@ type queriesGetInstanceStateClient struct {
 	grpc.ClientStream
 }
 
-func (x *queriesGetInstanceStateClient) Recv() (*InstanceStateKVPair, error) {
-	m := new(InstanceStateKVPair)
+func (x *queriesGetInstanceStateClient) Recv() (*v2.InstanceStateKVPair, error) {
+	m := new(v2.InstanceStateKVPair)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
-func (c *queriesClient) InstanceStateLookup(ctx context.Context, in *InstanceStateLookupRequest, opts ...grpc.CallOption) (*InstanceStateValueAtKey, error) {
-	out := new(InstanceStateValueAtKey)
+func (c *queriesClient) InstanceStateLookup(ctx context.Context, in *v2.InstanceStateLookupRequest, opts ...grpc.CallOption) (*v2.InstanceStateValueAtKey, error) {
+	out := new(v2.InstanceStateValueAtKey)
 	err := c.cc.Invoke(ctx, "/concordium.v2.Queries/InstanceStateLookup", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -473,8 +474,8 @@ func (c *queriesClient) InstanceStateLookup(ctx context.Context, in *InstanceSta
 	return out, nil
 }
 
-func (c *queriesClient) GetNextAccountSequenceNumber(ctx context.Context, in *AccountAddress, opts ...grpc.CallOption) (*NextAccountSequenceNumber, error) {
-	out := new(NextAccountSequenceNumber)
+func (c *queriesClient) GetNextAccountSequenceNumber(ctx context.Context, in *v2.AccountAddress, opts ...grpc.CallOption) (*v2.NextAccountSequenceNumber, error) {
+	out := new(v2.NextAccountSequenceNumber)
 	err := c.cc.Invoke(ctx, "/concordium.v2.Queries/GetNextAccountSequenceNumber", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -482,8 +483,8 @@ func (c *queriesClient) GetNextAccountSequenceNumber(ctx context.Context, in *Ac
 	return out, nil
 }
 
-func (c *queriesClient) GetConsensusInfo(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*ConsensusInfo, error) {
-	out := new(ConsensusInfo)
+func (c *queriesClient) GetConsensusInfo(ctx context.Context, in *v2.Empty, opts ...grpc.CallOption) (*v2.ConsensusInfo, error) {
+	out := new(v2.ConsensusInfo)
 	err := c.cc.Invoke(ctx, "/concordium.v2.Queries/GetConsensusInfo", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -491,8 +492,8 @@ func (c *queriesClient) GetConsensusInfo(ctx context.Context, in *Empty, opts ..
 	return out, nil
 }
 
-func (c *queriesClient) GetBlockItemStatus(ctx context.Context, in *TransactionHash, opts ...grpc.CallOption) (*BlockItemStatus, error) {
-	out := new(BlockItemStatus)
+func (c *queriesClient) GetBlockItemStatus(ctx context.Context, in *v2.TransactionHash, opts ...grpc.CallOption) (*v2.BlockItemStatus, error) {
+	out := new(v2.BlockItemStatus)
 	err := c.cc.Invoke(ctx, "/concordium.v2.Queries/GetBlockItemStatus", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -500,8 +501,8 @@ func (c *queriesClient) GetBlockItemStatus(ctx context.Context, in *TransactionH
 	return out, nil
 }
 
-func (c *queriesClient) GetCryptographicParameters(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (*CryptographicParameters, error) {
-	out := new(CryptographicParameters)
+func (c *queriesClient) GetCryptographicParameters(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (*v2.CryptographicParameters, error) {
+	out := new(v2.CryptographicParameters)
 	err := c.cc.Invoke(ctx, "/concordium.v2.Queries/GetCryptographicParameters", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -509,8 +510,8 @@ func (c *queriesClient) GetCryptographicParameters(ctx context.Context, in *Bloc
 	return out, nil
 }
 
-func (c *queriesClient) GetBlockInfo(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (*BlockInfo, error) {
-	out := new(BlockInfo)
+func (c *queriesClient) GetBlockInfo(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (*v2.BlockInfo, error) {
+	out := new(v2.BlockInfo)
 	err := c.cc.Invoke(ctx, "/concordium.v2.Queries/GetBlockInfo", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -518,7 +519,7 @@ func (c *queriesClient) GetBlockInfo(ctx context.Context, in *BlockHashInput, op
 	return out, nil
 }
 
-func (c *queriesClient) GetBakerList(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (Queries_GetBakerListClient, error) {
+func (c *queriesClient) GetBakerList(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (Queries_GetBakerListClient, error) {
 	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[7], "/concordium.v2.Queries/GetBakerList", opts...)
 	if err != nil {
 		return nil, err
@@ -534,7 +535,7 @@ func (c *queriesClient) GetBakerList(ctx context.Context, in *BlockHashInput, op
 }
 
 type Queries_GetBakerListClient interface {
-	Recv() (*BakerId, error)
+	Recv() (*v2.BakerId, error)
 	grpc.ClientStream
 }
 
@@ -542,16 +543,16 @@ type queriesGetBakerListClient struct {
 	grpc.ClientStream
 }
 
-func (x *queriesGetBakerListClient) Recv() (*BakerId, error) {
-	m := new(BakerId)
+func (x *queriesGetBakerListClient) Recv() (*v2.BakerId, error) {
+	m := new(v2.BakerId)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
-func (c *queriesClient) GetPoolInfo(ctx context.Context, in *PoolInfoRequest, opts ...grpc.CallOption) (*PoolInfoResponse, error) {
-	out := new(PoolInfoResponse)
+func (c *queriesClient) GetPoolInfo(ctx context.Context, in *v2.PoolInfoRequest, opts ...grpc.CallOption) (*v2.PoolInfoResponse, error) {
+	out := new(v2.PoolInfoResponse)
 	err := c.cc.Invoke(ctx, "/concordium.v2.Queries/GetPoolInfo", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -559,8 +560,8 @@ func (c *queriesClient) GetPoolInfo(ctx context.Context, in *PoolInfoRequest, op
 	return out, nil
 }
 
-func (c *queriesClient) GetPassiveDelegationInfo(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (*PassiveDelegationInfo, error) {
-	out := new(PassiveDelegationInfo)
+func (c *queriesClient) GetPassiveDelegationInfo(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (*v2.PassiveDelegationInfo, error) {
+	out := new(v2.PassiveDelegationInfo)
 	err := c.cc.Invoke(ctx, "/concordium.v2.Queries/GetPassiveDelegationInfo", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -568,8 +569,8 @@ func (c *queriesClient) GetPassiveDelegationInfo(ctx context.Context, in *BlockH
 	return out, nil
 }
 
-func (c *queriesClient) GetBlocksAtHeight(ctx context.Context, in *BlocksAtHeightRequest, opts ...grpc.CallOption) (*BlocksAtHeightResponse, error) {
-	out := new(BlocksAtHeightResponse)
+func (c *queriesClient) GetBlocksAtHeight(ctx context.Context, in *v2.BlocksAtHeightRequest, opts ...grpc.CallOption) (*v2.BlocksAtHeightResponse, error) {
+	out := new(v2.BlocksAtHeightResponse)
 	err := c.cc.Invoke(ctx, "/concordium.v2.Queries/GetBlocksAtHeight", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -577,8 +578,8 @@ func (c *queriesClient) GetBlocksAtHeight(ctx context.Context, in *BlocksAtHeigh
 	return out, nil
 }
 
-func (c *queriesClient) GetTokenomicsInfo(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (*TokenomicsInfo, error) {
-	out := new(TokenomicsInfo)
+func (c *queriesClient) GetTokenomicsInfo(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (*v2.TokenomicsInfo, error) {
+	out := new(v2.TokenomicsInfo)
 	err := c.cc.Invoke(ctx, "/concordium.v2.Queries/GetTokenomicsInfo", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -586,8 +587,8 @@ func (c *queriesClient) GetTokenomicsInfo(ctx context.Context, in *BlockHashInpu
 	return out, nil
 }
 
-func (c *queriesClient) InvokeInstance(ctx context.Context, in *InvokeInstanceRequest, opts ...grpc.CallOption) (*InvokeInstanceResponse, error) {
-	out := new(InvokeInstanceResponse)
+func (c *queriesClient) InvokeInstance(ctx context.Context, in *v2.InvokeInstanceRequest, opts ...grpc.CallOption) (*v2.InvokeInstanceResponse, error) {
+	out := new(v2.InvokeInstanceResponse)
 	err := c.cc.Invoke(ctx, "/concordium.v2.Queries/InvokeInstance", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -595,7 +596,7 @@ func (c *queriesClient) InvokeInstance(ctx context.Context, in *InvokeInstanceRe
 	return out, nil
 }
 
-func (c *queriesClient) GetPoolDelegators(ctx context.Context, in *GetPoolDelegatorsRequest, opts ...grpc.CallOption) (Queries_GetPoolDelegatorsClient, error) {
+func (c *queriesClient) GetPoolDelegators(ctx context.Context, in *v2.GetPoolDelegatorsRequest, opts ...grpc.CallOption) (Queries_GetPoolDelegatorsClient, error) {
 	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[8], "/concordium.v2.Queries/GetPoolDelegators", opts...)
 	if err != nil {
 		return nil, err
@@ -611,7 +612,7 @@ func (c *queriesClient) GetPoolDelegators(ctx context.Context, in *GetPoolDelega
 }
 
 type Queries_GetPoolDelegatorsClient interface {
-	Recv() (*DelegatorInfo, error)
+	Recv() (*v2.DelegatorInfo, error)
 	grpc.ClientStream
 }
 
@@ -619,15 +620,15 @@ type queriesGetPoolDelegatorsClient struct {
 	grpc.ClientStream
 }
 
-func (x *queriesGetPoolDelegatorsClient) Recv() (*DelegatorInfo, error) {
-	m := new(DelegatorInfo)
+func (x *queriesGetPoolDelegatorsClient) Recv() (*v2.DelegatorInfo, error) {
+	m := new(v2.DelegatorInfo)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
-func (c *queriesClient) GetPoolDelegatorsRewardPeriod(ctx context.Context, in *GetPoolDelegatorsRequest, opts ...grpc.CallOption) (Queries_GetPoolDelegatorsRewardPeriodClient, error) {
+func (c *queriesClient) GetPoolDelegatorsRewardPeriod(ctx context.Context, in *v2.GetPoolDelegatorsRequest, opts ...grpc.CallOption) (Queries_GetPoolDelegatorsRewardPeriodClient, error) {
 	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[9], "/concordium.v2.Queries/GetPoolDelegatorsRewardPeriod", opts...)
 	if err != nil {
 		return nil, err
@@ -643,7 +644,7 @@ func (c *queriesClient) GetPoolDelegatorsRewardPeriod(ctx context.Context, in *G
 }
 
 type Queries_GetPoolDelegatorsRewardPeriodClient interface {
-	Recv() (*DelegatorRewardPeriodInfo, error)
+	Recv() (*v2.DelegatorRewardPeriodInfo, error)
 	grpc.ClientStream
 }
 
@@ -651,15 +652,15 @@ type queriesGetPoolDelegatorsRewardPeriodClient struct {
 	grpc.ClientStream
 }
 
-func (x *queriesGetPoolDelegatorsRewardPeriodClient) Recv() (*DelegatorRewardPeriodInfo, error) {
-	m := new(DelegatorRewardPeriodInfo)
+func (x *queriesGetPoolDelegatorsRewardPeriodClient) Recv() (*v2.DelegatorRewardPeriodInfo, error) {
+	m := new(v2.DelegatorRewardPeriodInfo)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
-func (c *queriesClient) GetPassiveDelegators(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (Queries_GetPassiveDelegatorsClient, error) {
+func (c *queriesClient) GetPassiveDelegators(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (Queries_GetPassiveDelegatorsClient, error) {
 	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[10], "/concordium.v2.Queries/GetPassiveDelegators", opts...)
 	if err != nil {
 		return nil, err
@@ -675,7 +676,7 @@ func (c *queriesClient) GetPassiveDelegators(ctx context.Context, in *BlockHashI
 }
 
 type Queries_GetPassiveDelegatorsClient interface {
-	Recv() (*DelegatorInfo, error)
+	Recv() (*v2.DelegatorInfo, error)
 	grpc.ClientStream
 }
 
@@ -683,15 +684,15 @@ type queriesGetPassiveDelegatorsClient struct {
 	grpc.ClientStream
 }
 
-func (x *queriesGetPassiveDelegatorsClient) Recv() (*DelegatorInfo, error) {
-	m := new(DelegatorInfo)
+func (x *queriesGetPassiveDelegatorsClient) Recv() (*v2.DelegatorInfo, error) {
+	m := new(v2.DelegatorInfo)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
-func (c *queriesClient) GetPassiveDelegatorsRewardPeriod(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (Queries_GetPassiveDelegatorsRewardPeriodClient, error) {
+func (c *queriesClient) GetPassiveDelegatorsRewardPeriod(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (Queries_GetPassiveDelegatorsRewardPeriodClient, error) {
 	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[11], "/concordium.v2.Queries/GetPassiveDelegatorsRewardPeriod", opts...)
 	if err != nil {
 		return nil, err
@@ -707,7 +708,7 @@ func (c *queriesClient) GetPassiveDelegatorsRewardPeriod(ctx context.Context, in
 }
 
 type Queries_GetPassiveDelegatorsRewardPeriodClient interface {
-	Recv() (*DelegatorRewardPeriodInfo, error)
+	Recv() (*v2.DelegatorRewardPeriodInfo, error)
 	grpc.ClientStream
 }
 
@@ -715,16 +716,16 @@ type queriesGetPassiveDelegatorsRewardPeriodClient struct {
 	grpc.ClientStream
 }
 
-func (x *queriesGetPassiveDelegatorsRewardPeriodClient) Recv() (*DelegatorRewardPeriodInfo, error) {
-	m := new(DelegatorRewardPeriodInfo)
+func (x *queriesGetPassiveDelegatorsRewardPeriodClient) Recv() (*v2.DelegatorRewardPeriodInfo, error) {
+	m := new(v2.DelegatorRewardPeriodInfo)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
-func (c *queriesClient) GetBranches(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Branch, error) {
-	out := new(Branch)
+func (c *queriesClient) GetBranches(ctx context.Context, in *v2.Empty, opts ...grpc.CallOption) (*v2.Branch, error) {
+	out := new(v2.Branch)
 	err := c.cc.Invoke(ctx, "/concordium.v2.Queries/GetBranches", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -732,8 +733,8 @@ func (c *queriesClient) GetBranches(ctx context.Context, in *Empty, opts ...grpc
 	return out, nil
 }
 
-func (c *queriesClient) GetElectionInfo(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (*ElectionInfo, error) {
-	out := new(ElectionInfo)
+func (c *queriesClient) GetElectionInfo(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (*v2.ElectionInfo, error) {
+	out := new(v2.ElectionInfo)
 	err := c.cc.Invoke(ctx, "/concordium.v2.Queries/GetElectionInfo", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -741,7 +742,7 @@ func (c *queriesClient) GetElectionInfo(ctx context.Context, in *BlockHashInput,
 	return out, nil
 }
 
-func (c *queriesClient) GetIdentityProviders(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (Queries_GetIdentityProvidersClient, error) {
+func (c *queriesClient) GetIdentityProviders(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (Queries_GetIdentityProvidersClient, error) {
 	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[12], "/concordium.v2.Queries/GetIdentityProviders", opts...)
 	if err != nil {
 		return nil, err
@@ -757,7 +758,7 @@ func (c *queriesClient) GetIdentityProviders(ctx context.Context, in *BlockHashI
 }
 
 type Queries_GetIdentityProvidersClient interface {
-	Recv() (*IpInfo, error)
+	Recv() (*v2.IpInfo, error)
 	grpc.ClientStream
 }
 
@@ -765,15 +766,15 @@ type queriesGetIdentityProvidersClient struct {
 	grpc.ClientStream
 }
 
-func (x *queriesGetIdentityProvidersClient) Recv() (*IpInfo, error) {
-	m := new(IpInfo)
+func (x *queriesGetIdentityProvidersClient) Recv() (*v2.IpInfo, error) {
+	m := new(v2.IpInfo)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
-func (c *queriesClient) GetAnonymityRevokers(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (Queries_GetAnonymityRevokersClient, error) {
+func (c *queriesClient) GetAnonymityRevokers(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (Queries_GetAnonymityRevokersClient, error) {
 	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[13], "/concordium.v2.Queries/GetAnonymityRevokers", opts...)
 	if err != nil {
 		return nil, err
@@ -789,7 +790,7 @@ func (c *queriesClient) GetAnonymityRevokers(ctx context.Context, in *BlockHashI
 }
 
 type Queries_GetAnonymityRevokersClient interface {
-	Recv() (*ArInfo, error)
+	Recv() (*v2.ArInfo, error)
 	grpc.ClientStream
 }
 
@@ -797,15 +798,15 @@ type queriesGetAnonymityRevokersClient struct {
 	grpc.ClientStream
 }
 
-func (x *queriesGetAnonymityRevokersClient) Recv() (*ArInfo, error) {
-	m := new(ArInfo)
+func (x *queriesGetAnonymityRevokersClient) Recv() (*v2.ArInfo, error) {
+	m := new(v2.ArInfo)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
-func (c *queriesClient) GetAccountNonFinalizedTransactions(ctx context.Context, in *AccountAddress, opts ...grpc.CallOption) (Queries_GetAccountNonFinalizedTransactionsClient, error) {
+func (c *queriesClient) GetAccountNonFinalizedTransactions(ctx context.Context, in *v2.AccountAddress, opts ...grpc.CallOption) (Queries_GetAccountNonFinalizedTransactionsClient, error) {
 	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[14], "/concordium.v2.Queries/GetAccountNonFinalizedTransactions", opts...)
 	if err != nil {
 		return nil, err
@@ -821,7 +822,7 @@ func (c *queriesClient) GetAccountNonFinalizedTransactions(ctx context.Context, 
 }
 
 type Queries_GetAccountNonFinalizedTransactionsClient interface {
-	Recv() (*TransactionHash, error)
+	Recv() (*v2.TransactionHash, error)
 	grpc.ClientStream
 }
 
@@ -829,15 +830,15 @@ type queriesGetAccountNonFinalizedTransactionsClient struct {
 	grpc.ClientStream
 }
 
-func (x *queriesGetAccountNonFinalizedTransactionsClient) Recv() (*TransactionHash, error) {
-	m := new(TransactionHash)
+func (x *queriesGetAccountNonFinalizedTransactionsClient) Recv() (*v2.TransactionHash, error) {
+	m := new(v2.TransactionHash)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
-func (c *queriesClient) GetBlockTransactionEvents(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (Queries_GetBlockTransactionEventsClient, error) {
+func (c *queriesClient) GetBlockTransactionEvents(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (Queries_GetBlockTransactionEventsClient, error) {
 	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[15], "/concordium.v2.Queries/GetBlockTransactionEvents", opts...)
 	if err != nil {
 		return nil, err
@@ -853,7 +854,7 @@ func (c *queriesClient) GetBlockTransactionEvents(ctx context.Context, in *Block
 }
 
 type Queries_GetBlockTransactionEventsClient interface {
-	Recv() (*BlockItemSummary, error)
+	Recv() (*v2.BlockItemSummary, error)
 	grpc.ClientStream
 }
 
@@ -861,15 +862,15 @@ type queriesGetBlockTransactionEventsClient struct {
 	grpc.ClientStream
 }
 
-func (x *queriesGetBlockTransactionEventsClient) Recv() (*BlockItemSummary, error) {
-	m := new(BlockItemSummary)
+func (x *queriesGetBlockTransactionEventsClient) Recv() (*v2.BlockItemSummary, error) {
+	m := new(v2.BlockItemSummary)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
-func (c *queriesClient) GetBlockSpecialEvents(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (Queries_GetBlockSpecialEventsClient, error) {
+func (c *queriesClient) GetBlockSpecialEvents(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (Queries_GetBlockSpecialEventsClient, error) {
 	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[16], "/concordium.v2.Queries/GetBlockSpecialEvents", opts...)
 	if err != nil {
 		return nil, err
@@ -885,7 +886,7 @@ func (c *queriesClient) GetBlockSpecialEvents(ctx context.Context, in *BlockHash
 }
 
 type Queries_GetBlockSpecialEventsClient interface {
-	Recv() (*BlockSpecialEvent, error)
+	Recv() (*v2.BlockSpecialEvent, error)
 	grpc.ClientStream
 }
 
@@ -893,15 +894,15 @@ type queriesGetBlockSpecialEventsClient struct {
 	grpc.ClientStream
 }
 
-func (x *queriesGetBlockSpecialEventsClient) Recv() (*BlockSpecialEvent, error) {
-	m := new(BlockSpecialEvent)
+func (x *queriesGetBlockSpecialEventsClient) Recv() (*v2.BlockSpecialEvent, error) {
+	m := new(v2.BlockSpecialEvent)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
-func (c *queriesClient) GetBlockPendingUpdates(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (Queries_GetBlockPendingUpdatesClient, error) {
+func (c *queriesClient) GetBlockPendingUpdates(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (Queries_GetBlockPendingUpdatesClient, error) {
 	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[17], "/concordium.v2.Queries/GetBlockPendingUpdates", opts...)
 	if err != nil {
 		return nil, err
@@ -917,7 +918,7 @@ func (c *queriesClient) GetBlockPendingUpdates(ctx context.Context, in *BlockHas
 }
 
 type Queries_GetBlockPendingUpdatesClient interface {
-	Recv() (*PendingUpdate, error)
+	Recv() (*v2.PendingUpdate, error)
 	grpc.ClientStream
 }
 
@@ -925,16 +926,16 @@ type queriesGetBlockPendingUpdatesClient struct {
 	grpc.ClientStream
 }
 
-func (x *queriesGetBlockPendingUpdatesClient) Recv() (*PendingUpdate, error) {
-	m := new(PendingUpdate)
+func (x *queriesGetBlockPendingUpdatesClient) Recv() (*v2.PendingUpdate, error) {
+	m := new(v2.PendingUpdate)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
-func (c *queriesClient) GetNextUpdateSequenceNumbers(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (*NextUpdateSequenceNumbers, error) {
-	out := new(NextUpdateSequenceNumbers)
+func (c *queriesClient) GetNextUpdateSequenceNumbers(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (*v2.NextUpdateSequenceNumbers, error) {
+	out := new(v2.NextUpdateSequenceNumbers)
 	err := c.cc.Invoke(ctx, "/concordium.v2.Queries/GetNextUpdateSequenceNumbers", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -942,8 +943,8 @@ func (c *queriesClient) GetNextUpdateSequenceNumbers(ctx context.Context, in *Bl
 	return out, nil
 }
 
-func (c *queriesClient) Shutdown(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error) {
-	out := new(Empty)
+func (c *queriesClient) Shutdown(ctx context.Context, in *v2.Empty, opts ...grpc.CallOption) (*v2.Empty, error) {
+	out := new(v2.Empty)
 	err := c.cc.Invoke(ctx, "/concordium.v2.Queries/Shutdown", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -951,8 +952,8 @@ func (c *queriesClient) Shutdown(ctx context.Context, in *Empty, opts ...grpc.Ca
 	return out, nil
 }
 
-func (c *queriesClient) PeerConnect(ctx context.Context, in *IpSocketAddress, opts ...grpc.CallOption) (*Empty, error) {
-	out := new(Empty)
+func (c *queriesClient) PeerConnect(ctx context.Context, in *v2.IpSocketAddress, opts ...grpc.CallOption) (*v2.Empty, error) {
+	out := new(v2.Empty)
 	err := c.cc.Invoke(ctx, "/concordium.v2.Queries/PeerConnect", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -960,8 +961,8 @@ func (c *queriesClient) PeerConnect(ctx context.Context, in *IpSocketAddress, op
 	return out, nil
 }
 
-func (c *queriesClient) PeerDisconnect(ctx context.Context, in *IpSocketAddress, opts ...grpc.CallOption) (*Empty, error) {
-	out := new(Empty)
+func (c *queriesClient) PeerDisconnect(ctx context.Context, in *v2.IpSocketAddress, opts ...grpc.CallOption) (*v2.Empty, error) {
+	out := new(v2.Empty)
 	err := c.cc.Invoke(ctx, "/concordium.v2.Queries/PeerDisconnect", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -969,8 +970,8 @@ func (c *queriesClient) PeerDisconnect(ctx context.Context, in *IpSocketAddress,
 	return out, nil
 }
 
-func (c *queriesClient) GetBannedPeers(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*BannedPeers, error) {
-	out := new(BannedPeers)
+func (c *queriesClient) GetBannedPeers(ctx context.Context, in *v2.Empty, opts ...grpc.CallOption) (*v2.BannedPeers, error) {
+	out := new(v2.BannedPeers)
 	err := c.cc.Invoke(ctx, "/concordium.v2.Queries/GetBannedPeers", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -978,8 +979,8 @@ func (c *queriesClient) GetBannedPeers(ctx context.Context, in *Empty, opts ...g
 	return out, nil
 }
 
-func (c *queriesClient) BanPeer(ctx context.Context, in *PeerToBan, opts ...grpc.CallOption) (*Empty, error) {
-	out := new(Empty)
+func (c *queriesClient) BanPeer(ctx context.Context, in *v2.PeerToBan, opts ...grpc.CallOption) (*v2.Empty, error) {
+	out := new(v2.Empty)
 	err := c.cc.Invoke(ctx, "/concordium.v2.Queries/BanPeer", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -987,8 +988,8 @@ func (c *queriesClient) BanPeer(ctx context.Context, in *PeerToBan, opts ...grpc
 	return out, nil
 }
 
-func (c *queriesClient) UnbanPeer(ctx context.Context, in *BannedPeer, opts ...grpc.CallOption) (*Empty, error) {
-	out := new(Empty)
+func (c *queriesClient) UnbanPeer(ctx context.Context, in *v2.BannedPeer, opts ...grpc.CallOption) (*v2.Empty, error) {
+	out := new(v2.Empty)
 	err := c.cc.Invoke(ctx, "/concordium.v2.Queries/UnbanPeer", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -996,8 +997,8 @@ func (c *queriesClient) UnbanPeer(ctx context.Context, in *BannedPeer, opts ...g
 	return out, nil
 }
 
-func (c *queriesClient) DumpStart(ctx context.Context, in *DumpRequest, opts ...grpc.CallOption) (*Empty, error) {
-	out := new(Empty)
+func (c *queriesClient) DumpStart(ctx context.Context, in *v2.DumpRequest, opts ...grpc.CallOption) (*v2.Empty, error) {
+	out := new(v2.Empty)
 	err := c.cc.Invoke(ctx, "/concordium.v2.Queries/DumpStart", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -1005,8 +1006,8 @@ func (c *queriesClient) DumpStart(ctx context.Context, in *DumpRequest, opts ...
 	return out, nil
 }
 
-func (c *queriesClient) DumpStop(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error) {
-	out := new(Empty)
+func (c *queriesClient) DumpStop(ctx context.Context, in *v2.Empty, opts ...grpc.CallOption) (*v2.Empty, error) {
+	out := new(v2.Empty)
 	err := c.cc.Invoke(ctx, "/concordium.v2.Queries/DumpStop", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -1014,8 +1015,8 @@ func (c *queriesClient) DumpStop(ctx context.Context, in *Empty, opts ...grpc.Ca
 	return out, nil
 }
 
-func (c *queriesClient) GetPeersInfo(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*PeersInfo, error) {
-	out := new(PeersInfo)
+func (c *queriesClient) GetPeersInfo(ctx context.Context, in *v2.Empty, opts ...grpc.CallOption) (*v2.PeersInfo, error) {
+	out := new(v2.PeersInfo)
 	err := c.cc.Invoke(ctx, "/concordium.v2.Queries/GetPeersInfo", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -1023,8 +1024,8 @@ func (c *queriesClient) GetPeersInfo(ctx context.Context, in *Empty, opts ...grp
 	return out, nil
 }
 
-func (c *queriesClient) GetNodeInfo(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*NodeInfo, error) {
-	out := new(NodeInfo)
+func (c *queriesClient) GetNodeInfo(ctx context.Context, in *v2.Empty, opts ...grpc.CallOption) (*v2.NodeInfo, error) {
+	out := new(v2.NodeInfo)
 	err := c.cc.Invoke(ctx, "/concordium.v2.Queries/GetNodeInfo", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -1032,8 +1033,8 @@ func (c *queriesClient) GetNodeInfo(ctx context.Context, in *Empty, opts ...grpc
 	return out, nil
 }
 
-func (c *queriesClient) SendBlockItem(ctx context.Context, in *SendBlockItemRequest, opts ...grpc.CallOption) (*TransactionHash, error) {
-	out := new(TransactionHash)
+func (c *queriesClient) SendBlockItem(ctx context.Context, in *v2.SendBlockItemRequest, opts ...grpc.CallOption) (*v2.TransactionHash, error) {
+	out := new(v2.TransactionHash)
 	err := c.cc.Invoke(ctx, "/concordium.v2.Queries/SendBlockItem", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -1041,8 +1042,8 @@ func (c *queriesClient) SendBlockItem(ctx context.Context, in *SendBlockItemRequ
 	return out, nil
 }
 
-func (c *queriesClient) GetAccountTransactionSignHash(ctx context.Context, in *PreAccountTransaction, opts ...grpc.CallOption) (*AccountTransactionSignHash, error) {
-	out := new(AccountTransactionSignHash)
+func (c *queriesClient) GetAccountTransactionSignHash(ctx context.Context, in *v2.PreAccountTransaction, opts ...grpc.CallOption) (*v2.AccountTransactionSignHash, error) {
+	out := new(v2.AccountTransactionSignHash)
 	err := c.cc.Invoke(ctx, "/concordium.v2.Queries/GetAccountTransactionSignHash", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -1050,8 +1051,8 @@ func (c *queriesClient) GetAccountTransactionSignHash(ctx context.Context, in *P
 	return out, nil
 }
 
-func (c *queriesClient) GetBlockChainParameters(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (*ChainParameters, error) {
-	out := new(ChainParameters)
+func (c *queriesClient) GetBlockChainParameters(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (*v2.ChainParameters, error) {
+	out := new(v2.ChainParameters)
 	err := c.cc.Invoke(ctx, "/concordium.v2.Queries/GetBlockChainParameters", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -1059,8 +1060,8 @@ func (c *queriesClient) GetBlockChainParameters(ctx context.Context, in *BlockHa
 	return out, nil
 }
 
-func (c *queriesClient) GetBlockFinalizationSummary(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (*BlockFinalizationSummary, error) {
-	out := new(BlockFinalizationSummary)
+func (c *queriesClient) GetBlockFinalizationSummary(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (*v2.BlockFinalizationSummary, error) {
+	out := new(v2.BlockFinalizationSummary)
 	err := c.cc.Invoke(ctx, "/concordium.v2.Queries/GetBlockFinalizationSummary", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -1068,7 +1069,7 @@ func (c *queriesClient) GetBlockFinalizationSummary(ctx context.Context, in *Blo
 	return out, nil
 }
 
-func (c *queriesClient) GetBlockItems(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (Queries_GetBlockItemsClient, error) {
+func (c *queriesClient) GetBlockItems(ctx context.Context, in *v2.BlockHashInput, opts ...grpc.CallOption) (Queries_GetBlockItemsClient, error) {
 	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[18], "/concordium.v2.Queries/GetBlockItems", opts...)
 	if err != nil {
 		return nil, err
@@ -1084,7 +1085,7 @@ func (c *queriesClient) GetBlockItems(ctx context.Context, in *BlockHashInput, o
 }
 
 type Queries_GetBlockItemsClient interface {
-	Recv() (*BlockItem, error)
+	Recv() (*v2.BlockItem, error)
 	grpc.ClientStream
 }
 
@@ -1092,8 +1093,8 @@ type queriesGetBlockItemsClient struct {
 	grpc.ClientStream
 }
 
-func (x *queriesGetBlockItemsClient) Recv() (*BlockItem, error) {
-	m := new(BlockItem)
+func (x *queriesGetBlockItemsClient) Recv() (*v2.BlockItem, error) {
+	m := new(v2.BlockItem)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -1106,154 +1107,154 @@ func (x *queriesGetBlockItemsClient) Recv() (*BlockItem, error) {
 type QueriesServer interface {
 	// Return a stream of blocks that arrive from the time the query is made onward.
 	// This can be used to listen for incoming blocks.
-	GetBlocks(*Empty, Queries_GetBlocksServer) error
+	GetBlocks(*v2.Empty, Queries_GetBlocksServer) error
 	// Return a stream of blocks that are finalized from the time the query is
 	// made onward. This can be used to listen for newly finalized blocks. Note
 	// that there is no guarantee that blocks will not be skipped if the client is
 	// too slow in processing the stream, however blocks will always be sent by
 	// increasing block height.
-	GetFinalizedBlocks(*Empty, Queries_GetFinalizedBlocksServer) error
+	GetFinalizedBlocks(*v2.Empty, Queries_GetFinalizedBlocksServer) error
 	// Retrieve the information about the given account in the given block.
-	GetAccountInfo(context.Context, *AccountInfoRequest) (*AccountInfo, error)
+	GetAccountInfo(context.Context, *v2.AccountInfoRequest) (*v2.AccountInfo, error)
 	// Retrieve the list of accounts that exist at the end of the given block.
-	GetAccountList(*BlockHashInput, Queries_GetAccountListServer) error
+	GetAccountList(*v2.BlockHashInput, Queries_GetAccountListServer) error
 	// Get a list of all smart contract modules. The stream will end
 	// when all modules that exist in the state at the end of the given
 	// block have been returned.
-	GetModuleList(*BlockHashInput, Queries_GetModuleListServer) error
+	GetModuleList(*v2.BlockHashInput, Queries_GetModuleListServer) error
 	// Get a stream of ancestors for the provided block.
 	// Starting with the provided block itself, moving backwards until no more
 	// ancestors or the requested number of ancestors has been returned.
-	GetAncestors(*AncestorsRequest, Queries_GetAncestorsServer) error
+	GetAncestors(*v2.AncestorsRequest, Queries_GetAncestorsServer) error
 	// Get the source of a smart contract module.
-	GetModuleSource(context.Context, *ModuleSourceRequest) (*VersionedModuleSource, error)
+	GetModuleSource(context.Context, *v2.ModuleSourceRequest) (*v2.VersionedModuleSource, error)
 	// Get a list of addresses for all smart contract instances. The stream
 	// will end when all instances that exist in the state at the end of the
 	// given block has been returned.
-	GetInstanceList(*BlockHashInput, Queries_GetInstanceListServer) error
+	GetInstanceList(*v2.BlockHashInput, Queries_GetInstanceListServer) error
 	// Get info about a smart contract instance as it appears at the end of the
 	// given block.
-	GetInstanceInfo(context.Context, *InstanceInfoRequest) (*InstanceInfo, error)
+	GetInstanceInfo(context.Context, *v2.InstanceInfoRequest) (*v2.InstanceInfo, error)
 	// Get the exact state of a specific contract instance, streamed as a list of
 	// key-value pairs. The list is streamed in lexicographic order of keys.
-	GetInstanceState(*InstanceInfoRequest, Queries_GetInstanceStateServer) error
+	GetInstanceState(*v2.InstanceInfoRequest, Queries_GetInstanceStateServer) error
 	// Get the value at a specific key of a contract state. In contrast to
 	// `GetInstanceState` this is more efficient, but requires the user to know
 	// the specific key to look for.
-	InstanceStateLookup(context.Context, *InstanceStateLookupRequest) (*InstanceStateValueAtKey, error)
+	InstanceStateLookup(context.Context, *v2.InstanceStateLookupRequest) (*v2.InstanceStateValueAtKey, error)
 	// Get the best guess as to what the next account sequence number should be.
 	// If all account transactions are finalized then this information is reliable.
 	// Otherwise this is the best guess, assuming all other transactions will be
 	// committed to blocks and eventually finalized.
-	GetNextAccountSequenceNumber(context.Context, *AccountAddress) (*NextAccountSequenceNumber, error)
+	GetNextAccountSequenceNumber(context.Context, *v2.AccountAddress) (*v2.NextAccountSequenceNumber, error)
 	// Get information about the current state of consensus.
-	GetConsensusInfo(context.Context, *Empty) (*ConsensusInfo, error)
+	GetConsensusInfo(context.Context, *v2.Empty) (*v2.ConsensusInfo, error)
 	// Get the status of and information about a specific block item (transaction).
-	GetBlockItemStatus(context.Context, *TransactionHash) (*BlockItemStatus, error)
+	GetBlockItemStatus(context.Context, *v2.TransactionHash) (*v2.BlockItemStatus, error)
 	// Get the cryptographic parameters in a given block.
-	GetCryptographicParameters(context.Context, *BlockHashInput) (*CryptographicParameters, error)
+	GetCryptographicParameters(context.Context, *v2.BlockHashInput) (*v2.CryptographicParameters, error)
 	// Get information, such as height, timings, and transaction counts for the given block.
-	GetBlockInfo(context.Context, *BlockHashInput) (*BlockInfo, error)
+	GetBlockInfo(context.Context, *v2.BlockHashInput) (*v2.BlockInfo, error)
 	// Get all the bakers at the end of the given block.
-	GetBakerList(*BlockHashInput, Queries_GetBakerListServer) error
+	GetBakerList(*v2.BlockHashInput, Queries_GetBakerListServer) error
 	// Get information about a given pool at the end of a given block.
-	GetPoolInfo(context.Context, *PoolInfoRequest) (*PoolInfoResponse, error)
+	GetPoolInfo(context.Context, *v2.PoolInfoRequest) (*v2.PoolInfoResponse, error)
 	// Get information about the passive delegators at the end of a given block.
-	GetPassiveDelegationInfo(context.Context, *BlockHashInput) (*PassiveDelegationInfo, error)
+	GetPassiveDelegationInfo(context.Context, *v2.BlockHashInput) (*v2.PassiveDelegationInfo, error)
 	// Get a list of live blocks at a given height.
-	GetBlocksAtHeight(context.Context, *BlocksAtHeightRequest) (*BlocksAtHeightResponse, error)
+	GetBlocksAtHeight(context.Context, *v2.BlocksAtHeightRequest) (*v2.BlocksAtHeightResponse, error)
 	// Get information about tokenomics at the end of a given block.
-	GetTokenomicsInfo(context.Context, *BlockHashInput) (*TokenomicsInfo, error)
+	GetTokenomicsInfo(context.Context, *v2.BlockHashInput) (*v2.TokenomicsInfo, error)
 	// Run the smart contract entrypoint in a given context and in the state at
 	// the end of the given block.
-	InvokeInstance(context.Context, *InvokeInstanceRequest) (*InvokeInstanceResponse, error)
+	InvokeInstance(context.Context, *v2.InvokeInstanceRequest) (*v2.InvokeInstanceResponse, error)
 	// Get the registered delegators of a given pool at the end of a given block.
 	// In contrast to the `GetPoolDelegatorsRewardPeriod` which returns delegators
 	// that are fixed for the reward period of the block, this endpoint returns the
 	// list of delegators that are registered in the block. Any changes to delegators
 	// are immediately visible in this list.
 	// The stream will end when all the delegators has been returned.
-	GetPoolDelegators(*GetPoolDelegatorsRequest, Queries_GetPoolDelegatorsServer) error
+	GetPoolDelegators(*v2.GetPoolDelegatorsRequest, Queries_GetPoolDelegatorsServer) error
 	// Get the fixed delegators of a given pool for the reward period of the given block.
 	// In contracts to the `GetPoolDelegators` which returns delegators registered
 	// for the given block, this endpoint returns the fixed delegators contributing
 	// stake in the reward period containing the given block.
 	// The stream will end when all the delegators has been returned.
-	GetPoolDelegatorsRewardPeriod(*GetPoolDelegatorsRequest, Queries_GetPoolDelegatorsRewardPeriodServer) error
+	GetPoolDelegatorsRewardPeriod(*v2.GetPoolDelegatorsRequest, Queries_GetPoolDelegatorsRewardPeriodServer) error
 	// Get the registered passive delegators at the end of a given block.
 	// In contrast to the `GetPassiveDelegatorsRewardPeriod` which returns delegators
 	// that are fixed for the reward period of the block, this endpoint returns the
 	// list of delegators that are registered in the block. Any changes to delegators
 	// are immediately visible in this list.
 	// The stream will end when all the delegators has been returned.
-	GetPassiveDelegators(*BlockHashInput, Queries_GetPassiveDelegatorsServer) error
+	GetPassiveDelegators(*v2.BlockHashInput, Queries_GetPassiveDelegatorsServer) error
 	// Get the fixed passive delegators for the reward period of the given block.
 	// In contracts to the `GetPassiveDelegators` which returns delegators registered
 	// for the given block, this endpoint returns the fixed delegators contributing
 	// stake in the reward period containing the given block.
 	// The stream will end when all the delegators has been returned.
-	GetPassiveDelegatorsRewardPeriod(*BlockHashInput, Queries_GetPassiveDelegatorsRewardPeriodServer) error
+	GetPassiveDelegatorsRewardPeriod(*v2.BlockHashInput, Queries_GetPassiveDelegatorsRewardPeriodServer) error
 	// Get the current branches of blocks starting from and including the last finalized block.
-	GetBranches(context.Context, *Empty) (*Branch, error)
+	GetBranches(context.Context, *v2.Empty) (*v2.Branch, error)
 	// Get information related to the baker election for a particular block.
-	GetElectionInfo(context.Context, *BlockHashInput) (*ElectionInfo, error)
+	GetElectionInfo(context.Context, *v2.BlockHashInput) (*v2.ElectionInfo, error)
 	// Get the identity providers registered as of the end of a given block.
 	// The stream will end when all the identity providers have been returned.
-	GetIdentityProviders(*BlockHashInput, Queries_GetIdentityProvidersServer) error
+	GetIdentityProviders(*v2.BlockHashInput, Queries_GetIdentityProvidersServer) error
 	// Get the anonymity revokers registered as of the end of a given block.
 	// The stream will end when all the anonymity revokers have been returned.
-	GetAnonymityRevokers(*BlockHashInput, Queries_GetAnonymityRevokersServer) error
+	GetAnonymityRevokers(*v2.BlockHashInput, Queries_GetAnonymityRevokersServer) error
 	// Get a list of non-finalized transaction hashes for a given account. This
 	// endpoint is not expected to return a large amount of data in most cases,
 	// but in bad network condtions it might. The stream will end when all the
 	// non-finalized transaction hashes have been returned.
-	GetAccountNonFinalizedTransactions(*AccountAddress, Queries_GetAccountNonFinalizedTransactionsServer) error
+	GetAccountNonFinalizedTransactions(*v2.AccountAddress, Queries_GetAccountNonFinalizedTransactionsServer) error
 	// Get a list of transaction events in a given block.
 	// The stream will end when all the transaction events for a given block have been returned.
-	GetBlockTransactionEvents(*BlockHashInput, Queries_GetBlockTransactionEventsServer) error
+	GetBlockTransactionEvents(*v2.BlockHashInput, Queries_GetBlockTransactionEventsServer) error
 	// Get a list of special events in a given block. These are events generated
 	// by the protocol, such as minting and reward payouts. They are not directly
 	// generated by any transaction. The stream will end when all the special
 	// events for a given block have been returned.
-	GetBlockSpecialEvents(*BlockHashInput, Queries_GetBlockSpecialEventsServer) error
+	GetBlockSpecialEvents(*v2.BlockHashInput, Queries_GetBlockSpecialEventsServer) error
 	// Get the pending updates to chain parameters at the end of a given block.
 	// The stream will end when all the pending updates for a given block have been returned.
-	GetBlockPendingUpdates(*BlockHashInput, Queries_GetBlockPendingUpdatesServer) error
+	GetBlockPendingUpdates(*v2.BlockHashInput, Queries_GetBlockPendingUpdatesServer) error
 	// Get next available sequence numbers for updating chain parameters after a given block.
-	GetNextUpdateSequenceNumbers(context.Context, *BlockHashInput) (*NextUpdateSequenceNumbers, error)
+	GetNextUpdateSequenceNumbers(context.Context, *v2.BlockHashInput) (*v2.NextUpdateSequenceNumbers, error)
 	// Shut down the node.
 	// Return a GRPC error if the shutdown failed.
-	Shutdown(context.Context, *Empty) (*Empty, error)
+	Shutdown(context.Context, *v2.Empty) (*v2.Empty, error)
 	// Suggest to a peer to connect to the submitted peer details.
 	// This, if successful, adds the peer to the list of given addresses.
 	// Otherwise return a GRPC error.
 	// Note. The peer might not be connected to instantly, in that case
 	// the node will try to establish the connection in near future. This
 	// function returns a GRPC status 'Ok' in this case.
-	PeerConnect(context.Context, *IpSocketAddress) (*Empty, error)
+	PeerConnect(context.Context, *v2.IpSocketAddress) (*v2.Empty, error)
 	// Disconnect from the peer and remove them from the given addresses list
 	// if they are on it. Return if the request was processed successfully.
 	// Otherwise return a GRPC error.
-	PeerDisconnect(context.Context, *IpSocketAddress) (*Empty, error)
+	PeerDisconnect(context.Context, *v2.IpSocketAddress) (*v2.Empty, error)
 	// Get a list of banned peers.
-	GetBannedPeers(context.Context, *Empty) (*BannedPeers, error)
+	GetBannedPeers(context.Context, *v2.Empty) (*v2.BannedPeers, error)
 	// Ban the given peer.
 	// Returns a GRPC error if the action failed.
-	BanPeer(context.Context, *PeerToBan) (*Empty, error)
+	BanPeer(context.Context, *v2.PeerToBan) (*v2.Empty, error)
 	// Unban the banned peer.
 	// Returns a GRPC error if the action failed.
-	UnbanPeer(context.Context, *BannedPeer) (*Empty, error)
+	UnbanPeer(context.Context, *v2.BannedPeer) (*v2.Empty, error)
 	// Start dumping packages into the specified file.
 	// Only enabled if the node was built with the `network_dump` feature.
 	// Returns a GRPC error if the network dump failed to start.
-	DumpStart(context.Context, *DumpRequest) (*Empty, error)
+	DumpStart(context.Context, *v2.DumpRequest) (*v2.Empty, error)
 	// Stop dumping packages.
 	// Only enabled if the node was built with the `network_dump` feature.
 	// Returns a GRPC error if the network dump failed to be stopped.
-	DumpStop(context.Context, *Empty) (*Empty, error)
+	DumpStop(context.Context, *v2.Empty) (*v2.Empty, error)
 	/// Get a list of the peers that the node is connected to
 	/// and assoicated network related information for each peer.
-	GetPeersInfo(context.Context, *Empty) (*PeersInfo, error)
+	GetPeersInfo(context.Context, *v2.Empty) (*v2.PeersInfo, error)
 	// Get information about the node.
 	// The `NodeInfo` includes information of
 	// * Meta information such as the, version of the node, type of the node, uptime and the local time of the node.
@@ -1261,7 +1262,7 @@ type QueriesServer interface {
 	//   average bytes per second sent/received.
 	// * ConsensusInfo. The `ConsensusInfo` returned depends on if the node supports
 	//   the protocol on chain and whether the node is configured as a baker or not.
-	GetNodeInfo(context.Context, *Empty) (*NodeInfo, error)
+	GetNodeInfo(context.Context, *v2.Empty) (*v2.NodeInfo, error)
 	// Send a block item. A block item is either an `AccountTransaction`, which is
 	// a transaction signed and paid for by an account, a `CredentialDeployment`,
 	// which creates a new account, or `UpdateInstruction`, which is an
@@ -1270,7 +1271,7 @@ type QueriesServer interface {
 	//
 	// Returns a hash of the block item, which can be used with
 	// `GetBlockItemStatus`.
-	SendBlockItem(context.Context, *SendBlockItemRequest) (*TransactionHash, error)
+	SendBlockItem(context.Context, *v2.SendBlockItemRequest) (*v2.TransactionHash, error)
 	// Get the hash to be signed for an account transaction. The hash returned
 	// should be signed and the signatures included as an
 	// AccountTransactionSignature when calling `SendBlockItem`. This is provided as
@@ -1278,13 +1279,13 @@ type QueriesServer interface {
 	// interacting with the node. If an SDK is available then it is strongly
 	// recommended to compute this hash off-line using it. That reduces the trust
 	// in the node, removes networking failure modes, and will perform better.
-	GetAccountTransactionSignHash(context.Context, *PreAccountTransaction) (*AccountTransactionSignHash, error)
+	GetAccountTransactionSignHash(context.Context, *v2.PreAccountTransaction) (*v2.AccountTransactionSignHash, error)
 	// Get the values of chain parameters in effect in the given block.
-	GetBlockChainParameters(context.Context, *BlockHashInput) (*ChainParameters, error)
+	GetBlockChainParameters(context.Context, *v2.BlockHashInput) (*v2.ChainParameters, error)
 	// Get the summary of the finalization data in a given block.
-	GetBlockFinalizationSummary(context.Context, *BlockHashInput) (*BlockFinalizationSummary, error)
+	GetBlockFinalizationSummary(context.Context, *v2.BlockHashInput) (*v2.BlockFinalizationSummary, error)
 	// Get the items of a block.
-	GetBlockItems(*BlockHashInput, Queries_GetBlockItemsServer) error
+	GetBlockItems(*v2.BlockHashInput, Queries_GetBlockItemsServer) error
 	mustEmbedUnimplementedQueriesServer()
 }
 
@@ -1292,154 +1293,154 @@ type QueriesServer interface {
 type UnimplementedQueriesServer struct {
 }
 
-func (UnimplementedQueriesServer) GetBlocks(*Empty, Queries_GetBlocksServer) error {
+func (UnimplementedQueriesServer) GetBlocks(*v2.Empty, Queries_GetBlocksServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetBlocks not implemented")
 }
-func (UnimplementedQueriesServer) GetFinalizedBlocks(*Empty, Queries_GetFinalizedBlocksServer) error {
+func (UnimplementedQueriesServer) GetFinalizedBlocks(*v2.Empty, Queries_GetFinalizedBlocksServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetFinalizedBlocks not implemented")
 }
-func (UnimplementedQueriesServer) GetAccountInfo(context.Context, *AccountInfoRequest) (*AccountInfo, error) {
+func (UnimplementedQueriesServer) GetAccountInfo(context.Context, *v2.AccountInfoRequest) (*v2.AccountInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAccountInfo not implemented")
 }
-func (UnimplementedQueriesServer) GetAccountList(*BlockHashInput, Queries_GetAccountListServer) error {
+func (UnimplementedQueriesServer) GetAccountList(*v2.BlockHashInput, Queries_GetAccountListServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetAccountList not implemented")
 }
-func (UnimplementedQueriesServer) GetModuleList(*BlockHashInput, Queries_GetModuleListServer) error {
+func (UnimplementedQueriesServer) GetModuleList(*v2.BlockHashInput, Queries_GetModuleListServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetModuleList not implemented")
 }
-func (UnimplementedQueriesServer) GetAncestors(*AncestorsRequest, Queries_GetAncestorsServer) error {
+func (UnimplementedQueriesServer) GetAncestors(*v2.AncestorsRequest, Queries_GetAncestorsServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetAncestors not implemented")
 }
-func (UnimplementedQueriesServer) GetModuleSource(context.Context, *ModuleSourceRequest) (*VersionedModuleSource, error) {
+func (UnimplementedQueriesServer) GetModuleSource(context.Context, *v2.ModuleSourceRequest) (*v2.VersionedModuleSource, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetModuleSource not implemented")
 }
-func (UnimplementedQueriesServer) GetInstanceList(*BlockHashInput, Queries_GetInstanceListServer) error {
+func (UnimplementedQueriesServer) GetInstanceList(*v2.BlockHashInput, Queries_GetInstanceListServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetInstanceList not implemented")
 }
-func (UnimplementedQueriesServer) GetInstanceInfo(context.Context, *InstanceInfoRequest) (*InstanceInfo, error) {
+func (UnimplementedQueriesServer) GetInstanceInfo(context.Context, *v2.InstanceInfoRequest) (*v2.InstanceInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetInstanceInfo not implemented")
 }
-func (UnimplementedQueriesServer) GetInstanceState(*InstanceInfoRequest, Queries_GetInstanceStateServer) error {
+func (UnimplementedQueriesServer) GetInstanceState(*v2.InstanceInfoRequest, Queries_GetInstanceStateServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetInstanceState not implemented")
 }
-func (UnimplementedQueriesServer) InstanceStateLookup(context.Context, *InstanceStateLookupRequest) (*InstanceStateValueAtKey, error) {
+func (UnimplementedQueriesServer) InstanceStateLookup(context.Context, *v2.InstanceStateLookupRequest) (*v2.InstanceStateValueAtKey, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method InstanceStateLookup not implemented")
 }
-func (UnimplementedQueriesServer) GetNextAccountSequenceNumber(context.Context, *AccountAddress) (*NextAccountSequenceNumber, error) {
+func (UnimplementedQueriesServer) GetNextAccountSequenceNumber(context.Context, *v2.AccountAddress) (*v2.NextAccountSequenceNumber, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetNextAccountSequenceNumber not implemented")
 }
-func (UnimplementedQueriesServer) GetConsensusInfo(context.Context, *Empty) (*ConsensusInfo, error) {
+func (UnimplementedQueriesServer) GetConsensusInfo(context.Context, *v2.Empty) (*v2.ConsensusInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetConsensusInfo not implemented")
 }
-func (UnimplementedQueriesServer) GetBlockItemStatus(context.Context, *TransactionHash) (*BlockItemStatus, error) {
+func (UnimplementedQueriesServer) GetBlockItemStatus(context.Context, *v2.TransactionHash) (*v2.BlockItemStatus, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetBlockItemStatus not implemented")
 }
-func (UnimplementedQueriesServer) GetCryptographicParameters(context.Context, *BlockHashInput) (*CryptographicParameters, error) {
+func (UnimplementedQueriesServer) GetCryptographicParameters(context.Context, *v2.BlockHashInput) (*v2.CryptographicParameters, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCryptographicParameters not implemented")
 }
-func (UnimplementedQueriesServer) GetBlockInfo(context.Context, *BlockHashInput) (*BlockInfo, error) {
+func (UnimplementedQueriesServer) GetBlockInfo(context.Context, *v2.BlockHashInput) (*v2.BlockInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetBlockInfo not implemented")
 }
-func (UnimplementedQueriesServer) GetBakerList(*BlockHashInput, Queries_GetBakerListServer) error {
+func (UnimplementedQueriesServer) GetBakerList(*v2.BlockHashInput, Queries_GetBakerListServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetBakerList not implemented")
 }
-func (UnimplementedQueriesServer) GetPoolInfo(context.Context, *PoolInfoRequest) (*PoolInfoResponse, error) {
+func (UnimplementedQueriesServer) GetPoolInfo(context.Context, *v2.PoolInfoRequest) (*v2.PoolInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPoolInfo not implemented")
 }
-func (UnimplementedQueriesServer) GetPassiveDelegationInfo(context.Context, *BlockHashInput) (*PassiveDelegationInfo, error) {
+func (UnimplementedQueriesServer) GetPassiveDelegationInfo(context.Context, *v2.BlockHashInput) (*v2.PassiveDelegationInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPassiveDelegationInfo not implemented")
 }
-func (UnimplementedQueriesServer) GetBlocksAtHeight(context.Context, *BlocksAtHeightRequest) (*BlocksAtHeightResponse, error) {
+func (UnimplementedQueriesServer) GetBlocksAtHeight(context.Context, *v2.BlocksAtHeightRequest) (*v2.BlocksAtHeightResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetBlocksAtHeight not implemented")
 }
-func (UnimplementedQueriesServer) GetTokenomicsInfo(context.Context, *BlockHashInput) (*TokenomicsInfo, error) {
+func (UnimplementedQueriesServer) GetTokenomicsInfo(context.Context, *v2.BlockHashInput) (*v2.TokenomicsInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTokenomicsInfo not implemented")
 }
-func (UnimplementedQueriesServer) InvokeInstance(context.Context, *InvokeInstanceRequest) (*InvokeInstanceResponse, error) {
+func (UnimplementedQueriesServer) InvokeInstance(context.Context, *v2.InvokeInstanceRequest) (*v2.InvokeInstanceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method InvokeInstance not implemented")
 }
-func (UnimplementedQueriesServer) GetPoolDelegators(*GetPoolDelegatorsRequest, Queries_GetPoolDelegatorsServer) error {
+func (UnimplementedQueriesServer) GetPoolDelegators(*v2.GetPoolDelegatorsRequest, Queries_GetPoolDelegatorsServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetPoolDelegators not implemented")
 }
-func (UnimplementedQueriesServer) GetPoolDelegatorsRewardPeriod(*GetPoolDelegatorsRequest, Queries_GetPoolDelegatorsRewardPeriodServer) error {
+func (UnimplementedQueriesServer) GetPoolDelegatorsRewardPeriod(*v2.GetPoolDelegatorsRequest, Queries_GetPoolDelegatorsRewardPeriodServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetPoolDelegatorsRewardPeriod not implemented")
 }
-func (UnimplementedQueriesServer) GetPassiveDelegators(*BlockHashInput, Queries_GetPassiveDelegatorsServer) error {
+func (UnimplementedQueriesServer) GetPassiveDelegators(*v2.BlockHashInput, Queries_GetPassiveDelegatorsServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetPassiveDelegators not implemented")
 }
-func (UnimplementedQueriesServer) GetPassiveDelegatorsRewardPeriod(*BlockHashInput, Queries_GetPassiveDelegatorsRewardPeriodServer) error {
+func (UnimplementedQueriesServer) GetPassiveDelegatorsRewardPeriod(*v2.BlockHashInput, Queries_GetPassiveDelegatorsRewardPeriodServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetPassiveDelegatorsRewardPeriod not implemented")
 }
-func (UnimplementedQueriesServer) GetBranches(context.Context, *Empty) (*Branch, error) {
+func (UnimplementedQueriesServer) GetBranches(context.Context, *v2.Empty) (*v2.Branch, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetBranches not implemented")
 }
-func (UnimplementedQueriesServer) GetElectionInfo(context.Context, *BlockHashInput) (*ElectionInfo, error) {
+func (UnimplementedQueriesServer) GetElectionInfo(context.Context, *v2.BlockHashInput) (*v2.ElectionInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetElectionInfo not implemented")
 }
-func (UnimplementedQueriesServer) GetIdentityProviders(*BlockHashInput, Queries_GetIdentityProvidersServer) error {
+func (UnimplementedQueriesServer) GetIdentityProviders(*v2.BlockHashInput, Queries_GetIdentityProvidersServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetIdentityProviders not implemented")
 }
-func (UnimplementedQueriesServer) GetAnonymityRevokers(*BlockHashInput, Queries_GetAnonymityRevokersServer) error {
+func (UnimplementedQueriesServer) GetAnonymityRevokers(*v2.BlockHashInput, Queries_GetAnonymityRevokersServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetAnonymityRevokers not implemented")
 }
-func (UnimplementedQueriesServer) GetAccountNonFinalizedTransactions(*AccountAddress, Queries_GetAccountNonFinalizedTransactionsServer) error {
+func (UnimplementedQueriesServer) GetAccountNonFinalizedTransactions(*v2.AccountAddress, Queries_GetAccountNonFinalizedTransactionsServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetAccountNonFinalizedTransactions not implemented")
 }
-func (UnimplementedQueriesServer) GetBlockTransactionEvents(*BlockHashInput, Queries_GetBlockTransactionEventsServer) error {
+func (UnimplementedQueriesServer) GetBlockTransactionEvents(*v2.BlockHashInput, Queries_GetBlockTransactionEventsServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetBlockTransactionEvents not implemented")
 }
-func (UnimplementedQueriesServer) GetBlockSpecialEvents(*BlockHashInput, Queries_GetBlockSpecialEventsServer) error {
+func (UnimplementedQueriesServer) GetBlockSpecialEvents(*v2.BlockHashInput, Queries_GetBlockSpecialEventsServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetBlockSpecialEvents not implemented")
 }
-func (UnimplementedQueriesServer) GetBlockPendingUpdates(*BlockHashInput, Queries_GetBlockPendingUpdatesServer) error {
+func (UnimplementedQueriesServer) GetBlockPendingUpdates(*v2.BlockHashInput, Queries_GetBlockPendingUpdatesServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetBlockPendingUpdates not implemented")
 }
-func (UnimplementedQueriesServer) GetNextUpdateSequenceNumbers(context.Context, *BlockHashInput) (*NextUpdateSequenceNumbers, error) {
+func (UnimplementedQueriesServer) GetNextUpdateSequenceNumbers(context.Context, *v2.BlockHashInput) (*v2.NextUpdateSequenceNumbers, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetNextUpdateSequenceNumbers not implemented")
 }
-func (UnimplementedQueriesServer) Shutdown(context.Context, *Empty) (*Empty, error) {
+func (UnimplementedQueriesServer) Shutdown(context.Context, *v2.Empty) (*v2.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Shutdown not implemented")
 }
-func (UnimplementedQueriesServer) PeerConnect(context.Context, *IpSocketAddress) (*Empty, error) {
+func (UnimplementedQueriesServer) PeerConnect(context.Context, *v2.IpSocketAddress) (*v2.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PeerConnect not implemented")
 }
-func (UnimplementedQueriesServer) PeerDisconnect(context.Context, *IpSocketAddress) (*Empty, error) {
+func (UnimplementedQueriesServer) PeerDisconnect(context.Context, *v2.IpSocketAddress) (*v2.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PeerDisconnect not implemented")
 }
-func (UnimplementedQueriesServer) GetBannedPeers(context.Context, *Empty) (*BannedPeers, error) {
+func (UnimplementedQueriesServer) GetBannedPeers(context.Context, *v2.Empty) (*v2.BannedPeers, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetBannedPeers not implemented")
 }
-func (UnimplementedQueriesServer) BanPeer(context.Context, *PeerToBan) (*Empty, error) {
+func (UnimplementedQueriesServer) BanPeer(context.Context, *v2.PeerToBan) (*v2.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BanPeer not implemented")
 }
-func (UnimplementedQueriesServer) UnbanPeer(context.Context, *BannedPeer) (*Empty, error) {
+func (UnimplementedQueriesServer) UnbanPeer(context.Context, *v2.BannedPeer) (*v2.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UnbanPeer not implemented")
 }
-func (UnimplementedQueriesServer) DumpStart(context.Context, *DumpRequest) (*Empty, error) {
+func (UnimplementedQueriesServer) DumpStart(context.Context, *v2.DumpRequest) (*v2.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DumpStart not implemented")
 }
-func (UnimplementedQueriesServer) DumpStop(context.Context, *Empty) (*Empty, error) {
+func (UnimplementedQueriesServer) DumpStop(context.Context, *v2.Empty) (*v2.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DumpStop not implemented")
 }
-func (UnimplementedQueriesServer) GetPeersInfo(context.Context, *Empty) (*PeersInfo, error) {
+func (UnimplementedQueriesServer) GetPeersInfo(context.Context, *v2.Empty) (*v2.PeersInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPeersInfo not implemented")
 }
-func (UnimplementedQueriesServer) GetNodeInfo(context.Context, *Empty) (*NodeInfo, error) {
+func (UnimplementedQueriesServer) GetNodeInfo(context.Context, *v2.Empty) (*v2.NodeInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetNodeInfo not implemented")
 }
-func (UnimplementedQueriesServer) SendBlockItem(context.Context, *SendBlockItemRequest) (*TransactionHash, error) {
+func (UnimplementedQueriesServer) SendBlockItem(context.Context, *v2.SendBlockItemRequest) (*v2.TransactionHash, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendBlockItem not implemented")
 }
-func (UnimplementedQueriesServer) GetAccountTransactionSignHash(context.Context, *PreAccountTransaction) (*AccountTransactionSignHash, error) {
+func (UnimplementedQueriesServer) GetAccountTransactionSignHash(context.Context, *v2.PreAccountTransaction) (*v2.AccountTransactionSignHash, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAccountTransactionSignHash not implemented")
 }
-func (UnimplementedQueriesServer) GetBlockChainParameters(context.Context, *BlockHashInput) (*ChainParameters, error) {
+func (UnimplementedQueriesServer) GetBlockChainParameters(context.Context, *v2.BlockHashInput) (*v2.ChainParameters, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetBlockChainParameters not implemented")
 }
-func (UnimplementedQueriesServer) GetBlockFinalizationSummary(context.Context, *BlockHashInput) (*BlockFinalizationSummary, error) {
+func (UnimplementedQueriesServer) GetBlockFinalizationSummary(context.Context, *v2.BlockHashInput) (*v2.BlockFinalizationSummary, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetBlockFinalizationSummary not implemented")
 }
-func (UnimplementedQueriesServer) GetBlockItems(*BlockHashInput, Queries_GetBlockItemsServer) error {
+func (UnimplementedQueriesServer) GetBlockItems(*v2.BlockHashInput, Queries_GetBlockItemsServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetBlockItems not implemented")
 }
 func (UnimplementedQueriesServer) mustEmbedUnimplementedQueriesServer() {}
@@ -1456,7 +1457,7 @@ func RegisterQueriesServer(s grpc.ServiceRegistrar, srv QueriesServer) {
 }
 
 func _Queries_GetBlocks_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(Empty)
+	m := new(v2.Empty)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
@@ -1464,7 +1465,7 @@ func _Queries_GetBlocks_Handler(srv interface{}, stream grpc.ServerStream) error
 }
 
 type Queries_GetBlocksServer interface {
-	Send(*ArrivedBlockInfo) error
+	Send(*v2.ArrivedBlockInfo) error
 	grpc.ServerStream
 }
 
@@ -1472,12 +1473,12 @@ type queriesGetBlocksServer struct {
 	grpc.ServerStream
 }
 
-func (x *queriesGetBlocksServer) Send(m *ArrivedBlockInfo) error {
+func (x *queriesGetBlocksServer) Send(m *v2.ArrivedBlockInfo) error {
 	return x.ServerStream.SendMsg(m)
 }
 
 func _Queries_GetFinalizedBlocks_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(Empty)
+	m := new(v2.Empty)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
@@ -1485,7 +1486,7 @@ func _Queries_GetFinalizedBlocks_Handler(srv interface{}, stream grpc.ServerStre
 }
 
 type Queries_GetFinalizedBlocksServer interface {
-	Send(*FinalizedBlockInfo) error
+	Send(*v2.FinalizedBlockInfo) error
 	grpc.ServerStream
 }
 
@@ -1493,12 +1494,12 @@ type queriesGetFinalizedBlocksServer struct {
 	grpc.ServerStream
 }
 
-func (x *queriesGetFinalizedBlocksServer) Send(m *FinalizedBlockInfo) error {
+func (x *queriesGetFinalizedBlocksServer) Send(m *v2.FinalizedBlockInfo) error {
 	return x.ServerStream.SendMsg(m)
 }
 
 func _Queries_GetAccountInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AccountInfoRequest)
+	in := new(v2.AccountInfoRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1510,13 +1511,13 @@ func _Queries_GetAccountInfo_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: "/concordium.v2.Queries/GetAccountInfo",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueriesServer).GetAccountInfo(ctx, req.(*AccountInfoRequest))
+		return srv.(QueriesServer).GetAccountInfo(ctx, req.(*v2.AccountInfoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Queries_GetAccountList_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(BlockHashInput)
+	m := new(v2.BlockHashInput)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
@@ -1524,7 +1525,7 @@ func _Queries_GetAccountList_Handler(srv interface{}, stream grpc.ServerStream) 
 }
 
 type Queries_GetAccountListServer interface {
-	Send(*AccountAddress) error
+	Send(*v2.AccountAddress) error
 	grpc.ServerStream
 }
 
@@ -1532,12 +1533,12 @@ type queriesGetAccountListServer struct {
 	grpc.ServerStream
 }
 
-func (x *queriesGetAccountListServer) Send(m *AccountAddress) error {
+func (x *queriesGetAccountListServer) Send(m *v2.AccountAddress) error {
 	return x.ServerStream.SendMsg(m)
 }
 
 func _Queries_GetModuleList_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(BlockHashInput)
+	m := new(v2.BlockHashInput)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
@@ -1545,7 +1546,7 @@ func _Queries_GetModuleList_Handler(srv interface{}, stream grpc.ServerStream) e
 }
 
 type Queries_GetModuleListServer interface {
-	Send(*ModuleRef) error
+	Send(*v2.ModuleRef) error
 	grpc.ServerStream
 }
 
@@ -1553,12 +1554,12 @@ type queriesGetModuleListServer struct {
 	grpc.ServerStream
 }
 
-func (x *queriesGetModuleListServer) Send(m *ModuleRef) error {
+func (x *queriesGetModuleListServer) Send(m *v2.ModuleRef) error {
 	return x.ServerStream.SendMsg(m)
 }
 
 func _Queries_GetAncestors_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(AncestorsRequest)
+	m := new(v2.AncestorsRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
@@ -1566,7 +1567,7 @@ func _Queries_GetAncestors_Handler(srv interface{}, stream grpc.ServerStream) er
 }
 
 type Queries_GetAncestorsServer interface {
-	Send(*BlockHash) error
+	Send(*v2.BlockHash) error
 	grpc.ServerStream
 }
 
@@ -1574,12 +1575,12 @@ type queriesGetAncestorsServer struct {
 	grpc.ServerStream
 }
 
-func (x *queriesGetAncestorsServer) Send(m *BlockHash) error {
+func (x *queriesGetAncestorsServer) Send(m *v2.BlockHash) error {
 	return x.ServerStream.SendMsg(m)
 }
 
 func _Queries_GetModuleSource_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ModuleSourceRequest)
+	in := new(v2.ModuleSourceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1591,13 +1592,13 @@ func _Queries_GetModuleSource_Handler(srv interface{}, ctx context.Context, dec 
 		FullMethod: "/concordium.v2.Queries/GetModuleSource",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueriesServer).GetModuleSource(ctx, req.(*ModuleSourceRequest))
+		return srv.(QueriesServer).GetModuleSource(ctx, req.(*v2.ModuleSourceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Queries_GetInstanceList_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(BlockHashInput)
+	m := new(v2.BlockHashInput)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
@@ -1605,7 +1606,7 @@ func _Queries_GetInstanceList_Handler(srv interface{}, stream grpc.ServerStream)
 }
 
 type Queries_GetInstanceListServer interface {
-	Send(*ContractAddress) error
+	Send(*v2.ContractAddress) error
 	grpc.ServerStream
 }
 
@@ -1613,12 +1614,12 @@ type queriesGetInstanceListServer struct {
 	grpc.ServerStream
 }
 
-func (x *queriesGetInstanceListServer) Send(m *ContractAddress) error {
+func (x *queriesGetInstanceListServer) Send(m *v2.ContractAddress) error {
 	return x.ServerStream.SendMsg(m)
 }
 
 func _Queries_GetInstanceInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(InstanceInfoRequest)
+	in := new(v2.InstanceInfoRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1630,13 +1631,13 @@ func _Queries_GetInstanceInfo_Handler(srv interface{}, ctx context.Context, dec 
 		FullMethod: "/concordium.v2.Queries/GetInstanceInfo",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueriesServer).GetInstanceInfo(ctx, req.(*InstanceInfoRequest))
+		return srv.(QueriesServer).GetInstanceInfo(ctx, req.(*v2.InstanceInfoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Queries_GetInstanceState_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(InstanceInfoRequest)
+	m := new(v2.InstanceInfoRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
@@ -1644,7 +1645,7 @@ func _Queries_GetInstanceState_Handler(srv interface{}, stream grpc.ServerStream
 }
 
 type Queries_GetInstanceStateServer interface {
-	Send(*InstanceStateKVPair) error
+	Send(*v2.InstanceStateKVPair) error
 	grpc.ServerStream
 }
 
@@ -1652,12 +1653,12 @@ type queriesGetInstanceStateServer struct {
 	grpc.ServerStream
 }
 
-func (x *queriesGetInstanceStateServer) Send(m *InstanceStateKVPair) error {
+func (x *queriesGetInstanceStateServer) Send(m *v2.InstanceStateKVPair) error {
 	return x.ServerStream.SendMsg(m)
 }
 
 func _Queries_InstanceStateLookup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(InstanceStateLookupRequest)
+	in := new(v2.InstanceStateLookupRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1669,13 +1670,13 @@ func _Queries_InstanceStateLookup_Handler(srv interface{}, ctx context.Context, 
 		FullMethod: "/concordium.v2.Queries/InstanceStateLookup",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueriesServer).InstanceStateLookup(ctx, req.(*InstanceStateLookupRequest))
+		return srv.(QueriesServer).InstanceStateLookup(ctx, req.(*v2.InstanceStateLookupRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Queries_GetNextAccountSequenceNumber_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AccountAddress)
+	in := new(v2.AccountAddress)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1687,13 +1688,13 @@ func _Queries_GetNextAccountSequenceNumber_Handler(srv interface{}, ctx context.
 		FullMethod: "/concordium.v2.Queries/GetNextAccountSequenceNumber",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueriesServer).GetNextAccountSequenceNumber(ctx, req.(*AccountAddress))
+		return srv.(QueriesServer).GetNextAccountSequenceNumber(ctx, req.(*v2.AccountAddress))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Queries_GetConsensusInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Empty)
+	in := new(v2.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1705,13 +1706,13 @@ func _Queries_GetConsensusInfo_Handler(srv interface{}, ctx context.Context, dec
 		FullMethod: "/concordium.v2.Queries/GetConsensusInfo",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueriesServer).GetConsensusInfo(ctx, req.(*Empty))
+		return srv.(QueriesServer).GetConsensusInfo(ctx, req.(*v2.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Queries_GetBlockItemStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TransactionHash)
+	in := new(v2.TransactionHash)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1723,13 +1724,13 @@ func _Queries_GetBlockItemStatus_Handler(srv interface{}, ctx context.Context, d
 		FullMethod: "/concordium.v2.Queries/GetBlockItemStatus",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueriesServer).GetBlockItemStatus(ctx, req.(*TransactionHash))
+		return srv.(QueriesServer).GetBlockItemStatus(ctx, req.(*v2.TransactionHash))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Queries_GetCryptographicParameters_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BlockHashInput)
+	in := new(v2.BlockHashInput)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1741,13 +1742,13 @@ func _Queries_GetCryptographicParameters_Handler(srv interface{}, ctx context.Co
 		FullMethod: "/concordium.v2.Queries/GetCryptographicParameters",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueriesServer).GetCryptographicParameters(ctx, req.(*BlockHashInput))
+		return srv.(QueriesServer).GetCryptographicParameters(ctx, req.(*v2.BlockHashInput))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Queries_GetBlockInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BlockHashInput)
+	in := new(v2.BlockHashInput)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1759,13 +1760,13 @@ func _Queries_GetBlockInfo_Handler(srv interface{}, ctx context.Context, dec fun
 		FullMethod: "/concordium.v2.Queries/GetBlockInfo",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueriesServer).GetBlockInfo(ctx, req.(*BlockHashInput))
+		return srv.(QueriesServer).GetBlockInfo(ctx, req.(*v2.BlockHashInput))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Queries_GetBakerList_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(BlockHashInput)
+	m := new(v2.BlockHashInput)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
@@ -1773,7 +1774,7 @@ func _Queries_GetBakerList_Handler(srv interface{}, stream grpc.ServerStream) er
 }
 
 type Queries_GetBakerListServer interface {
-	Send(*BakerId) error
+	Send(*v2.BakerId) error
 	grpc.ServerStream
 }
 
@@ -1781,12 +1782,12 @@ type queriesGetBakerListServer struct {
 	grpc.ServerStream
 }
 
-func (x *queriesGetBakerListServer) Send(m *BakerId) error {
+func (x *queriesGetBakerListServer) Send(m *v2.BakerId) error {
 	return x.ServerStream.SendMsg(m)
 }
 
 func _Queries_GetPoolInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PoolInfoRequest)
+	in := new(v2.PoolInfoRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1798,13 +1799,13 @@ func _Queries_GetPoolInfo_Handler(srv interface{}, ctx context.Context, dec func
 		FullMethod: "/concordium.v2.Queries/GetPoolInfo",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueriesServer).GetPoolInfo(ctx, req.(*PoolInfoRequest))
+		return srv.(QueriesServer).GetPoolInfo(ctx, req.(*v2.PoolInfoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Queries_GetPassiveDelegationInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BlockHashInput)
+	in := new(v2.BlockHashInput)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1816,13 +1817,13 @@ func _Queries_GetPassiveDelegationInfo_Handler(srv interface{}, ctx context.Cont
 		FullMethod: "/concordium.v2.Queries/GetPassiveDelegationInfo",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueriesServer).GetPassiveDelegationInfo(ctx, req.(*BlockHashInput))
+		return srv.(QueriesServer).GetPassiveDelegationInfo(ctx, req.(*v2.BlockHashInput))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Queries_GetBlocksAtHeight_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BlocksAtHeightRequest)
+	in := new(v2.BlocksAtHeightRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1834,13 +1835,13 @@ func _Queries_GetBlocksAtHeight_Handler(srv interface{}, ctx context.Context, de
 		FullMethod: "/concordium.v2.Queries/GetBlocksAtHeight",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueriesServer).GetBlocksAtHeight(ctx, req.(*BlocksAtHeightRequest))
+		return srv.(QueriesServer).GetBlocksAtHeight(ctx, req.(*v2.BlocksAtHeightRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Queries_GetTokenomicsInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BlockHashInput)
+	in := new(v2.BlockHashInput)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1852,13 +1853,13 @@ func _Queries_GetTokenomicsInfo_Handler(srv interface{}, ctx context.Context, de
 		FullMethod: "/concordium.v2.Queries/GetTokenomicsInfo",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueriesServer).GetTokenomicsInfo(ctx, req.(*BlockHashInput))
+		return srv.(QueriesServer).GetTokenomicsInfo(ctx, req.(*v2.BlockHashInput))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Queries_InvokeInstance_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(InvokeInstanceRequest)
+	in := new(v2.InvokeInstanceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1870,13 +1871,13 @@ func _Queries_InvokeInstance_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: "/concordium.v2.Queries/InvokeInstance",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueriesServer).InvokeInstance(ctx, req.(*InvokeInstanceRequest))
+		return srv.(QueriesServer).InvokeInstance(ctx, req.(*v2.InvokeInstanceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Queries_GetPoolDelegators_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(GetPoolDelegatorsRequest)
+	m := new(v2.GetPoolDelegatorsRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
@@ -1884,7 +1885,7 @@ func _Queries_GetPoolDelegators_Handler(srv interface{}, stream grpc.ServerStrea
 }
 
 type Queries_GetPoolDelegatorsServer interface {
-	Send(*DelegatorInfo) error
+	Send(*v2.DelegatorInfo) error
 	grpc.ServerStream
 }
 
@@ -1892,12 +1893,12 @@ type queriesGetPoolDelegatorsServer struct {
 	grpc.ServerStream
 }
 
-func (x *queriesGetPoolDelegatorsServer) Send(m *DelegatorInfo) error {
+func (x *queriesGetPoolDelegatorsServer) Send(m *v2.DelegatorInfo) error {
 	return x.ServerStream.SendMsg(m)
 }
 
 func _Queries_GetPoolDelegatorsRewardPeriod_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(GetPoolDelegatorsRequest)
+	m := new(v2.GetPoolDelegatorsRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
@@ -1905,7 +1906,7 @@ func _Queries_GetPoolDelegatorsRewardPeriod_Handler(srv interface{}, stream grpc
 }
 
 type Queries_GetPoolDelegatorsRewardPeriodServer interface {
-	Send(*DelegatorRewardPeriodInfo) error
+	Send(*v2.DelegatorRewardPeriodInfo) error
 	grpc.ServerStream
 }
 
@@ -1913,12 +1914,12 @@ type queriesGetPoolDelegatorsRewardPeriodServer struct {
 	grpc.ServerStream
 }
 
-func (x *queriesGetPoolDelegatorsRewardPeriodServer) Send(m *DelegatorRewardPeriodInfo) error {
+func (x *queriesGetPoolDelegatorsRewardPeriodServer) Send(m *v2.DelegatorRewardPeriodInfo) error {
 	return x.ServerStream.SendMsg(m)
 }
 
 func _Queries_GetPassiveDelegators_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(BlockHashInput)
+	m := new(v2.BlockHashInput)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
@@ -1926,7 +1927,7 @@ func _Queries_GetPassiveDelegators_Handler(srv interface{}, stream grpc.ServerSt
 }
 
 type Queries_GetPassiveDelegatorsServer interface {
-	Send(*DelegatorInfo) error
+	Send(*v2.DelegatorInfo) error
 	grpc.ServerStream
 }
 
@@ -1934,12 +1935,12 @@ type queriesGetPassiveDelegatorsServer struct {
 	grpc.ServerStream
 }
 
-func (x *queriesGetPassiveDelegatorsServer) Send(m *DelegatorInfo) error {
+func (x *queriesGetPassiveDelegatorsServer) Send(m *v2.DelegatorInfo) error {
 	return x.ServerStream.SendMsg(m)
 }
 
 func _Queries_GetPassiveDelegatorsRewardPeriod_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(BlockHashInput)
+	m := new(v2.BlockHashInput)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
@@ -1947,7 +1948,7 @@ func _Queries_GetPassiveDelegatorsRewardPeriod_Handler(srv interface{}, stream g
 }
 
 type Queries_GetPassiveDelegatorsRewardPeriodServer interface {
-	Send(*DelegatorRewardPeriodInfo) error
+	Send(*v2.DelegatorRewardPeriodInfo) error
 	grpc.ServerStream
 }
 
@@ -1955,12 +1956,12 @@ type queriesGetPassiveDelegatorsRewardPeriodServer struct {
 	grpc.ServerStream
 }
 
-func (x *queriesGetPassiveDelegatorsRewardPeriodServer) Send(m *DelegatorRewardPeriodInfo) error {
+func (x *queriesGetPassiveDelegatorsRewardPeriodServer) Send(m *v2.DelegatorRewardPeriodInfo) error {
 	return x.ServerStream.SendMsg(m)
 }
 
 func _Queries_GetBranches_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Empty)
+	in := new(v2.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1972,13 +1973,13 @@ func _Queries_GetBranches_Handler(srv interface{}, ctx context.Context, dec func
 		FullMethod: "/concordium.v2.Queries/GetBranches",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueriesServer).GetBranches(ctx, req.(*Empty))
+		return srv.(QueriesServer).GetBranches(ctx, req.(*v2.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Queries_GetElectionInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BlockHashInput)
+	in := new(v2.BlockHashInput)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1990,13 +1991,13 @@ func _Queries_GetElectionInfo_Handler(srv interface{}, ctx context.Context, dec 
 		FullMethod: "/concordium.v2.Queries/GetElectionInfo",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueriesServer).GetElectionInfo(ctx, req.(*BlockHashInput))
+		return srv.(QueriesServer).GetElectionInfo(ctx, req.(*v2.BlockHashInput))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Queries_GetIdentityProviders_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(BlockHashInput)
+	m := new(v2.BlockHashInput)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
@@ -2004,7 +2005,7 @@ func _Queries_GetIdentityProviders_Handler(srv interface{}, stream grpc.ServerSt
 }
 
 type Queries_GetIdentityProvidersServer interface {
-	Send(*IpInfo) error
+	Send(*v2.IpInfo) error
 	grpc.ServerStream
 }
 
@@ -2012,12 +2013,12 @@ type queriesGetIdentityProvidersServer struct {
 	grpc.ServerStream
 }
 
-func (x *queriesGetIdentityProvidersServer) Send(m *IpInfo) error {
+func (x *queriesGetIdentityProvidersServer) Send(m *v2.IpInfo) error {
 	return x.ServerStream.SendMsg(m)
 }
 
 func _Queries_GetAnonymityRevokers_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(BlockHashInput)
+	m := new(v2.BlockHashInput)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
@@ -2025,7 +2026,7 @@ func _Queries_GetAnonymityRevokers_Handler(srv interface{}, stream grpc.ServerSt
 }
 
 type Queries_GetAnonymityRevokersServer interface {
-	Send(*ArInfo) error
+	Send(*v2.ArInfo) error
 	grpc.ServerStream
 }
 
@@ -2033,12 +2034,12 @@ type queriesGetAnonymityRevokersServer struct {
 	grpc.ServerStream
 }
 
-func (x *queriesGetAnonymityRevokersServer) Send(m *ArInfo) error {
+func (x *queriesGetAnonymityRevokersServer) Send(m *v2.ArInfo) error {
 	return x.ServerStream.SendMsg(m)
 }
 
 func _Queries_GetAccountNonFinalizedTransactions_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(AccountAddress)
+	m := new(v2.AccountAddress)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
@@ -2046,7 +2047,7 @@ func _Queries_GetAccountNonFinalizedTransactions_Handler(srv interface{}, stream
 }
 
 type Queries_GetAccountNonFinalizedTransactionsServer interface {
-	Send(*TransactionHash) error
+	Send(*v2.TransactionHash) error
 	grpc.ServerStream
 }
 
@@ -2054,12 +2055,12 @@ type queriesGetAccountNonFinalizedTransactionsServer struct {
 	grpc.ServerStream
 }
 
-func (x *queriesGetAccountNonFinalizedTransactionsServer) Send(m *TransactionHash) error {
+func (x *queriesGetAccountNonFinalizedTransactionsServer) Send(m *v2.TransactionHash) error {
 	return x.ServerStream.SendMsg(m)
 }
 
 func _Queries_GetBlockTransactionEvents_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(BlockHashInput)
+	m := new(v2.BlockHashInput)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
@@ -2067,7 +2068,7 @@ func _Queries_GetBlockTransactionEvents_Handler(srv interface{}, stream grpc.Ser
 }
 
 type Queries_GetBlockTransactionEventsServer interface {
-	Send(*BlockItemSummary) error
+	Send(*v2.BlockItemSummary) error
 	grpc.ServerStream
 }
 
@@ -2075,12 +2076,12 @@ type queriesGetBlockTransactionEventsServer struct {
 	grpc.ServerStream
 }
 
-func (x *queriesGetBlockTransactionEventsServer) Send(m *BlockItemSummary) error {
+func (x *queriesGetBlockTransactionEventsServer) Send(m *v2.BlockItemSummary) error {
 	return x.ServerStream.SendMsg(m)
 }
 
 func _Queries_GetBlockSpecialEvents_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(BlockHashInput)
+	m := new(v2.BlockHashInput)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
@@ -2088,7 +2089,7 @@ func _Queries_GetBlockSpecialEvents_Handler(srv interface{}, stream grpc.ServerS
 }
 
 type Queries_GetBlockSpecialEventsServer interface {
-	Send(*BlockSpecialEvent) error
+	Send(*v2.BlockSpecialEvent) error
 	grpc.ServerStream
 }
 
@@ -2096,12 +2097,12 @@ type queriesGetBlockSpecialEventsServer struct {
 	grpc.ServerStream
 }
 
-func (x *queriesGetBlockSpecialEventsServer) Send(m *BlockSpecialEvent) error {
+func (x *queriesGetBlockSpecialEventsServer) Send(m *v2.BlockSpecialEvent) error {
 	return x.ServerStream.SendMsg(m)
 }
 
 func _Queries_GetBlockPendingUpdates_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(BlockHashInput)
+	m := new(v2.BlockHashInput)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
@@ -2109,7 +2110,7 @@ func _Queries_GetBlockPendingUpdates_Handler(srv interface{}, stream grpc.Server
 }
 
 type Queries_GetBlockPendingUpdatesServer interface {
-	Send(*PendingUpdate) error
+	Send(*v2.PendingUpdate) error
 	grpc.ServerStream
 }
 
@@ -2117,12 +2118,12 @@ type queriesGetBlockPendingUpdatesServer struct {
 	grpc.ServerStream
 }
 
-func (x *queriesGetBlockPendingUpdatesServer) Send(m *PendingUpdate) error {
+func (x *queriesGetBlockPendingUpdatesServer) Send(m *v2.PendingUpdate) error {
 	return x.ServerStream.SendMsg(m)
 }
 
 func _Queries_GetNextUpdateSequenceNumbers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BlockHashInput)
+	in := new(v2.BlockHashInput)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -2134,13 +2135,13 @@ func _Queries_GetNextUpdateSequenceNumbers_Handler(srv interface{}, ctx context.
 		FullMethod: "/concordium.v2.Queries/GetNextUpdateSequenceNumbers",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueriesServer).GetNextUpdateSequenceNumbers(ctx, req.(*BlockHashInput))
+		return srv.(QueriesServer).GetNextUpdateSequenceNumbers(ctx, req.(*v2.BlockHashInput))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Queries_Shutdown_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Empty)
+	in := new(v2.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -2152,13 +2153,13 @@ func _Queries_Shutdown_Handler(srv interface{}, ctx context.Context, dec func(in
 		FullMethod: "/concordium.v2.Queries/Shutdown",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueriesServer).Shutdown(ctx, req.(*Empty))
+		return srv.(QueriesServer).Shutdown(ctx, req.(*v2.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Queries_PeerConnect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(IpSocketAddress)
+	in := new(v2.IpSocketAddress)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -2170,13 +2171,13 @@ func _Queries_PeerConnect_Handler(srv interface{}, ctx context.Context, dec func
 		FullMethod: "/concordium.v2.Queries/PeerConnect",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueriesServer).PeerConnect(ctx, req.(*IpSocketAddress))
+		return srv.(QueriesServer).PeerConnect(ctx, req.(*v2.IpSocketAddress))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Queries_PeerDisconnect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(IpSocketAddress)
+	in := new(v2.IpSocketAddress)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -2188,13 +2189,13 @@ func _Queries_PeerDisconnect_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: "/concordium.v2.Queries/PeerDisconnect",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueriesServer).PeerDisconnect(ctx, req.(*IpSocketAddress))
+		return srv.(QueriesServer).PeerDisconnect(ctx, req.(*v2.IpSocketAddress))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Queries_GetBannedPeers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Empty)
+	in := new(v2.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -2206,13 +2207,13 @@ func _Queries_GetBannedPeers_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: "/concordium.v2.Queries/GetBannedPeers",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueriesServer).GetBannedPeers(ctx, req.(*Empty))
+		return srv.(QueriesServer).GetBannedPeers(ctx, req.(*v2.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Queries_BanPeer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PeerToBan)
+	in := new(v2.PeerToBan)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -2224,13 +2225,13 @@ func _Queries_BanPeer_Handler(srv interface{}, ctx context.Context, dec func(int
 		FullMethod: "/concordium.v2.Queries/BanPeer",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueriesServer).BanPeer(ctx, req.(*PeerToBan))
+		return srv.(QueriesServer).BanPeer(ctx, req.(*v2.PeerToBan))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Queries_UnbanPeer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BannedPeer)
+	in := new(v2.BannedPeer)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -2242,13 +2243,13 @@ func _Queries_UnbanPeer_Handler(srv interface{}, ctx context.Context, dec func(i
 		FullMethod: "/concordium.v2.Queries/UnbanPeer",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueriesServer).UnbanPeer(ctx, req.(*BannedPeer))
+		return srv.(QueriesServer).UnbanPeer(ctx, req.(*v2.BannedPeer))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Queries_DumpStart_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DumpRequest)
+	in := new(v2.DumpRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -2260,13 +2261,13 @@ func _Queries_DumpStart_Handler(srv interface{}, ctx context.Context, dec func(i
 		FullMethod: "/concordium.v2.Queries/DumpStart",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueriesServer).DumpStart(ctx, req.(*DumpRequest))
+		return srv.(QueriesServer).DumpStart(ctx, req.(*v2.DumpRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Queries_DumpStop_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Empty)
+	in := new(v2.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -2278,13 +2279,13 @@ func _Queries_DumpStop_Handler(srv interface{}, ctx context.Context, dec func(in
 		FullMethod: "/concordium.v2.Queries/DumpStop",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueriesServer).DumpStop(ctx, req.(*Empty))
+		return srv.(QueriesServer).DumpStop(ctx, req.(*v2.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Queries_GetPeersInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Empty)
+	in := new(v2.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -2296,13 +2297,13 @@ func _Queries_GetPeersInfo_Handler(srv interface{}, ctx context.Context, dec fun
 		FullMethod: "/concordium.v2.Queries/GetPeersInfo",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueriesServer).GetPeersInfo(ctx, req.(*Empty))
+		return srv.(QueriesServer).GetPeersInfo(ctx, req.(*v2.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Queries_GetNodeInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Empty)
+	in := new(v2.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -2314,13 +2315,13 @@ func _Queries_GetNodeInfo_Handler(srv interface{}, ctx context.Context, dec func
 		FullMethod: "/concordium.v2.Queries/GetNodeInfo",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueriesServer).GetNodeInfo(ctx, req.(*Empty))
+		return srv.(QueriesServer).GetNodeInfo(ctx, req.(*v2.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Queries_SendBlockItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SendBlockItemRequest)
+	in := new(v2.SendBlockItemRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -2332,13 +2333,13 @@ func _Queries_SendBlockItem_Handler(srv interface{}, ctx context.Context, dec fu
 		FullMethod: "/concordium.v2.Queries/SendBlockItem",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueriesServer).SendBlockItem(ctx, req.(*SendBlockItemRequest))
+		return srv.(QueriesServer).SendBlockItem(ctx, req.(*v2.SendBlockItemRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Queries_GetAccountTransactionSignHash_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PreAccountTransaction)
+	in := new(v2.PreAccountTransaction)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -2350,13 +2351,13 @@ func _Queries_GetAccountTransactionSignHash_Handler(srv interface{}, ctx context
 		FullMethod: "/concordium.v2.Queries/GetAccountTransactionSignHash",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueriesServer).GetAccountTransactionSignHash(ctx, req.(*PreAccountTransaction))
+		return srv.(QueriesServer).GetAccountTransactionSignHash(ctx, req.(*v2.PreAccountTransaction))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Queries_GetBlockChainParameters_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BlockHashInput)
+	in := new(v2.BlockHashInput)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -2368,13 +2369,13 @@ func _Queries_GetBlockChainParameters_Handler(srv interface{}, ctx context.Conte
 		FullMethod: "/concordium.v2.Queries/GetBlockChainParameters",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueriesServer).GetBlockChainParameters(ctx, req.(*BlockHashInput))
+		return srv.(QueriesServer).GetBlockChainParameters(ctx, req.(*v2.BlockHashInput))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Queries_GetBlockFinalizationSummary_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BlockHashInput)
+	in := new(v2.BlockHashInput)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -2386,13 +2387,13 @@ func _Queries_GetBlockFinalizationSummary_Handler(srv interface{}, ctx context.C
 		FullMethod: "/concordium.v2.Queries/GetBlockFinalizationSummary",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueriesServer).GetBlockFinalizationSummary(ctx, req.(*BlockHashInput))
+		return srv.(QueriesServer).GetBlockFinalizationSummary(ctx, req.(*v2.BlockHashInput))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Queries_GetBlockItems_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(BlockHashInput)
+	m := new(v2.BlockHashInput)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
@@ -2400,7 +2401,7 @@ func _Queries_GetBlockItems_Handler(srv interface{}, stream grpc.ServerStream) e
 }
 
 type Queries_GetBlockItemsServer interface {
-	Send(*BlockItem) error
+	Send(*v2.BlockItem) error
 	grpc.ServerStream
 }
 
@@ -2408,7 +2409,7 @@ type queriesGetBlockItemsServer struct {
 	grpc.ServerStream
 }
 
-func (x *queriesGetBlockItemsServer) Send(m *BlockItem) error {
+func (x *queriesGetBlockItemsServer) Send(m *v2.BlockItem) error {
 	return x.ServerStream.SendMsg(m)
 }
 

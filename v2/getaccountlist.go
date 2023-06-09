@@ -7,7 +7,7 @@ import (
 )
 
 // GetAccountList retrieve the list of accounts that exist at the end of the given block.
-func (c *Client) GetAccountList(ctx context.Context, req *pb.BlockHashInput) (_ pb.Queries_GetAccountListClient, err error) {
+func (c *Client) GetAccountList(ctx context.Context, req *BlockHashInput) (_ pb.Queries_GetAccountListClient, err error) {
 	stream, err := c.grpcClient.GetAccountList(ctx, req)
 	if err != nil {
 		return nil, Error.Wrap(err)
