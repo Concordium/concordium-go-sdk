@@ -8,7 +8,7 @@ import (
 func (c *Client) GetCryptographicParameters(ctx context.Context, req *BlockHashInput) (_ *CryptographicParameters, err error) {
 	cryptographicParameters, err := c.grpcClient.GetCryptographicParameters(ctx, req)
 	if err != nil {
-		return nil, Error.Wrap(err)
+		return &CryptographicParameters{}, Error.Wrap(err)
 	}
 
 	return cryptographicParameters, nil

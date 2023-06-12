@@ -8,7 +8,7 @@ import (
 func (c *Client) GetBlockItemStatus(ctx context.Context, req *TransactionHash) (_ *BlockItemStatus, err error) {
 	blockItemStatus, err := c.grpcClient.GetBlockItemStatus(ctx, req)
 	if err != nil {
-		return nil, Error.Wrap(err)
+		return &BlockItemStatus{}, Error.Wrap(err)
 	}
 
 	return blockItemStatus, nil

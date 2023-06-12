@@ -8,7 +8,7 @@ import (
 func (c *Client) GetConsensusInfo(ctx context.Context) (_ *ConsensusInfo, err error) {
 	consensusInfo, err := c.grpcClient.GetConsensusInfo(ctx, new(Empty))
 	if err != nil {
-		return nil, Error.Wrap(err)
+		return &ConsensusInfo{}, Error.Wrap(err)
 	}
 
 	return consensusInfo, nil
