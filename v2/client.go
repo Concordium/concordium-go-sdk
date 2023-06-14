@@ -14,12 +14,12 @@ var Error = errs.Class("grpc client")
 // Config contains Concordium configurable values.
 type Config struct {
 	NodeAddress string `env:"NODE_ADDRESS"`
-	IsTestnet   bool   `env:"IS_TESTNET"`
 }
 
 // Client provides grpc connection with node.
 type Client struct {
 	grpcClient pb.QueriesClient
+	ClientConn *grpc.ClientConn
 	config     Config
 }
 
@@ -32,9 +32,13 @@ func NewClient(config Config) (_ *Client, err error) {
 	if err != nil {
 		return nil, err
 	}
-	defer func() { err = errs.Combine(err, conn.Close()) }()
 
 	client := pb.NewQueriesClient(conn)
 
-	return &Client{grpcClient: client, config: config}, nil
+	return &Client{grpcClient: client, ClientConn: conn, config: config}, nil
+}
+
+// Close closes client connection.
+func (c *Client) Close() error {
+	return Error.Wrap(c.ClientConn.Close())
 }

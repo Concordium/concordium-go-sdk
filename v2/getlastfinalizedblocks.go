@@ -14,6 +14,6 @@ func (c *Client) GetFinalizedBlocks(ctx context.Context) (_ pb.Queries_GetFinali
 	if err != nil {
 		return nil, Error.Wrap(err)
 	}
-	
+
 	return stream, nil
 }
