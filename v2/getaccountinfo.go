@@ -2,13 +2,15 @@ package v2
 
 import (
 	"context"
+
+	"concordium-go-sdk/v2/pb"
 )
 
 // GetAccountInfo retrieve the information about the given account in the given block.
-func (c *Client) GetAccountInfo(ctx context.Context, req *AccountInfoRequest) (_ *AccountInfo, err error) {
+func (c *Client) GetAccountInfo(ctx context.Context, req *pb.AccountInfoRequest) (_ *pb.AccountInfo, err error) {
 	accountInfo, err := c.grpcClient.GetAccountInfo(ctx, req)
 	if err != nil {
-		return &AccountInfo{}, Error.Wrap(err)
+		return &pb.AccountInfo{}, Error.Wrap(err)
 	}
 
 	return accountInfo, nil

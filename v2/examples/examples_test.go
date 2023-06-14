@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"concordium-go-sdk/v2"
+	"concordium-go-sdk/v2/pb"
 )
 
 func TestExamples(t *testing.T) {
@@ -45,9 +46,9 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, blockInfo)
 
-		accStream, err := client.GetAccountList(context.Background(), &v2.BlockHashInput{
-			BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		accStream, err := client.GetAccountList(context.Background(), &pb.BlockHashInput{
+			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+				AbsoluteHeight: &pb.AbsoluteBlockHeight{
 					Value: blockInfo.Height.Value,
 				}}})
 		require.NoError(t, err)
@@ -63,9 +64,9 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, blockInfo)
 
-		accStream, err := client.GetAccountList(context.Background(), &v2.BlockHashInput{
-			BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		accStream, err := client.GetAccountList(context.Background(), &pb.BlockHashInput{
+			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+				AbsoluteHeight: &pb.AbsoluteBlockHeight{
 					Value: blockInfo.Height.Value,
 				}}})
 		require.NoError(t, err)
@@ -75,15 +76,15 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, accCreds)
 
-		accInfo, err := client.GetAccountInfo(context.Background(), &v2.AccountInfoRequest{
-			BlockHash: &v2.BlockHashInput{
-				BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-					AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		accInfo, err := client.GetAccountInfo(context.Background(), &pb.AccountInfoRequest{
+			BlockHash: &pb.BlockHashInput{
+				BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+					AbsoluteHeight: &pb.AbsoluteBlockHeight{
 						Value: blockInfo.Height.Value,
 					}}},
-			AccountIdentifier: &v2.AccountIdentifierInput{
-				AccountIdentifierInput: &v2.AccountIdentifierInput_Address{
-					Address: &v2.AccountAddress{
+			AccountIdentifier: &pb.AccountIdentifierInput{
+				AccountIdentifierInput: &pb.AccountIdentifierInput_Address{
+					Address: &pb.AccountAddress{
 						Value: accCreds.Value,
 					}}},
 		})
@@ -100,9 +101,9 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, blockInfo)
 
-		modulesStream, err := client.GetModuleList(context.Background(), &v2.BlockHashInput{
-			BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		modulesStream, err := client.GetModuleList(context.Background(), &pb.BlockHashInput{
+			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+				AbsoluteHeight: &pb.AbsoluteBlockHeight{
 					Value: blockInfo.Height.Value,
 				}}})
 		require.NoError(t, err)
@@ -126,10 +127,10 @@ func TestExamples(t *testing.T) {
 		// TODO: swap to rand value (add rand func to internal)
 		amount = 5
 
-		ancestorsStream, err := client.GetAncestors(context.Background(), &v2.AncestorsRequest{
-			BlockHash: &v2.BlockHashInput{
-				BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-					AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		ancestorsStream, err := client.GetAncestors(context.Background(), &pb.AncestorsRequest{
+			BlockHash: &pb.BlockHashInput{
+				BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+					AbsoluteHeight: &pb.AbsoluteBlockHeight{
 						Value: blockInfo.Height.Value,
 					}}},
 			Amount: amount,
@@ -153,9 +154,9 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, blockInfo)
 
-		modulesStream, err := client.GetModuleList(context.Background(), &v2.BlockHashInput{
-			BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		modulesStream, err := client.GetModuleList(context.Background(), &pb.BlockHashInput{
+			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+				AbsoluteHeight: &pb.AbsoluteBlockHeight{
 					Value: blockInfo.Height.Value,
 				}}})
 		require.NoError(t, err)
@@ -165,13 +166,13 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, module)
 
-		source, err := client.GetModuleSource(context.Background(), &v2.ModuleSourceRequest{
-			BlockHash: &v2.BlockHashInput{
-				BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-					AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		source, err := client.GetModuleSource(context.Background(), &pb.ModuleSourceRequest{
+			BlockHash: &pb.BlockHashInput{
+				BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+					AbsoluteHeight: &pb.AbsoluteBlockHeight{
 						Value: blockInfo.Height.Value,
 					}}},
-			ModuleRef: &v2.ModuleRef{Value: module.Value},
+			ModuleRef: &pb.ModuleRef{Value: module.Value},
 		})
 		require.NoError(t, err)
 		require.NotNil(t, source)
@@ -186,9 +187,9 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, blockInfo)
 
-		instanceStream, err := client.GetInstanceList(context.Background(), &v2.BlockHashInput{
-			BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		instanceStream, err := client.GetInstanceList(context.Background(), &pb.BlockHashInput{
+			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+				AbsoluteHeight: &pb.AbsoluteBlockHeight{
 					Value: blockInfo.Height.Value,
 				}}})
 		require.NoError(t, err)
@@ -208,9 +209,9 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, blockInfo)
 
-		instanceStream, err := client.GetInstanceList(context.Background(), &v2.BlockHashInput{
-			BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		instanceStream, err := client.GetInstanceList(context.Background(), &pb.BlockHashInput{
+			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+				AbsoluteHeight: &pb.AbsoluteBlockHeight{
 					Value: blockInfo.Height.Value,
 				}}})
 		require.NoError(t, err)
@@ -220,13 +221,13 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, instance)
 
-		info, err := client.GetInstanceInfo(context.Background(), &v2.InstanceInfoRequest{
-			BlockHash: &v2.BlockHashInput{
-				BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-					AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		info, err := client.GetInstanceInfo(context.Background(), &pb.InstanceInfoRequest{
+			BlockHash: &pb.BlockHashInput{
+				BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+					AbsoluteHeight: &pb.AbsoluteBlockHeight{
 						Value: blockInfo.Height.Value,
 					}}},
-			Address: &v2.ContractAddress{
+			Address: &pb.ContractAddress{
 				Index:    instance.Index,
 				Subindex: instance.Subindex,
 			},
@@ -244,9 +245,9 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, blockInfo)
 
-		instanceStream, err := client.GetInstanceList(context.Background(), &v2.BlockHashInput{
-			BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		instanceStream, err := client.GetInstanceList(context.Background(), &pb.BlockHashInput{
+			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+				AbsoluteHeight: &pb.AbsoluteBlockHeight{
 					Value: blockInfo.Height.Value,
 				}}})
 		require.NoError(t, err)
@@ -256,13 +257,13 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, instance)
 
-		stateStream, err := client.GetInstanceState(context.Background(), &v2.InstanceInfoRequest{
-			BlockHash: &v2.BlockHashInput{
-				BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-					AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		stateStream, err := client.GetInstanceState(context.Background(), &pb.InstanceInfoRequest{
+			BlockHash: &pb.BlockHashInput{
+				BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+					AbsoluteHeight: &pb.AbsoluteBlockHeight{
 						Value: blockInfo.Height.Value,
 					}}},
-			Address: &v2.ContractAddress{
+			Address: &pb.ContractAddress{
 				Index:    instance.Index,
 				Subindex: instance.Subindex,
 			},
@@ -284,9 +285,9 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, blockInfo)
 
-		instanceStream, err := client.GetInstanceList(context.Background(), &v2.BlockHashInput{
-			BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		instanceStream, err := client.GetInstanceList(context.Background(), &pb.BlockHashInput{
+			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+				AbsoluteHeight: &pb.AbsoluteBlockHeight{
 					Value: blockInfo.Height.Value,
 				}}})
 		require.NoError(t, err)
@@ -296,13 +297,13 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, instance)
 
-		stateStream, err := client.GetInstanceState(context.Background(), &v2.InstanceInfoRequest{
-			BlockHash: &v2.BlockHashInput{
-				BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-					AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		stateStream, err := client.GetInstanceState(context.Background(), &pb.InstanceInfoRequest{
+			BlockHash: &pb.BlockHashInput{
+				BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+					AbsoluteHeight: &pb.AbsoluteBlockHeight{
 						Value: blockInfo.Height.Value,
 					}}},
-			Address: &v2.ContractAddress{
+			Address: &pb.ContractAddress{
 				Index:    instance.Index,
 				Subindex: instance.Subindex,
 			},
@@ -314,13 +315,13 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, state)
 
-		valueAtKey, err := client.InstanceStateLookup(context.Background(), &v2.InstanceStateLookupRequest{
-			BlockHash: &v2.BlockHashInput{
-				BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-					AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		valueAtKey, err := client.InstanceStateLookup(context.Background(), &pb.InstanceStateLookupRequest{
+			BlockHash: &pb.BlockHashInput{
+				BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+					AbsoluteHeight: &pb.AbsoluteBlockHeight{
 						Value: blockInfo.Height.Value,
 					}}},
-			Address: &v2.ContractAddress{
+			Address: &pb.ContractAddress{
 				Index:    instance.Index,
 				Subindex: instance.Subindex,
 			},
@@ -339,9 +340,9 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, blockInfo)
 
-		accStream, err := client.GetAccountList(context.Background(), &v2.BlockHashInput{
-			BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		accStream, err := client.GetAccountList(context.Background(), &pb.BlockHashInput{
+			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+				AbsoluteHeight: &pb.AbsoluteBlockHeight{
 					Value: blockInfo.Height.Value,
 				}}})
 		require.NoError(t, err)
@@ -351,7 +352,7 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, accCreds)
 
-		accountNum, err := client.GetNextAccountSequenceNumber(context.Background(), &v2.AccountAddress{
+		accountNum, err := client.GetNextAccountSequenceNumber(context.Background(), &pb.AccountAddress{
 			Value: accCreds.Value,
 		})
 		require.NoError(t, err)
@@ -370,7 +371,7 @@ func TestExamples(t *testing.T) {
 		// TODO: swap for real input when method will be ready
 		value := []byte("input")
 
-		status, err := client.GetBlockItemStatus(context.Background(), &v2.TransactionHash{
+		status, err := client.GetBlockItemStatus(context.Background(), &pb.TransactionHash{
 			Value: value,
 		})
 		require.NoError(t, err)
@@ -386,9 +387,9 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, blockInfo)
 
-		cryptographicParams, err := client.GetCryptographicParameters(context.Background(), &v2.BlockHashInput{
-			BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		cryptographicParams, err := client.GetCryptographicParameters(context.Background(), &pb.BlockHashInput{
+			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+				AbsoluteHeight: &pb.AbsoluteBlockHeight{
 					Value: blockInfo.Height.Value,
 				}}})
 		require.NoError(t, err)
@@ -404,9 +405,9 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, block)
 
-		blockInfo, err := client.GetBlockInfo(context.Background(), &v2.BlockHashInput{
-			BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		blockInfo, err := client.GetBlockInfo(context.Background(), &pb.BlockHashInput{
+			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+				AbsoluteHeight: &pb.AbsoluteBlockHeight{
 					Value: block.Height.Value,
 				}}})
 		require.NoError(t, err)
@@ -419,7 +420,7 @@ func TestExamples(t *testing.T) {
 		// TODO: swap for real input when method will be ready
 		value := []byte("input")
 
-		itemStatus, err := client.GetBlockItemStatus(context.Background(), &v2.TransactionHash{
+		itemStatus, err := client.GetBlockItemStatus(context.Background(), &pb.TransactionHash{
 			Value: value,
 		})
 		require.NoError(t, err)
@@ -435,9 +436,9 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, block)
 
-		bakerStream, err := client.GetBakerList(context.Background(), &v2.BlockHashInput{
-			BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		bakerStream, err := client.GetBakerList(context.Background(), &pb.BlockHashInput{
+			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+				AbsoluteHeight: &pb.AbsoluteBlockHeight{
 					Value: block.Height.Value,
 				}}})
 		require.NoError(t, err)
@@ -457,9 +458,9 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, block)
 
-		bakerStream, err := client.GetBakerList(context.Background(), &v2.BlockHashInput{
-			BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		bakerStream, err := client.GetBakerList(context.Background(), &pb.BlockHashInput{
+			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+				AbsoluteHeight: &pb.AbsoluteBlockHeight{
 					Value: block.Height.Value,
 				}}})
 		require.NoError(t, err)
@@ -469,10 +470,10 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, baker)
 
-		poolInfo, err := client.GetPoolInfo(context.Background(), &v2.PoolInfoRequest{
-			BlockHash: &v2.BlockHashInput{
-				BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-					AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		poolInfo, err := client.GetPoolInfo(context.Background(), &pb.PoolInfoRequest{
+			BlockHash: &pb.BlockHashInput{
+				BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+					AbsoluteHeight: &pb.AbsoluteBlockHeight{
 						Value: block.Height.Value,
 					}}},
 			Baker: baker,
@@ -490,9 +491,9 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, block)
 
-		passiveDelegationInfo, err := client.GetPassiveDelegationInfo(context.Background(), &v2.BlockHashInput{
-			BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		passiveDelegationInfo, err := client.GetPassiveDelegationInfo(context.Background(), &pb.BlockHashInput{
+			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+				AbsoluteHeight: &pb.AbsoluteBlockHeight{
 					Value: block.Height.Value,
 				}}})
 		require.NoError(t, err)
@@ -508,10 +509,10 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, block)
 
-		blocksAtHeight, err := client.GetBlocksAtHeight(context.Background(), &v2.BlocksAtHeightRequest{
-			BlocksAtHeight: &v2.BlocksAtHeightRequest_Absolute_{
-				Absolute: &v2.BlocksAtHeightRequest_Absolute{
-					Height: &v2.AbsoluteBlockHeight{
+		blocksAtHeight, err := client.GetBlocksAtHeight(context.Background(), &pb.BlocksAtHeightRequest{
+			BlocksAtHeight: &pb.BlocksAtHeightRequest_Absolute_{
+				Absolute: &pb.BlocksAtHeightRequest_Absolute{
+					Height: &pb.AbsoluteBlockHeight{
 						Value: block.Height.Value,
 					},
 				}}})
@@ -528,9 +529,9 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, block)
 
-		tokenomicsInfo, err := client.GetTokenomicsInfo(context.Background(), &v2.BlockHashInput{
-			BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		tokenomicsInfo, err := client.GetTokenomicsInfo(context.Background(), &pb.BlockHashInput{
+			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+				AbsoluteHeight: &pb.AbsoluteBlockHeight{
 					Value: block.Height.Value,
 				}}})
 		require.NoError(t, err)
@@ -541,7 +542,7 @@ func TestExamples(t *testing.T) {
 		t.Skip()
 
 		// TODO: fill with actual test data.
-		instance, err := client.InvokeInstance(context.Background(), &v2.InvokeInstanceRequest{
+		instance, err := client.InvokeInstance(context.Background(), &pb.InvokeInstanceRequest{
 			BlockHash:  nil,
 			Invoker:    nil,
 			Instance:   nil,
@@ -563,9 +564,9 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, block)
 
-		bakerStream, err := client.GetBakerList(context.Background(), &v2.BlockHashInput{
-			BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		bakerStream, err := client.GetBakerList(context.Background(), &pb.BlockHashInput{
+			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+				AbsoluteHeight: &pb.AbsoluteBlockHeight{
 					Value: block.Height.Value,
 				}}})
 		require.NoError(t, err)
@@ -575,10 +576,10 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, baker)
 
-		poolDelegators, err := client.GetPoolDelegators(context.Background(), &v2.GetPoolDelegatorsRequest{
-			BlockHash: &v2.BlockHashInput{
-				BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-					AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		poolDelegators, err := client.GetPoolDelegators(context.Background(), &pb.GetPoolDelegatorsRequest{
+			BlockHash: &pb.BlockHashInput{
+				BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+					AbsoluteHeight: &pb.AbsoluteBlockHeight{
 						Value: block.Height.Value,
 					}}},
 			Baker: baker,
@@ -596,9 +597,9 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, block)
 
-		bakerStream, err := client.GetBakerList(context.Background(), &v2.BlockHashInput{
-			BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		bakerStream, err := client.GetBakerList(context.Background(), &pb.BlockHashInput{
+			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+				AbsoluteHeight: &pb.AbsoluteBlockHeight{
 					Value: block.Height.Value,
 				}}})
 		require.NoError(t, err)
@@ -608,10 +609,10 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, baker)
 
-		poolDelegatorsRewardPeriod, err := client.GetPoolDelegatorsRewardPeriod(context.Background(), &v2.GetPoolDelegatorsRequest{
-			BlockHash: &v2.BlockHashInput{
-				BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-					AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		poolDelegatorsRewardPeriod, err := client.GetPoolDelegatorsRewardPeriod(context.Background(), &pb.GetPoolDelegatorsRequest{
+			BlockHash: &pb.BlockHashInput{
+				BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+					AbsoluteHeight: &pb.AbsoluteBlockHeight{
 						Value: block.Height.Value,
 					}}},
 			Baker: baker,
@@ -629,9 +630,9 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, block)
 
-		passiveDelegators, err := client.GetPassiveDelegators(context.Background(), &v2.BlockHashInput{
-			BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		passiveDelegators, err := client.GetPassiveDelegators(context.Background(), &pb.BlockHashInput{
+			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+				AbsoluteHeight: &pb.AbsoluteBlockHeight{
 					Value: block.Height.Value,
 				}}})
 		require.NoError(t, err)
@@ -647,9 +648,9 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, block)
 
-		passiveDelegatorsRewardPeriod, err := client.GetPassiveDelegatorsRewardPeriod(context.Background(), &v2.BlockHashInput{
-			BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		passiveDelegatorsRewardPeriod, err := client.GetPassiveDelegatorsRewardPeriod(context.Background(), &pb.BlockHashInput{
+			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+				AbsoluteHeight: &pb.AbsoluteBlockHeight{
 					Value: block.Height.Value,
 				}}})
 		require.NoError(t, err)
@@ -671,9 +672,9 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, block)
 
-		electionInfo, err := client.GetElectionInfo(context.Background(), &v2.BlockHashInput{
-			BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		electionInfo, err := client.GetElectionInfo(context.Background(), &pb.BlockHashInput{
+			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+				AbsoluteHeight: &pb.AbsoluteBlockHeight{
 					Value: block.Height.Value,
 				}}})
 		require.NoError(t, err)
@@ -689,9 +690,9 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, block)
 
-		identityProviders, err := client.GetIdentityProviders(context.Background(), &v2.BlockHashInput{
-			BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		identityProviders, err := client.GetIdentityProviders(context.Background(), &pb.BlockHashInput{
+			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+				AbsoluteHeight: &pb.AbsoluteBlockHeight{
 					Value: block.Height.Value,
 				}}})
 		require.NoError(t, err)
@@ -707,9 +708,9 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, block)
 
-		anonymityRevokers, err := client.GetAnonymityRevokers(context.Background(), &v2.BlockHashInput{
-			BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		anonymityRevokers, err := client.GetAnonymityRevokers(context.Background(), &pb.BlockHashInput{
+			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+				AbsoluteHeight: &pb.AbsoluteBlockHeight{
 					Value: block.Height.Value,
 				}}})
 		require.NoError(t, err)
@@ -725,9 +726,9 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, blockInfo)
 
-		accStream, err := client.GetAccountList(context.Background(), &v2.BlockHashInput{
-			BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		accStream, err := client.GetAccountList(context.Background(), &pb.BlockHashInput{
+			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+				AbsoluteHeight: &pb.AbsoluteBlockHeight{
 					Value: blockInfo.Height.Value,
 				}}})
 		require.NoError(t, err)
@@ -751,9 +752,9 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, block)
 
-		blockTransactionEvents, err := client.GetBlockTransactionEvents(context.Background(), &v2.BlockHashInput{
-			BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		blockTransactionEvents, err := client.GetBlockTransactionEvents(context.Background(), &pb.BlockHashInput{
+			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+				AbsoluteHeight: &pb.AbsoluteBlockHeight{
 					Value: block.Height.Value,
 				}}})
 		require.NoError(t, err)
@@ -769,9 +770,9 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, block)
 
-		blockSpecialEvents, err := client.GetBlockSpecialEvents(context.Background(), &v2.BlockHashInput{
-			BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		blockSpecialEvents, err := client.GetBlockSpecialEvents(context.Background(), &pb.BlockHashInput{
+			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+				AbsoluteHeight: &pb.AbsoluteBlockHeight{
 					Value: block.Height.Value,
 				}}})
 		require.NoError(t, err)
@@ -787,9 +788,9 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, block)
 
-		blockPendingUpdates, err := client.GetBlockPendingUpdates(context.Background(), &v2.BlockHashInput{
-			BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		blockPendingUpdates, err := client.GetBlockPendingUpdates(context.Background(), &pb.BlockHashInput{
+			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+				AbsoluteHeight: &pb.AbsoluteBlockHeight{
 					Value: block.Height.Value,
 				}}})
 		require.NoError(t, err)
@@ -805,9 +806,9 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, block)
 
-		nextUpdateSequenceNumbers, err := client.GetNextUpdateSequenceNumbers(context.Background(), &v2.BlockHashInput{
-			BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		nextUpdateSequenceNumbers, err := client.GetNextUpdateSequenceNumbers(context.Background(), &pb.BlockHashInput{
+			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+				AbsoluteHeight: &pb.AbsoluteBlockHeight{
 					Value: block.Height.Value,
 				}}})
 		require.NoError(t, err)
@@ -827,7 +828,7 @@ func TestExamples(t *testing.T) {
 
 	t.Run("DumpStart", func(t *testing.T) {
 		// required error since method is not enabled
-		require.Error(t, client.DumpStart(context.Background(), &v2.DumpRequest{
+		require.Error(t, client.DumpStart(context.Background(), &pb.DumpRequest{
 			File: "random path",
 			Raw:  false,
 		}))
@@ -850,7 +851,7 @@ func TestExamples(t *testing.T) {
 		require.NotNil(t, peersInfo)
 
 		// required error since method is not enabled
-		require.Error(t, client.PeerDisconnect(context.Background(), &v2.IpSocketAddress{
+		require.Error(t, client.PeerDisconnect(context.Background(), &pb.IpSocketAddress{
 			Ip:   peersInfo.Peers[0].SocketAddress.Ip,
 			Port: peersInfo.Peers[0].SocketAddress.Port,
 		}))
@@ -862,13 +863,13 @@ func TestExamples(t *testing.T) {
 		require.NotNil(t, peersInfo)
 
 		// required error since method is not enabled
-		require.Error(t, client.PeerDisconnect(context.Background(), &v2.IpSocketAddress{
+		require.Error(t, client.PeerDisconnect(context.Background(), &pb.IpSocketAddress{
 			Ip:   peersInfo.Peers[0].SocketAddress.Ip,
 			Port: peersInfo.Peers[0].SocketAddress.Port,
 		}))
 
 		// required error since method is not enabled
-		require.Error(t, client.PeerConnect(context.Background(), &v2.IpSocketAddress{
+		require.Error(t, client.PeerConnect(context.Background(), &pb.IpSocketAddress{
 			Ip:   peersInfo.Peers[0].SocketAddress.Ip,
 			Port: peersInfo.Peers[0].SocketAddress.Port,
 		}))
@@ -880,8 +881,8 @@ func TestExamples(t *testing.T) {
 		require.NotNil(t, peersInfo)
 
 		// required error since method is not enabled
-		require.Error(t, client.BanPeer(context.Background(), &v2.PeerToBan{
-			IpAddress: &v2.IpAddress{
+		require.Error(t, client.BanPeer(context.Background(), &pb.PeerToBan{
+			IpAddress: &pb.IpAddress{
 				Value: peersInfo.Peers[0].SocketAddress.Ip.Value,
 			}}))
 	})
@@ -892,13 +893,13 @@ func TestExamples(t *testing.T) {
 		require.NotNil(t, peersInfo)
 
 		// required error since method is not enabled
-		require.Error(t, client.BanPeer(context.Background(), &v2.PeerToBan{
-			IpAddress: &v2.IpAddress{
+		require.Error(t, client.BanPeer(context.Background(), &pb.PeerToBan{
+			IpAddress: &pb.IpAddress{
 				Value: peersInfo.Peers[0].SocketAddress.Ip.Value,
 			}}))
 
 		// required error since method is not enabled
-		require.Error(t, client.UnbanPeer(context.Background(), &v2.BannedPeer{IpAddress: &v2.IpAddress{
+		require.Error(t, client.UnbanPeer(context.Background(), &pb.BannedPeer{IpAddress: &pb.IpAddress{
 			Value: peersInfo.Peers[0].SocketAddress.Ip.Value,
 		}}))
 	})
@@ -918,9 +919,9 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, block)
 
-		blockChainParameters, err := client.GetBlockChainParameters(context.Background(), &v2.BlockHashInput{
-			BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		blockChainParameters, err := client.GetBlockChainParameters(context.Background(), &pb.BlockHashInput{
+			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+				AbsoluteHeight: &pb.AbsoluteBlockHeight{
 					Value: block.Height.Value,
 				}}})
 		require.NoError(t, err)
@@ -936,9 +937,9 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, block)
 
-		blockFinalizationSummary, err := client.GetBlockFinalizationSummary(context.Background(), &v2.BlockHashInput{
-			BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		blockFinalizationSummary, err := client.GetBlockFinalizationSummary(context.Background(), &pb.BlockHashInput{
+			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+				AbsoluteHeight: &pb.AbsoluteBlockHeight{
 					Value: block.Height.Value,
 				}}})
 		require.NoError(t, err)
@@ -954,9 +955,9 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, block)
 
-		blockItems, err := client.GetBlockItems(context.Background(), &v2.BlockHashInput{
-			BlockHashInput: &v2.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &v2.AbsoluteBlockHeight{
+		blockItems, err := client.GetBlockItems(context.Background(), &pb.BlockHashInput{
+			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
+				AbsoluteHeight: &pb.AbsoluteBlockHeight{
 					Value: block.Height.Value,
 				}}})
 		require.NoError(t, err)
