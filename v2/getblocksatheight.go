@@ -1,8 +1,9 @@
 package v2
 
 import (
-	"concordium-go-sdk/v2/pb"
 	"context"
+
+	"concordium-go-sdk/v2/pb"
 )
 
 // GetBlocksAtHeight get a list of live blocks at a given height.
