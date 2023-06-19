@@ -6,7 +6,7 @@ import (
 	"concordium-go-sdk/v2/pb"
 )
 
-// GetPeersInfo get a list of the peers that the node is connected to / and assoicated network related information for each peer.
+// GetPeersInfo get a list of the peers that the node is connected to / and `associated` network related information for each peer.
 func (c *Client) GetPeersInfo(ctx context.Context) (_ *pb.PeersInfo, err error) {
 	peersInfo, err := c.grpcClient.GetPeersInfo(ctx, new(pb.Empty))
 	if err != nil {

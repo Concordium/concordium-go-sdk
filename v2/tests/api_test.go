@@ -124,7 +124,7 @@ func TestExamples(t *testing.T) {
 		require.NotNil(t, blockInfo)
 
 		var amount uint64
-		// TODO: swap to rand value (add rand func to internal)
+		// TODO: swap to rand value (add rand func to internal).
 		amount = 5
 
 		ancestorsStream, err := client.GetAncestors(context.Background(), &pb.AncestorsRequest{
@@ -368,7 +368,7 @@ func TestExamples(t *testing.T) {
 	t.Run("GetBlockItemStatus", func(t *testing.T) {
 		t.Skip()
 
-		// TODO: swap for real input when method will be ready
+		// TODO: swap for real input when method will be ready.
 		value := []byte("input")
 
 		status, err := client.GetBlockItemStatus(context.Background(), &pb.TransactionHash{
@@ -417,7 +417,7 @@ func TestExamples(t *testing.T) {
 	t.Run("GetBlockItemStatus", func(t *testing.T) {
 		t.Skip()
 
-		// TODO: swap for real input when method will be ready
+		// TODO: swap for real input when method will be ready.
 		value := []byte("input")
 
 		itemStatus, err := client.GetBlockItemStatus(context.Background(), &pb.TransactionHash{
@@ -816,18 +816,18 @@ func TestExamples(t *testing.T) {
 	})
 
 	t.Run("Shutdown", func(t *testing.T) {
-		// required error since method is not enabled
+		// required error since method is not enabled.
 		require.Error(t, client.Shutdown(context.Background()))
 	})
 
 	t.Run("GetBannedPeers", func(t *testing.T) {
-		// required error since method is not enabled
+		// required error since method is not enabled.
 		_, err := client.GetBannedPeers(context.Background())
 		require.Error(t, err)
 	})
 
 	t.Run("DumpStart", func(t *testing.T) {
-		// required error since method is not enabled
+		// required error since method is not enabled.
 		require.Error(t, client.DumpStart(context.Background(), &pb.DumpRequest{
 			File: "random path",
 			Raw:  false,
@@ -835,7 +835,7 @@ func TestExamples(t *testing.T) {
 	})
 
 	t.Run("DumpStop", func(t *testing.T) {
-		// required error since method is not enabled
+		// required error since method is not enabled.
 		require.Error(t, client.DumpStop(context.Background()))
 	})
 
@@ -850,7 +850,7 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, peersInfo)
 
-		// required error since method is not enabled
+		// required error since method is not enabled.
 		require.Error(t, client.PeerDisconnect(context.Background(), &pb.IpSocketAddress{
 			Ip:   peersInfo.Peers[0].SocketAddress.Ip,
 			Port: peersInfo.Peers[0].SocketAddress.Port,
@@ -862,13 +862,13 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, peersInfo)
 
-		// required error since method is not enabled
+		// required error since method is not enabled.
 		require.Error(t, client.PeerDisconnect(context.Background(), &pb.IpSocketAddress{
 			Ip:   peersInfo.Peers[0].SocketAddress.Ip,
 			Port: peersInfo.Peers[0].SocketAddress.Port,
 		}))
 
-		// required error since method is not enabled
+		// required error since method is not enabled.
 		require.Error(t, client.PeerConnect(context.Background(), &pb.IpSocketAddress{
 			Ip:   peersInfo.Peers[0].SocketAddress.Ip,
 			Port: peersInfo.Peers[0].SocketAddress.Port,
@@ -880,7 +880,7 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, peersInfo)
 
-		// required error since method is not enabled
+		// required error since method is not enabled.
 		require.Error(t, client.BanPeer(context.Background(), &pb.PeerToBan{
 			IpAddress: &pb.IpAddress{
 				Value: peersInfo.Peers[0].SocketAddress.Ip.Value,
@@ -892,13 +892,13 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, peersInfo)
 
-		// required error since method is not enabled
+		// required error since method is not enabled.
 		require.Error(t, client.BanPeer(context.Background(), &pb.PeerToBan{
 			IpAddress: &pb.IpAddress{
 				Value: peersInfo.Peers[0].SocketAddress.Ip.Value,
 			}}))
 
-		// required error since method is not enabled
+		// required error since method is not enabled.
 		require.Error(t, client.UnbanPeer(context.Background(), &pb.BannedPeer{IpAddress: &pb.IpAddress{
 			Value: peersInfo.Peers[0].SocketAddress.Ip.Value,
 		}}))
