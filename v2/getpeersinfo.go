@@ -10,7 +10,7 @@ import (
 func (c *Client) GetPeersInfo(ctx context.Context) (_ *pb.PeersInfo, err error) {
 	peersInfo, err := c.grpcClient.GetPeersInfo(ctx, new(pb.Empty))
 	if err != nil {
-		return &pb.PeersInfo{}, Error.Wrap(err)
+		return &pb.PeersInfo{}, err
 	}
 
 	return peersInfo, nil

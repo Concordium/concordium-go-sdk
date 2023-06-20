@@ -13,7 +13,7 @@ import (
 func (c *Client) PeerConnect(ctx context.Context, req *pb.IpSocketAddress) (err error) {
 	_, err = c.grpcClient.PeerConnect(ctx, req)
 	if err != nil {
-		return Error.Wrap(err)
+		return err
 	}
 
 	return nil

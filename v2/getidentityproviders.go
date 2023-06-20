@@ -11,7 +11,7 @@ import (
 func (c *Client) GetIdentityProviders(ctx context.Context, req *pb.BlockHashInput) (_ pb.Queries_GetIdentityProvidersClient, err error) {
 	stream, err := c.grpcClient.GetIdentityProviders(ctx, req)
 	if err != nil {
-		return nil, Error.Wrap(err)
+		return nil, err
 	}
 
 	return stream, nil

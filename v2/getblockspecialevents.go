@@ -11,7 +11,7 @@ import (
 func (c *Client) GetBlockSpecialEvents(ctx context.Context, req *pb.BlockHashInput) (_ pb.Queries_GetBlockSpecialEventsClient, err error) {
 	stream, err := c.grpcClient.GetBlockSpecialEvents(ctx, req)
 	if err != nil {
-		return nil, Error.Wrap(err)
+		return nil, err
 	}
 
 	return stream, nil

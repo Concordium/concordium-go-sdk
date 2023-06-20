@@ -12,7 +12,7 @@ import (
 func (c *Client) InstanceStateLookup(ctx context.Context, req *pb.InstanceStateLookupRequest) (_ *pb.InstanceStateValueAtKey, err error) {
 	instanceStateKeyValue, err := c.grpcClient.InstanceStateLookup(ctx, req)
 	if err != nil {
-		return nil, Error.Wrap(err)
+		return nil, err
 	}
 
 	return instanceStateKeyValue, nil

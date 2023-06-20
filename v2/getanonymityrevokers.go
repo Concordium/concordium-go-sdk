@@ -11,7 +11,7 @@ import (
 func (c *Client) GetAnonymityRevokers(ctx context.Context, req *pb.BlockHashInput) (_ pb.Queries_GetAnonymityRevokersClient, err error) {
 	stream, err := c.grpcClient.GetAnonymityRevokers(ctx, req)
 	if err != nil {
-		return nil, Error.Wrap(err)
+		return nil, err
 	}
 
 	return stream, nil

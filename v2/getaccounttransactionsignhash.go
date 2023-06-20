@@ -14,7 +14,7 @@ import (
 func (c *Client) GetAccountTransactionSignHash(ctx context.Context, req *pb.PreAccountTransaction) (_ *pb.AccountTransactionSignHash, err error) {
 	accountTransactionSignHash, err := c.grpcClient.GetAccountTransactionSignHash(ctx, req)
 	if err != nil {
-		return &pb.AccountTransactionSignHash{}, Error.Wrap(err)
+		return &pb.AccountTransactionSignHash{}, err
 	}
 
 	return accountTransactionSignHash, nil

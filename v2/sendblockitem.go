@@ -14,7 +14,7 @@ import (
 func (c *Client) SendBlockItem(ctx context.Context, req *pb.SendBlockItemRequest) (_ *pb.TransactionHash, err error) {
 	txHash, err := c.grpcClient.SendBlockItem(ctx, req)
 	if err != nil {
-		return nil, Error.Wrap(err)
+		return nil, err
 	}
 
 	return txHash, nil

@@ -10,7 +10,7 @@ import (
 func (c *Client) GetBlocksAtHeight(ctx context.Context, req *pb.BlocksAtHeightRequest) (_ *pb.BlocksAtHeightResponse, err error) {
 	blockAtHeight, err := c.grpcClient.GetBlocksAtHeight(ctx, req)
 	if err != nil {
-		return &pb.BlocksAtHeightResponse{}, Error.Wrap(err)
+		return &pb.BlocksAtHeightResponse{}, err
 	}
 
 	return blockAtHeight, nil

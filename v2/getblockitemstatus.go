@@ -10,7 +10,7 @@ import (
 func (c *Client) GetBlockItemStatus(ctx context.Context, req *pb.TransactionHash) (_ *pb.BlockItemStatus, err error) {
 	blockItemStatus, err := c.grpcClient.GetBlockItemStatus(ctx, req)
 	if err != nil {
-		return &pb.BlockItemStatus{}, Error.Wrap(err)
+		return &pb.BlockItemStatus{}, err
 	}
 
 	return blockItemStatus, nil

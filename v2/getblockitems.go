@@ -10,7 +10,7 @@ import (
 func (c *Client) GetBlockItems(ctx context.Context, req *pb.BlockHashInput) (_ pb.Queries_GetBlockItemsClient, err error) {
 	stream, err := c.grpcClient.GetBlockItems(ctx, req)
 	if err != nil {
-		return nil, Error.Wrap(err)
+		return nil, err
 	}
 
 	return stream, nil

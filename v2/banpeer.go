@@ -10,7 +10,7 @@ import (
 func (c *Client) BanPeer(ctx context.Context, req *pb.PeerToBan) (err error) {
 	_, err = c.grpcClient.BanPeer(ctx, req)
 	if err != nil {
-		return Error.Wrap(err)
+		return err
 	}
 
 	return nil

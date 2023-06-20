@@ -11,7 +11,7 @@ import (
 func (c *Client) GetBlockTransactionEvents(ctx context.Context, req *pb.BlockHashInput) (_ pb.Queries_GetBlockTransactionEventsClient, err error) {
 	stream, err := c.grpcClient.GetBlockTransactionEvents(ctx, req)
 	if err != nil {
-		return nil, Error.Wrap(err)
+		return nil, err
 	}
 
 	return stream, nil

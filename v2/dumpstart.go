@@ -12,7 +12,7 @@ import (
 func (c *Client) DumpStart(ctx context.Context, req *pb.DumpRequest) (err error) {
 	_, err = c.grpcClient.DumpStart(ctx, req)
 	if err != nil {
-		return Error.Wrap(err)
+		return err
 	}
 
 	return nil

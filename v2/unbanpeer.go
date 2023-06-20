@@ -10,7 +10,7 @@ import (
 func (c *Client) UnbanPeer(ctx context.Context, req *pb.BannedPeer) (err error) {
 	_, err = c.grpcClient.UnbanPeer(ctx, req)
 	if err != nil {
-		return Error.Wrap(err)
+		return err
 	}
 
 	return nil

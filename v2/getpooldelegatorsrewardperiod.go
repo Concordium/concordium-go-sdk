@@ -13,7 +13,7 @@ import (
 func (c *Client) GetPoolDelegatorsRewardPeriod(ctx context.Context, req *pb.GetPoolDelegatorsRequest) (_ pb.Queries_GetPoolDelegatorsRewardPeriodClient, err error) {
 	stream, err := c.grpcClient.GetPoolDelegatorsRewardPeriod(ctx, req)
 	if err != nil {
-		return nil, Error.Wrap(err)
+		return nil, err
 	}
 
 	return stream, nil

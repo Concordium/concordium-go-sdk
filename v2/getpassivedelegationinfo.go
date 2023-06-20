@@ -10,7 +10,7 @@ import (
 func (c *Client) GetPassiveDelegationInfo(ctx context.Context, req *pb.BlockHashInput) (_ *pb.PassiveDelegationInfo, err error) {
 	passiveDelegationInfo, err := c.grpcClient.GetPassiveDelegationInfo(ctx, req)
 	if err != nil {
-		return &pb.PassiveDelegationInfo{}, Error.Wrap(err)
+		return &pb.PassiveDelegationInfo{}, err
 	}
 
 	return passiveDelegationInfo, nil

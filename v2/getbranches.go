@@ -10,7 +10,7 @@ import (
 func (c *Client) GetBranches(ctx context.Context) (_ *pb.Branch, err error) {
 	branch, err := c.grpcClient.GetBranches(ctx, new(pb.Empty))
 	if err != nil {
-		return &pb.Branch{}, Error.Wrap(err)
+		return &pb.Branch{}, err
 	}
 
 	return branch, nil

@@ -14,7 +14,7 @@ import (
 func (c *Client) GetNodeInfo(ctx context.Context) (_ *pb.NodeInfo, err error) {
 	nodeInfo, err := c.grpcClient.GetNodeInfo(ctx, new(pb.Empty))
 	if err != nil {
-		return &pb.NodeInfo{}, Error.Wrap(err)
+		return &pb.NodeInfo{}, err
 	}
 
 	return nodeInfo, nil

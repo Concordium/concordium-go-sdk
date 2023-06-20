@@ -12,7 +12,7 @@ import (
 func (c *Client) GetNextAccountSequenceNumber(ctx context.Context, req *pb.AccountAddress) (_ *pb.NextAccountSequenceNumber, err error) {
 	sequenceNumber, err := c.grpcClient.GetNextAccountSequenceNumber(ctx, req)
 	if err != nil {
-		return &pb.NextAccountSequenceNumber{}, Error.Wrap(err)
+		return &pb.NextAccountSequenceNumber{}, err
 	}
 
 	return sequenceNumber, nil

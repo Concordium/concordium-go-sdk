@@ -10,7 +10,7 @@ import (
 func (c *Client) GetBannedPeers(ctx context.Context) (_ *pb.BannedPeers, err error) {
 	bannedPeers, err := c.grpcClient.GetBannedPeers(ctx, new(pb.Empty))
 	if err != nil {
-		return &pb.BannedPeers{}, Error.Wrap(err)
+		return &pb.BannedPeers{}, err
 	}
 
 	return bannedPeers, nil

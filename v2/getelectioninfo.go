@@ -10,7 +10,7 @@ import (
 func (c *Client) GetElectionInfo(ctx context.Context, req *pb.BlockHashInput) (_ *pb.ElectionInfo, err error) {
 	electionInfo, err := c.grpcClient.GetElectionInfo(ctx, req)
 	if err != nil {
-		return &pb.ElectionInfo{}, Error.Wrap(err)
+		return &pb.ElectionInfo{}, err
 	}
 
 	return electionInfo, nil

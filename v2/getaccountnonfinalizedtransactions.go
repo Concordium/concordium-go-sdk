@@ -12,7 +12,7 @@ import (
 func (c *Client) GetAccountNonFinalizedTransactions(ctx context.Context, req *pb.AccountAddress) (_ pb.Queries_GetAccountNonFinalizedTransactionsClient, err error) {
 	stream, err := c.grpcClient.GetAccountNonFinalizedTransactions(ctx, req)
 	if err != nil {
-		return nil, Error.Wrap(err)
+		return nil, err
 	}
 
 	return stream, nil

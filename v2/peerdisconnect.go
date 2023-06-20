@@ -11,7 +11,7 @@ import (
 func (c *Client) PeerDisconnect(ctx context.Context, req *pb.IpSocketAddress) (err error) {
 	_, err = c.grpcClient.PeerDisconnect(ctx, req)
 	if err != nil {
-		return Error.Wrap(err)
+		return err
 	}
 
 	return nil

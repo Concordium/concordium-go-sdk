@@ -11,7 +11,7 @@ import (
 func (c *Client) GetInstanceState(ctx context.Context, req *pb.InstanceInfoRequest) (_ pb.Queries_GetInstanceStateClient, err error) {
 	stream, err := c.grpcClient.GetInstanceState(ctx, req)
 	if err != nil {
-		return nil, Error.Wrap(err)
+		return nil, err
 	}
 
 	return stream, nil

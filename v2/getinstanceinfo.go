@@ -10,7 +10,7 @@ import (
 func (c *Client) GetInstanceInfo(ctx context.Context, req *pb.InstanceInfoRequest) (_ *pb.InstanceInfo, err error) {
 	instanceInfo, err := c.grpcClient.GetInstanceInfo(ctx, req)
 	if err != nil {
-		return &pb.InstanceInfo{}, Error.Wrap(err)
+		return &pb.InstanceInfo{}, err
 	}
 
 	return instanceInfo, nil

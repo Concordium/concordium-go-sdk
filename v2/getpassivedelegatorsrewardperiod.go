@@ -13,7 +13,7 @@ import (
 func (c *Client) GetPassiveDelegatorsRewardPeriod(ctx context.Context, req *pb.BlockHashInput) (_ pb.Queries_GetPassiveDelegatorsRewardPeriodClient, err error) {
 	stream, err := c.grpcClient.GetPassiveDelegatorsRewardPeriod(ctx, req)
 	if err != nil {
-		return nil, Error.Wrap(err)
+		return nil, err
 	}
 
 	return stream, nil

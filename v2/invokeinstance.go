@@ -10,7 +10,7 @@ import (
 func (c *Client) InvokeInstance(ctx context.Context, req *pb.InvokeInstanceRequest) (_ *pb.InvokeInstanceResponse, err error) {
 	invokeInstanceResponse, err := c.grpcClient.InvokeInstance(ctx, req)
 	if err != nil {
-		return &pb.InvokeInstanceResponse{}, Error.Wrap(err)
+		return &pb.InvokeInstanceResponse{}, err
 	}
 
 	return invokeInstanceResponse, nil

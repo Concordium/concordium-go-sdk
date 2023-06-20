@@ -11,7 +11,7 @@ import (
 func (c *Client) GetModuleList(ctx context.Context, req *pb.BlockHashInput) (_ pb.Queries_GetModuleListClient, err error) {
 	stream, err := c.grpcClient.GetModuleList(ctx, req)
 	if err != nil {
-		return nil, Error.Wrap(err)
+		return nil, err
 	}
 
 	return stream, nil

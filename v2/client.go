@@ -1,15 +1,11 @@
 package v2
 
 import (
-	"github.com/zeebo/errs"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
 	"concordium-go-sdk/v2/pb"
 )
-
-// Error represents error received while communication with node.
-var Error = errs.Class("grpc client")
 
 // Config contains Concordium configurable values.
 type Config struct {
@@ -40,5 +36,5 @@ func NewClient(config Config) (_ *Client, err error) {
 
 // Close closes client connection.
 func (c *Client) Close() error {
-	return Error.Wrap(c.ClientConn.Close())
+	return c.ClientConn.Close()
 }

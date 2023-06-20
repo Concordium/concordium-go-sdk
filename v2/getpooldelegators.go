@@ -14,7 +14,7 @@ import (
 func (c *Client) GetPoolDelegators(ctx context.Context, req *pb.GetPoolDelegatorsRequest) (_ pb.Queries_GetPoolDelegatorsClient, err error) {
 	stream, err := c.grpcClient.GetPoolDelegators(ctx, req)
 	if err != nil {
-		return nil, Error.Wrap(err)
+		return nil, err
 	}
 
 	return stream, nil

@@ -10,7 +10,7 @@ import (
 func (c *Client) GetNextUpdateSequenceNumbers(ctx context.Context, req *pb.BlockHashInput) (_ *pb.NextUpdateSequenceNumbers, err error) {
 	nextUpdateSequenceNumbers, err := c.grpcClient.GetNextUpdateSequenceNumbers(ctx, req)
 	if err != nil {
-		return &pb.NextUpdateSequenceNumbers{}, Error.Wrap(err)
+		return &pb.NextUpdateSequenceNumbers{}, err
 	}
 
 	return nextUpdateSequenceNumbers, nil

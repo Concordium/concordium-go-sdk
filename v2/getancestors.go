@@ -12,7 +12,7 @@ import (
 func (c *Client) GetAncestors(ctx context.Context, req *pb.AncestorsRequest) (_ pb.Queries_GetAncestorsClient, err error) {
 	stream, err := c.grpcClient.GetAncestors(ctx, req)
 	if err != nil {
-		return nil, Error.Wrap(err)
+		return nil, err
 	}
 
 	return stream, nil

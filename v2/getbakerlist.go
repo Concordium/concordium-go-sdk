@@ -10,7 +10,7 @@ import (
 func (c *Client) GetBakerList(ctx context.Context, req *pb.BlockHashInput) (_ pb.Queries_GetBakerListClient, err error) {
 	stream, err := c.grpcClient.GetBakerList(ctx, req)
 	if err != nil {
-		return nil, Error.Wrap(err)
+		return nil, err
 	}
 
 	return stream, nil

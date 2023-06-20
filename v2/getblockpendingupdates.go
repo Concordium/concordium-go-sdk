@@ -11,7 +11,7 @@ import (
 func (c *Client) GetBlockPendingUpdates(ctx context.Context, req *pb.BlockHashInput) (_ pb.Queries_GetBlockPendingUpdatesClient, err error) {
 	stream, err := c.grpcClient.GetBlockPendingUpdates(ctx, req)
 	if err != nil {
-		return nil, Error.Wrap(err)
+		return nil, err
 	}
 
 	return stream, nil

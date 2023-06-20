@@ -12,7 +12,7 @@ import (
 func (c *Client) GetFinalizedBlocks(ctx context.Context) (_ pb.Queries_GetFinalizedBlocksClient, err error) {
 	stream, err := c.grpcClient.GetFinalizedBlocks(ctx, new(pb.Empty))
 	if err != nil {
-		return nil, Error.Wrap(err)
+		return nil, err
 	}
 
 	return stream, nil

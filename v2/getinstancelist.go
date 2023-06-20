@@ -12,7 +12,7 @@ import (
 func (c *Client) GetInstanceList(ctx context.Context, req *pb.BlockHashInput) (_ pb.Queries_GetInstanceListClient, err error) {
 	stream, err := c.grpcClient.GetInstanceList(ctx, req)
 	if err != nil {
-		return nil, Error.Wrap(err)
+		return nil, err
 	}
 
 	return stream, nil

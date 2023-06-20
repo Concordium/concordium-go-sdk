@@ -10,7 +10,7 @@ import (
 func (c *Client) GetBlockChainParameters(ctx context.Context, req *pb.BlockHashInput) (_ *pb.ChainParameters, err error) {
 	chainParameters, err := c.grpcClient.GetBlockChainParameters(ctx, req)
 	if err != nil {
-		return &pb.ChainParameters{}, Error.Wrap(err)
+		return &pb.ChainParameters{}, err
 	}
 
 	return chainParameters, nil

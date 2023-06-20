@@ -10,7 +10,7 @@ import (
 func (c *Client) GetTokenomicsInfo(ctx context.Context, req *pb.BlockHashInput) (_ *pb.TokenomicsInfo, err error) {
 	tokenomicsInfo, err := c.grpcClient.GetTokenomicsInfo(ctx, req)
 	if err != nil {
-		return &pb.TokenomicsInfo{}, Error.Wrap(err)
+		return &pb.TokenomicsInfo{}, err
 	}
 
 	return tokenomicsInfo, nil

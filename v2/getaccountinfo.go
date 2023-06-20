@@ -10,7 +10,7 @@ import (
 func (c *Client) GetAccountInfo(ctx context.Context, req *pb.AccountInfoRequest) (_ *pb.AccountInfo, err error) {
 	accountInfo, err := c.grpcClient.GetAccountInfo(ctx, req)
 	if err != nil {
-		return &pb.AccountInfo{}, Error.Wrap(err)
+		return &pb.AccountInfo{}, err
 	}
 
 	return accountInfo, nil

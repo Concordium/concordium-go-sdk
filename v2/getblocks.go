@@ -11,7 +11,7 @@ import (
 func (c *Client) GetBlocks(ctx context.Context) (_ pb.Queries_GetBlocksClient, err error) {
 	stream, err := c.grpcClient.GetBlocks(ctx, new(pb.Empty))
 	if err != nil {
-		return nil, Error.Wrap(err)
+		return nil, err
 	}
 
 	return stream, nil
