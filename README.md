@@ -1,4 +1,8 @@
 <h1 align="center">Concordium Go SDK</h1>
+<div align="center">
+	<img alt="GitHub go.mod Go version" src="https://img.shields.io/github/go-mod/go-version/BoostyLabs/concordium-go-sdk">
+</div>
+
 
 
 ## Getting Started
