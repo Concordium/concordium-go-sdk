@@ -47,4 +47,4 @@ All interfaces of rpc follow the [concordium protocol docs](https://developer.co
 
 ### More Example
 
-for more examples, follow `examples/` folder, or in `tests/`
+for more examples, follow `v2/examples/` folder, or in `v2/tests/`
