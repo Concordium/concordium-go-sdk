@@ -3,7 +3,7 @@ package v2
 import (
 	"context"
 
-	"concordium-go-sdk/v2/pb"
+	"github.com/BoostyLabs/concordium-go-sdk/v2/pb"
 )
 
 // GetPoolDelegators get the registered delegators of a given pool at the end of a given block.

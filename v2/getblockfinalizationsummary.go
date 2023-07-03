@@ -3,7 +3,7 @@ package v2
 import (
 	"context"
 
-	"concordium-go-sdk/v2/pb"
+	"github.com/BoostyLabs/concordium-go-sdk/v2/pb"
 )
 
 // GetBlockFinalizationSummary get the summary of the finalization data in a given block.

@@ -3,7 +3,7 @@ package v2
 import (
 	"context"
 
-	"concordium-go-sdk/v2/pb"
+	"github.com/BoostyLabs/concordium-go-sdk/v2/pb"
 )
 
 // GetBlockInfo get information, such as height, timings, and transaction counts for the given block.

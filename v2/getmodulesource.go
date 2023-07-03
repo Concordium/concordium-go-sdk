@@ -3,7 +3,7 @@ package v2
 import (
 	"context"
 
-	"concordium-go-sdk/v2/pb"
+	"github.com/BoostyLabs/concordium-go-sdk/v2/pb"
 )
 
 // GetModuleSource get the source of a smart contract module.

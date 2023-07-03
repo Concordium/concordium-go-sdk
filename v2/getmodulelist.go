@@ -3,7 +3,7 @@ package v2
 import (
 	"context"
 
-	"concordium-go-sdk/v2/pb"
+	"github.com/BoostyLabs/concordium-go-sdk/v2/pb"
 )
 
 // GetModuleList get a list of all smart contract modules. The stream will end when

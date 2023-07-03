@@ -1,4 +1,4 @@
-module concordium-go-sdk
+module github.com/BoostyLabs/concordium-go-sdk
 
 go 1.18
 
