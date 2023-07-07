@@ -9,11 +9,35 @@ import (
 // GetInstanceList get a list of addresses for all smart contract instances.
 // The stream will end when all instances that exist in the state
 // at the end of the given block has been returned.
-func (c *Client) GetInstanceList(ctx context.Context, req *pb.BlockHashInput) (_ pb.Queries_GetInstanceListClient, err error) {
-	stream, err := c.grpcClient.GetInstanceList(ctx, req)
+func (c *Client) GetInstanceList(ctx context.Context, req isBlockHashInput) (_ []*ContractAddress, err error) {
+	stream, err := c.GrpcClient.GetInstanceList(ctx, convertBlockHashInput(req))
 	if err != nil {
 		return nil, err
 	}
 
-	return stream, nil
+	var contractAddresses []*pb.ContractAddress
+
+	for err == nil {
+		contractAddress, err := stream.Recv()
+		if err != nil {
+			if err.Error() == "EOF" {
+				break
+			}
+
+			return nil, err
+		}
+
+		contractAddresses = append(contractAddresses, contractAddress)
+	}
+
+	var result []*ContractAddress
+
+	for i := 0; i < len(contractAddresses); i++ {
+		result = append(result, &ContractAddress{
+			Index:    contractAddresses[i].Index,
+			Subindex: contractAddresses[i].Subindex,
+		})
+	}
+
+	return result, nil
 }

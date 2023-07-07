@@ -8,11 +8,34 @@ import (
 
 // GetModuleList get a list of all smart contract modules. The stream will end when
 // all modules that exist in the state at the end of the given block have been returned.
-func (c *Client) GetModuleList(ctx context.Context, req *pb.BlockHashInput) (_ pb.Queries_GetModuleListClient, err error) {
-	stream, err := c.grpcClient.GetModuleList(ctx, req)
+func (c *Client) GetModuleList(ctx context.Context, req isBlockHashInput) (_ []*ModuleRef, err error) {
+	stream, err := c.GrpcClient.GetModuleList(ctx, convertBlockHashInput(req))
 	if err != nil {
 		return nil, err
 	}
 
-	return stream, nil
+	var moduleRefs []*pb.ModuleRef
+
+	for err == nil {
+		moduleRef, err := stream.Recv()
+		if err != nil {
+			if err.Error() == "EOF" {
+				break
+			}
+
+			return nil, err
+		}
+
+		moduleRefs = append(moduleRefs, moduleRef)
+	}
+
+	var result []*ModuleRef
+
+	for i := 0; i < len(moduleRefs); i++ {
+		var m ModuleRef
+		copy(m[:], moduleRefs[i].Value)
+		result = append(result, &m)
+	}
+
+	return result, nil
 }

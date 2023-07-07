@@ -6,25 +6,20 @@ import (
 	"log"
 
 	"github.com/BoostyLabs/concordium-go-sdk/v2"
-	"github.com/BoostyLabs/concordium-go-sdk/v2/pb"
 )
 
+// in this example we receive and print all accounts in base58 format that we received from specific block but absolute height.
 func main() {
 	client, err := v2.NewClient(v2.Config{NodeAddress: "node.testnet.concordium.com:20000"})
 
-	respStream, err := client.GetAccountList(context.TODO(), &pb.BlockHashInput{
-		BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-			AbsoluteHeight: &pb.AbsoluteBlockHeight{
-				Value: uint64(3101973),
-			}}})
+	// sending empty context, can also use any other context instead, and best block to receive stream of accounts belong to it.
+	accounts, err := client.GetAccountList(context.TODO(), v2.BlockHashInputBest{})
 	if err != nil {
 		log.Fatalf("failed to get accounts stream, err: %v", err)
 	}
 
-	account, err := respStream.Recv()
-	if err != nil {
-		log.Fatalf("failed to receive account, err: %v", err)
+	// print all accounts as base58.
+	for i := 0; i < len(accounts); i++ {
+		fmt.Println("account: ", accounts[i].ToBase58())
 	}
-
-	fmt.Println("account: ", account.String())
 }

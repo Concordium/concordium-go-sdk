@@ -8,7 +8,7 @@ import (
 
 // InvokeInstance run the smart contract entrypoint in a given context and in the state at the end of the given block.
 func (c *Client) InvokeInstance(ctx context.Context, req *pb.InvokeInstanceRequest) (_ *pb.InvokeInstanceResponse, err error) {
-	invokeInstanceResponse, err := c.grpcClient.InvokeInstance(ctx, req)
+	invokeInstanceResponse, err := c.GrpcClient.InvokeInstance(ctx, req)
 	if err != nil {
 		return &pb.InvokeInstanceResponse{}, err
 	}

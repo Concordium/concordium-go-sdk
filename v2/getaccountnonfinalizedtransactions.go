@@ -9,11 +9,34 @@ import (
 // GetAccountNonFinalizedTransactions get a list of non-finalized transaction hashes for a given account.
 // This endpoint is not expected to return a large amount of data in most cases, but in bad network conditions it might.
 // The stream will end when all the non-finalized transaction hashes have been returned.
-func (c *Client) GetAccountNonFinalizedTransactions(ctx context.Context, req *pb.AccountAddress) (_ pb.Queries_GetAccountNonFinalizedTransactionsClient, err error) {
-	stream, err := c.grpcClient.GetAccountNonFinalizedTransactions(ctx, req)
+func (c *Client) GetAccountNonFinalizedTransactions(ctx context.Context, req *AccountAddress) (_ []TransactionHash, err error) {
+	stream, err := c.GrpcClient.GetAccountNonFinalizedTransactions(ctx, &pb.AccountAddress{Value: req[:]})
 	if err != nil {
 		return nil, err
 	}
 
-	return stream, nil
+	var transactionHashes []*pb.TransactionHash
+
+	for err == nil {
+		transactionHash, err := stream.Recv()
+		if err != nil {
+			if err.Error() == "EOF" {
+				break
+			}
+
+			return nil, err
+		}
+
+		transactionHashes = append(transactionHashes, transactionHash)
+	}
+
+	var result []TransactionHash
+
+	for i := 0; i < len(transactionHashes); i++ {
+		var txHash TransactionHash
+		copy(txHash[:], transactionHashes[i].Value)
+		result = append(result, txHash)
+	}
+
+	return result, nil
 }

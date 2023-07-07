@@ -8,11 +8,26 @@ import (
 
 // GetAnonymityRevokers get the anonymity revokers registered as of the end of a given block.
 // The stream will end when all the anonymity revokers have been returned.
-func (c *Client) GetAnonymityRevokers(ctx context.Context, req *pb.BlockHashInput) (_ pb.Queries_GetAnonymityRevokersClient, err error) {
-	stream, err := c.grpcClient.GetAnonymityRevokers(ctx, req)
+func (c *Client) GetAnonymityRevokers(ctx context.Context, req isBlockHashInput) (_ []*pb.ArInfo, err error) {
+	stream, err := c.GrpcClient.GetAnonymityRevokers(ctx, convertBlockHashInput(req))
 	if err != nil {
 		return nil, err
 	}
 
-	return stream, nil
+	var arInfos []*pb.ArInfo
+
+	for err == nil {
+		arInfo, err := stream.Recv()
+		if err != nil {
+			if err.Error() == "EOF" {
+				break
+			}
+
+			return nil, err
+		}
+
+		arInfos = append(arInfos, arInfo)
+	}
+
+	return arInfos, nil
 }

@@ -8,7 +8,7 @@ import (
 
 // GetModuleSource get the source of a smart contract module.
 func (c *Client) GetModuleSource(ctx context.Context, req *pb.ModuleSourceRequest) (_ *pb.VersionedModuleSource, err error) {
-	source, err := c.grpcClient.GetModuleSource(ctx, req)
+	source, err := c.GrpcClient.GetModuleSource(ctx, req)
 	if err != nil {
 		return &pb.VersionedModuleSource{}, err
 	}

@@ -4,10 +4,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/BoostyLabs/concordium-go-sdk/v2"
 	"github.com/BoostyLabs/concordium-go-sdk/v2/pb"
+	"github.com/stretchr/testify/require"
 )
 
 func TestExamples(t *testing.T) {
@@ -38,323 +37,119 @@ func TestExamples(t *testing.T) {
 	})
 
 	t.Run("GetAccountList", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background())
+		accList, err := client.GetAccountList(context.Background(), v2.BlockHashInputBest{})
 		require.NoError(t, err)
-		require.NotNil(t, blocksStream)
-
-		blockInfo, err := blocksStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, blockInfo)
-
-		accStream, err := client.GetAccountList(context.Background(), &pb.BlockHashInput{
-			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &pb.AbsoluteBlockHeight{
-					Value: blockInfo.Height.Value,
-				}}})
-		require.NoError(t, err)
-		require.NotNil(t, accStream)
+		require.NotNil(t, accList)
 	})
 
 	t.Run("GetAccountInfo", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background())
+		accList, err := client.GetAccountList(context.Background(), v2.BlockHashInputBest{})
 		require.NoError(t, err)
-		require.NotNil(t, blocksStream)
+		require.NotNil(t, accList)
 
-		blockInfo, err := blocksStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, blockInfo)
-
-		accStream, err := client.GetAccountList(context.Background(), &pb.BlockHashInput{
-			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &pb.AbsoluteBlockHeight{
-					Value: blockInfo.Height.Value,
-				}}})
-		require.NoError(t, err)
-		require.NotNil(t, accStream)
-
-		accCreds, err := accStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, accCreds)
-
-		accInfo, err := client.GetAccountInfo(context.Background(), &pb.AccountInfoRequest{
-			BlockHash: &pb.BlockHashInput{
-				BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-					AbsoluteHeight: &pb.AbsoluteBlockHeight{
-						Value: blockInfo.Height.Value,
-					}}},
-			AccountIdentifier: &pb.AccountIdentifierInput{
+		accInfo, err := client.GetAccountInfo(context.Background(),
+			&pb.AccountIdentifierInput{
 				AccountIdentifierInput: &pb.AccountIdentifierInput_Address{
 					Address: &pb.AccountAddress{
-						Value: accCreds.Value,
+						Value: accList[0][:],
 					}}},
-		})
+			v2.BlockHashInputBest{})
 		require.NoError(t, err)
 		require.NotNil(t, accInfo)
 	})
 
 	t.Run("GetModuleList", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background())
+		modules, err := client.GetModuleList(context.Background(), v2.BlockHashInputBest{})
 		require.NoError(t, err)
-		require.NotNil(t, blocksStream)
-
-		blockInfo, err := blocksStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, blockInfo)
-
-		modulesStream, err := client.GetModuleList(context.Background(), &pb.BlockHashInput{
-			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &pb.AbsoluteBlockHeight{
-					Value: blockInfo.Height.Value,
-				}}})
-		require.NoError(t, err)
-		require.NotNil(t, modulesStream)
-
-		module, err := modulesStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, module)
+		require.NotNil(t, modules)
 	})
 
 	t.Run("GetAncestors", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background())
+		ancestorsHash, err := client.GetAncestors(context.Background(), 5, v2.BlockHashInputBest{})
 		require.NoError(t, err)
-		require.NotNil(t, blocksStream)
-
-		blockInfo, err := blocksStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, blockInfo)
-
-		var amount uint64
-		// TODO: swap to rand value (add rand func to internal).
-		amount = 5
-
-		ancestorsStream, err := client.GetAncestors(context.Background(), &pb.AncestorsRequest{
-			BlockHash: &pb.BlockHashInput{
-				BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-					AbsoluteHeight: &pb.AbsoluteBlockHeight{
-						Value: blockInfo.Height.Value,
-					}}},
-			Amount: amount,
-		})
-		require.NoError(t, err)
-		require.NotNil(t, ancestorsStream)
-
-		for i := 0; i < int(amount); i++ {
-			blockHash, err := ancestorsStream.Recv()
-			require.NoError(t, err)
-			require.NotNil(t, blockHash)
-		}
+		require.NotNil(t, ancestorsHash)
 	})
 
 	t.Run("invalid options", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background())
+		modules, err := client.GetModuleList(context.Background(), v2.BlockHashInputBest{})
 		require.NoError(t, err)
-		require.NotNil(t, blocksStream)
-
-		blockInfo, err := blocksStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, blockInfo)
-
-		modulesStream, err := client.GetModuleList(context.Background(), &pb.BlockHashInput{
-			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &pb.AbsoluteBlockHeight{
-					Value: blockInfo.Height.Value,
-				}}})
-		require.NoError(t, err)
-		require.NotNil(t, modulesStream)
-
-		module, err := modulesStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, module)
+		require.NotNil(t, modules)
 
 		source, err := client.GetModuleSource(context.Background(), &pb.ModuleSourceRequest{
 			BlockHash: &pb.BlockHashInput{
-				BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-					AbsoluteHeight: &pb.AbsoluteBlockHeight{
-						Value: blockInfo.Height.Value,
-					}}},
-			ModuleRef: &pb.ModuleRef{Value: module.Value},
+				BlockHashInput: &pb.BlockHashInput_Best{},
+			},
+			ModuleRef: &pb.ModuleRef{
+				Value: modules[0][:],
+			},
 		})
 		require.NoError(t, err)
 		require.NotNil(t, source)
 	})
 
 	t.Run("GetInstanceList", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background())
+		instanceList, err := client.GetInstanceList(context.Background(), v2.BlockHashInputBest{})
 		require.NoError(t, err)
-		require.NotNil(t, blocksStream)
-
-		blockInfo, err := blocksStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, blockInfo)
-
-		instanceStream, err := client.GetInstanceList(context.Background(), &pb.BlockHashInput{
-			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &pb.AbsoluteBlockHeight{
-					Value: blockInfo.Height.Value,
-				}}})
-		require.NoError(t, err)
-		require.NotNil(t, instanceStream)
-
-		instance, err := instanceStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, instance)
+		require.NotNil(t, instanceList)
 	})
 
 	t.Run("GetInstanceInfo", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background())
+		instanceList, err := client.GetInstanceList(context.Background(), v2.BlockHashInputBest{})
 		require.NoError(t, err)
-		require.NotNil(t, blocksStream)
+		require.NotNil(t, instanceList)
 
-		blockInfo, err := blocksStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, blockInfo)
-
-		instanceStream, err := client.GetInstanceList(context.Background(), &pb.BlockHashInput{
-			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &pb.AbsoluteBlockHeight{
-					Value: blockInfo.Height.Value,
-				}}})
-		require.NoError(t, err)
-		require.NotNil(t, instanceStream)
-
-		instance, err := instanceStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, instance)
-
-		info, err := client.GetInstanceInfo(context.Background(), &pb.InstanceInfoRequest{
-			BlockHash: &pb.BlockHashInput{
-				BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-					AbsoluteHeight: &pb.AbsoluteBlockHeight{
-						Value: blockInfo.Height.Value,
-					}}},
-			Address: &pb.ContractAddress{
-				Index:    instance.Index,
-				Subindex: instance.Subindex,
-			},
+		info, err := client.GetInstanceInfo(context.Background(), v2.BlockHashInputBest{}, v2.ContractAddress{
+			Index:    instanceList[0].Index,
+			Subindex: instanceList[0].Subindex,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, info)
 	})
 
 	t.Run("GetInstanceState", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background())
+		instanceList, err := client.GetInstanceList(context.Background(), v2.BlockHashInputBest{})
 		require.NoError(t, err)
-		require.NotNil(t, blocksStream)
+		require.NotNil(t, instanceList)
 
-		blockInfo, err := blocksStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, blockInfo)
-
-		instanceStream, err := client.GetInstanceList(context.Background(), &pb.BlockHashInput{
-			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &pb.AbsoluteBlockHeight{
-					Value: blockInfo.Height.Value,
-				}}})
-		require.NoError(t, err)
-		require.NotNil(t, instanceStream)
-
-		instance, err := instanceStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, instance)
-
-		stateStream, err := client.GetInstanceState(context.Background(), &pb.InstanceInfoRequest{
-			BlockHash: &pb.BlockHashInput{
-				BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-					AbsoluteHeight: &pb.AbsoluteBlockHeight{
-						Value: blockInfo.Height.Value,
-					}}},
-			Address: &pb.ContractAddress{
-				Index:    instance.Index,
-				Subindex: instance.Subindex,
-			},
+		states, err := client.GetInstanceState(context.Background(), v2.BlockHashInputBest{}, v2.ContractAddress{
+			Index:    instanceList[0].Index,
+			Subindex: instanceList[0].Subindex,
 		})
 		require.NoError(t, err)
-		require.NotNil(t, stateStream)
-
-		state, err := stateStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, state)
+		require.NotNil(t, states)
 	})
 
 	t.Run("InstanceStateLookup", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background())
+		instanceList, err := client.GetInstanceList(context.Background(), v2.BlockHashInputBest{})
 		require.NoError(t, err)
-		require.NotNil(t, blocksStream)
+		require.NotNil(t, instanceList)
 
-		blockInfo, err := blocksStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, blockInfo)
-
-		instanceStream, err := client.GetInstanceList(context.Background(), &pb.BlockHashInput{
-			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &pb.AbsoluteBlockHeight{
-					Value: blockInfo.Height.Value,
-				}}})
-		require.NoError(t, err)
-		require.NotNil(t, instanceStream)
-
-		instance, err := instanceStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, instance)
-
-		stateStream, err := client.GetInstanceState(context.Background(), &pb.InstanceInfoRequest{
-			BlockHash: &pb.BlockHashInput{
-				BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-					AbsoluteHeight: &pb.AbsoluteBlockHeight{
-						Value: blockInfo.Height.Value,
-					}}},
-			Address: &pb.ContractAddress{
-				Index:    instance.Index,
-				Subindex: instance.Subindex,
-			},
+		states, err := client.GetInstanceState(context.Background(), v2.BlockHashInputBest{}, v2.ContractAddress{
+			Index:    instanceList[0].Index,
+			Subindex: instanceList[0].Subindex,
 		})
 		require.NoError(t, err)
-		require.NotNil(t, stateStream)
-
-		state, err := stateStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, state)
+		require.NotNil(t, states)
 
 		valueAtKey, err := client.InstanceStateLookup(context.Background(), &pb.InstanceStateLookupRequest{
 			BlockHash: &pb.BlockHashInput{
-				BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-					AbsoluteHeight: &pb.AbsoluteBlockHeight{
-						Value: blockInfo.Height.Value,
-					}}},
+				BlockHashInput: &pb.BlockHashInput_Best{}},
 			Address: &pb.ContractAddress{
-				Index:    instance.Index,
-				Subindex: instance.Subindex,
+				Index:    instanceList[0].Index,
+				Subindex: instanceList[0].Subindex,
 			},
-			Key: state.Key,
+			Key: states[0].Key,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, valueAtKey)
 	})
 
 	t.Run("GetNextAccountSequenceNumber", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background())
+		accounts, err := client.GetAccountList(context.Background(), v2.BlockHashInputBest{})
 		require.NoError(t, err)
-		require.NotNil(t, blocksStream)
+		require.NotNil(t, accounts)
 
-		blockInfo, err := blocksStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, blockInfo)
-
-		accStream, err := client.GetAccountList(context.Background(), &pb.BlockHashInput{
-			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &pb.AbsoluteBlockHeight{
-					Value: blockInfo.Height.Value,
-				}}})
-		require.NoError(t, err)
-		require.NotNil(t, accStream)
-
-		accCreds, err := accStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, accCreds)
-
-		accountNum, err := client.GetNextAccountSequenceNumber(context.Background(), &pb.AccountAddress{
-			Value: accCreds.Value,
-		})
+		accountNum, err := client.GetNextAccountSequenceNumber(context.Background(), accounts[0])
 		require.NoError(t, err)
 		require.NotNil(t, accountNum)
 	})
@@ -365,137 +160,41 @@ func TestExamples(t *testing.T) {
 		require.NotNil(t, consensusInfo)
 	})
 
-	t.Run("GetBlockItemStatus", func(t *testing.T) {
-		t.Skip()
-
-		// TODO: swap for real input when method will be ready.
-		value := []byte("input")
-
-		status, err := client.GetBlockItemStatus(context.Background(), &pb.TransactionHash{
-			Value: value,
-		})
-		require.NoError(t, err)
-		require.NotNil(t, status)
-	})
-
 	t.Run("GetCryptographicParameters", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background())
-		require.NoError(t, err)
-		require.NotNil(t, blocksStream)
-
-		blockInfo, err := blocksStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, blockInfo)
-
-		cryptographicParams, err := client.GetCryptographicParameters(context.Background(), &pb.BlockHashInput{
-			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &pb.AbsoluteBlockHeight{
-					Value: blockInfo.Height.Value,
-				}}})
+		cryptographicParams, err := client.GetCryptographicParameters(context.Background(), v2.BlockHashInputBest{})
 		require.NoError(t, err)
 		require.NotNil(t, cryptographicParams)
 	})
 
 	t.Run("GetBlockInfo", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background())
-		require.NoError(t, err)
-		require.NotNil(t, blocksStream)
-
-		block, err := blocksStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, block)
-
-		blockInfo, err := client.GetBlockInfo(context.Background(), &pb.BlockHashInput{
-			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &pb.AbsoluteBlockHeight{
-					Value: block.Height.Value,
-				}}})
+		blockInfo, err := client.GetBlockInfo(context.Background(), v2.BlockHashInputBest{})
 		require.NoError(t, err)
 		require.NotNil(t, blockInfo)
 	})
 
-	t.Run("GetBlockItemStatus", func(t *testing.T) {
-		t.Skip()
-
-		// TODO: swap for real input when method will be ready.
-		value := []byte("input")
-
-		itemStatus, err := client.GetBlockItemStatus(context.Background(), &pb.TransactionHash{
-			Value: value,
-		})
-		require.NoError(t, err)
-		require.NotNil(t, itemStatus)
-	})
-
 	t.Run("GetBakerList", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background())
+		bakerList, err := client.GetBakerList(context.Background(), v2.BlockHashInputBest{})
 		require.NoError(t, err)
-		require.NotNil(t, blocksStream)
-
-		block, err := blocksStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, block)
-
-		bakerStream, err := client.GetBakerList(context.Background(), &pb.BlockHashInput{
-			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &pb.AbsoluteBlockHeight{
-					Value: block.Height.Value,
-				}}})
-		require.NoError(t, err)
-		require.NotNil(t, bakerStream)
-
-		baker, err := bakerStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, baker)
+		require.NotNil(t, bakerList)
 	})
 
 	t.Run("GetPoolInfo", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background())
+		bakerList, err := client.GetBakerList(context.Background(), v2.BlockHashInputBest{})
 		require.NoError(t, err)
-		require.NotNil(t, blocksStream)
-
-		block, err := blocksStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, block)
-
-		bakerStream, err := client.GetBakerList(context.Background(), &pb.BlockHashInput{
-			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &pb.AbsoluteBlockHeight{
-					Value: block.Height.Value,
-				}}})
-		require.NoError(t, err)
-		require.NotNil(t, bakerStream)
-
-		baker, err := bakerStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, baker)
+		require.NotNil(t, bakerList)
 
 		poolInfo, err := client.GetPoolInfo(context.Background(), &pb.PoolInfoRequest{
 			BlockHash: &pb.BlockHashInput{
-				BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-					AbsoluteHeight: &pb.AbsoluteBlockHeight{
-						Value: block.Height.Value,
-					}}},
-			Baker: baker,
+				BlockHashInput: &pb.BlockHashInput_Best{},
+			},
+			Baker: bakerList[0],
 		})
 		require.NoError(t, err)
 		require.NotNil(t, poolInfo)
 	})
 
 	t.Run("GetPassiveDelegationInfo", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background())
-		require.NoError(t, err)
-		require.NotNil(t, blocksStream)
-
-		block, err := blocksStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, block)
-
-		passiveDelegationInfo, err := client.GetPassiveDelegationInfo(context.Background(), &pb.BlockHashInput{
-			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &pb.AbsoluteBlockHeight{
-					Value: block.Height.Value,
-				}}})
+		passiveDelegationInfo, err := client.GetPassiveDelegationInfo(context.Background(), v2.BlockHashInputBest{})
 		require.NoError(t, err)
 		require.NotNil(t, passiveDelegationInfo)
 	})
@@ -521,138 +220,49 @@ func TestExamples(t *testing.T) {
 	})
 
 	t.Run("GetTokenomicsInfo", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background())
-		require.NoError(t, err)
-		require.NotNil(t, blocksStream)
-
-		block, err := blocksStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, block)
-
-		tokenomicsInfo, err := client.GetTokenomicsInfo(context.Background(), &pb.BlockHashInput{
-			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &pb.AbsoluteBlockHeight{
-					Value: block.Height.Value,
-				}}})
+		tokenomicsInfo, err := client.GetTokenomicsInfo(context.Background(), v2.BlockHashInputBest{})
 		require.NoError(t, err)
 		require.NotNil(t, tokenomicsInfo)
 	})
 
-	t.Run("InvokeInstance", func(t *testing.T) {
-		t.Skip()
-
-		// TODO: fill with actual test data.
-		instance, err := client.InvokeInstance(context.Background(), &pb.InvokeInstanceRequest{
-			BlockHash:  nil,
-			Invoker:    nil,
-			Instance:   nil,
-			Amount:     nil,
-			Entrypoint: nil,
-			Parameter:  nil,
-			Energy:     nil,
-		})
-		require.NoError(t, err)
-		require.NotNil(t, instance)
-	})
-
 	t.Run("GetPoolDelegators", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background())
+		bakerList, err := client.GetBakerList(context.Background(), v2.BlockHashInputBest{})
 		require.NoError(t, err)
-		require.NotNil(t, blocksStream)
-
-		block, err := blocksStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, block)
-
-		bakerStream, err := client.GetBakerList(context.Background(), &pb.BlockHashInput{
-			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &pb.AbsoluteBlockHeight{
-					Value: block.Height.Value,
-				}}})
-		require.NoError(t, err)
-		require.NotNil(t, bakerStream)
-
-		baker, err := bakerStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, baker)
+		require.NotNil(t, bakerList)
 
 		poolDelegators, err := client.GetPoolDelegators(context.Background(), &pb.GetPoolDelegatorsRequest{
 			BlockHash: &pb.BlockHashInput{
-				BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-					AbsoluteHeight: &pb.AbsoluteBlockHeight{
-						Value: block.Height.Value,
-					}}},
-			Baker: baker,
+				BlockHashInput: &pb.BlockHashInput_Best{},
+			},
+			Baker: bakerList[0],
 		})
 		require.NoError(t, err)
 		require.NotNil(t, poolDelegators)
 	})
 
 	t.Run("GetPoolDelegatorsRewardPeriod", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background())
+		bakerList, err := client.GetBakerList(context.Background(), v2.BlockHashInputBest{})
 		require.NoError(t, err)
-		require.NotNil(t, blocksStream)
-
-		block, err := blocksStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, block)
-
-		bakerStream, err := client.GetBakerList(context.Background(), &pb.BlockHashInput{
-			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &pb.AbsoluteBlockHeight{
-					Value: block.Height.Value,
-				}}})
-		require.NoError(t, err)
-		require.NotNil(t, bakerStream)
-
-		baker, err := bakerStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, baker)
+		require.NotNil(t, bakerList)
 
 		poolDelegatorsRewardPeriod, err := client.GetPoolDelegatorsRewardPeriod(context.Background(), &pb.GetPoolDelegatorsRequest{
 			BlockHash: &pb.BlockHashInput{
-				BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-					AbsoluteHeight: &pb.AbsoluteBlockHeight{
-						Value: block.Height.Value,
-					}}},
-			Baker: baker,
+				BlockHashInput: &pb.BlockHashInput_Best{},
+			},
+			Baker: bakerList[0],
 		})
 		require.NoError(t, err)
 		require.NotNil(t, poolDelegatorsRewardPeriod)
 	})
 
 	t.Run("GetPassiveDelegators", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background())
-		require.NoError(t, err)
-		require.NotNil(t, blocksStream)
-
-		block, err := blocksStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, block)
-
-		passiveDelegators, err := client.GetPassiveDelegators(context.Background(), &pb.BlockHashInput{
-			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &pb.AbsoluteBlockHeight{
-					Value: block.Height.Value,
-				}}})
+		passiveDelegators, err := client.GetPassiveDelegators(context.Background(), v2.BlockHashInputBest{})
 		require.NoError(t, err)
 		require.NotNil(t, passiveDelegators)
 	})
 
 	t.Run("GetPassiveDelegatorsRewardPeriod", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background())
-		require.NoError(t, err)
-		require.NotNil(t, blocksStream)
-
-		block, err := blocksStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, block)
-
-		passiveDelegatorsRewardPeriod, err := client.GetPassiveDelegatorsRewardPeriod(context.Background(), &pb.BlockHashInput{
-			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &pb.AbsoluteBlockHeight{
-					Value: block.Height.Value,
-				}}})
+		passiveDelegatorsRewardPeriod, err := client.GetPassiveDelegatorsRewardPeriod(context.Background(), v2.BlockHashInputBest{})
 		require.NoError(t, err)
 		require.NotNil(t, passiveDelegatorsRewardPeriod)
 	})
@@ -664,60 +274,34 @@ func TestExamples(t *testing.T) {
 	})
 
 	t.Run("GetElectionInfo", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background())
-		require.NoError(t, err)
-		require.NotNil(t, blocksStream)
-
-		block, err := blocksStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, block)
-
-		electionInfo, err := client.GetElectionInfo(context.Background(), &pb.BlockHashInput{
-			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &pb.AbsoluteBlockHeight{
-					Value: block.Height.Value,
-				}}})
+		electionInfo, err := client.GetElectionInfo(context.Background(), v2.BlockHashInputBest{})
 		require.NoError(t, err)
 		require.NotNil(t, electionInfo)
 	})
 
 	t.Run("GetIdentityProviders", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background())
-		require.NoError(t, err)
-		require.NotNil(t, blocksStream)
-
-		block, err := blocksStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, block)
-
-		identityProviders, err := client.GetIdentityProviders(context.Background(), &pb.BlockHashInput{
-			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &pb.AbsoluteBlockHeight{
-					Value: block.Height.Value,
-				}}})
+		identityProviders, err := client.GetIdentityProviders(context.Background(), v2.BlockHashInputBest{})
 		require.NoError(t, err)
 		require.NotNil(t, identityProviders)
 	})
 
 	t.Run("GetAnonymityRevokers", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background())
-		require.NoError(t, err)
-		require.NotNil(t, blocksStream)
-
-		block, err := blocksStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, block)
-
-		anonymityRevokers, err := client.GetAnonymityRevokers(context.Background(), &pb.BlockHashInput{
-			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &pb.AbsoluteBlockHeight{
-					Value: block.Height.Value,
-				}}})
+		anonymityRevokers, err := client.GetAnonymityRevokers(context.Background(), v2.BlockHashInputBest{})
 		require.NoError(t, err)
 		require.NotNil(t, anonymityRevokers)
 	})
 
 	t.Run("GetAccountNonFinalizedTransactions", func(t *testing.T) {
+		accounts, err := client.GetAccountList(context.Background(), v2.BlockHashInputBest{})
+		require.NoError(t, err)
+		require.NotNil(t, accounts)
+
+		accountNonFinalizedTransactions, err := client.GetAccountNonFinalizedTransactions(context.Background(), accounts[0])
+		require.NoError(t, err)
+		require.Nil(t, accountNonFinalizedTransactions)
+	})
+
+	t.Run("GetBlockTransactionEvents", func(t *testing.T) {
 		blocksStream, err := client.GetFinalizedBlocks(context.Background())
 		require.NoError(t, err)
 		require.NotNil(t, blocksStream)
@@ -726,91 +310,30 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, blockInfo)
 
-		accStream, err := client.GetAccountList(context.Background(), &pb.BlockHashInput{
-			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &pb.AbsoluteBlockHeight{
-					Value: blockInfo.Height.Value,
-				}}})
-		require.NoError(t, err)
-		require.NotNil(t, accStream)
+		var blockHash v2.BlockHash
+		copy(blockHash[:], blockInfo.Hash.Value)
 
-		accCreds, err := accStream.Recv()
+		blockTransactionEvents, err := client.GetBlockTransactionEvents(context.Background(), v2.BlockHashInputGiven{
+			Given: blockHash,
+		})
 		require.NoError(t, err)
-		require.NotNil(t, accCreds)
-
-		accountNonFinalizedTransactions, err := client.GetAccountNonFinalizedTransactions(context.Background(), accCreds)
-		require.NoError(t, err)
-		require.NotNil(t, accountNonFinalizedTransactions)
-	})
-
-	t.Run("GetBlockTransactionEvents", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background())
-		require.NoError(t, err)
-		require.NotNil(t, blocksStream)
-
-		block, err := blocksStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, block)
-
-		blockTransactionEvents, err := client.GetBlockTransactionEvents(context.Background(), &pb.BlockHashInput{
-			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &pb.AbsoluteBlockHeight{
-					Value: block.Height.Value,
-				}}})
-		require.NoError(t, err)
-		require.NotNil(t, blockTransactionEvents)
+		require.Nil(t, blockTransactionEvents)
 	})
 
 	t.Run("GetBlockSpecialEvents", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background())
-		require.NoError(t, err)
-		require.NotNil(t, blocksStream)
-
-		block, err := blocksStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, block)
-
-		blockSpecialEvents, err := client.GetBlockSpecialEvents(context.Background(), &pb.BlockHashInput{
-			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &pb.AbsoluteBlockHeight{
-					Value: block.Height.Value,
-				}}})
+		blockSpecialEvents, err := client.GetBlockSpecialEvents(context.Background(), v2.BlockHashInputBest{})
 		require.NoError(t, err)
 		require.NotNil(t, blockSpecialEvents)
 	})
 
 	t.Run("GetBlockPendingUpdates", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background())
+		blockPendingUpdates, err := client.GetBlockPendingUpdates(context.Background(), v2.BlockHashInputBest{})
 		require.NoError(t, err)
-		require.NotNil(t, blocksStream)
-
-		block, err := blocksStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, block)
-
-		blockPendingUpdates, err := client.GetBlockPendingUpdates(context.Background(), &pb.BlockHashInput{
-			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &pb.AbsoluteBlockHeight{
-					Value: block.Height.Value,
-				}}})
-		require.NoError(t, err)
-		require.NotNil(t, blockPendingUpdates)
+		require.Nil(t, blockPendingUpdates)
 	})
 
 	t.Run("GetNextUpdateSequenceNumbers", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background())
-		require.NoError(t, err)
-		require.NotNil(t, blocksStream)
-
-		block, err := blocksStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, block)
-
-		nextUpdateSequenceNumbers, err := client.GetNextUpdateSequenceNumbers(context.Background(), &pb.BlockHashInput{
-			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &pb.AbsoluteBlockHeight{
-					Value: block.Height.Value,
-				}}})
+		nextUpdateSequenceNumbers, err := client.GetNextUpdateSequenceNumbers(context.Background(), v2.BlockHashInputBest{})
 		require.NoError(t, err)
 		require.NotNil(t, nextUpdateSequenceNumbers)
 	})
@@ -911,56 +434,20 @@ func TestExamples(t *testing.T) {
 	})
 
 	t.Run("GetBlockChainParameters", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background())
-		require.NoError(t, err)
-		require.NotNil(t, blocksStream)
-
-		block, err := blocksStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, block)
-
-		blockChainParameters, err := client.GetBlockChainParameters(context.Background(), &pb.BlockHashInput{
-			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &pb.AbsoluteBlockHeight{
-					Value: block.Height.Value,
-				}}})
+		blockChainParameters, err := client.GetBlockChainParameters(context.Background(), v2.BlockHashInputBest{})
 		require.NoError(t, err)
 		require.NotNil(t, blockChainParameters)
 	})
 
 	t.Run("GetBlockFinalizationSummary", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background())
-		require.NoError(t, err)
-		require.NotNil(t, blocksStream)
-
-		block, err := blocksStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, block)
-
-		blockFinalizationSummary, err := client.GetBlockFinalizationSummary(context.Background(), &pb.BlockHashInput{
-			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &pb.AbsoluteBlockHeight{
-					Value: block.Height.Value,
-				}}})
+		blockFinalizationSummary, err := client.GetBlockFinalizationSummary(context.Background(), v2.BlockHashInputBest{})
 		require.NoError(t, err)
 		require.NotNil(t, blockFinalizationSummary)
 	})
 
 	t.Run("GetBlockItems", func(t *testing.T) {
-		blocksStream, err := client.GetFinalizedBlocks(context.Background())
+		blockItems, err := client.GetBlockItems(context.Background(), v2.BlockHashInputBest{})
 		require.NoError(t, err)
-		require.NotNil(t, blocksStream)
-
-		block, err := blocksStream.Recv()
-		require.NoError(t, err)
-		require.NotNil(t, block)
-
-		blockItems, err := client.GetBlockItems(context.Background(), &pb.BlockHashInput{
-			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
-				AbsoluteHeight: &pb.AbsoluteBlockHeight{
-					Value: block.Height.Value,
-				}}})
-		require.NoError(t, err)
-		require.NotNil(t, blockItems)
+		require.Nil(t, blockItems)
 	})
 }

@@ -12,7 +12,7 @@ import (
 // * NetworkInfo which yields data such as the node id, packets sent/received, average bytes per second sent/received.
 // * ConsensusInfo. The `ConsensusInfo` returned depends on if the node supports the protocol on chain and whether the node is configured as a baker or not.
 func (c *Client) GetNodeInfo(ctx context.Context) (_ *pb.NodeInfo, err error) {
-	nodeInfo, err := c.grpcClient.GetNodeInfo(ctx, new(pb.Empty))
+	nodeInfo, err := c.GrpcClient.GetNodeInfo(ctx, new(pb.Empty))
 	if err != nil {
 		return &pb.NodeInfo{}, err
 	}

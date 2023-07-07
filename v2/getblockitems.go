@@ -7,11 +7,26 @@ import (
 )
 
 // GetBlockItems get the items of a block.
-func (c *Client) GetBlockItems(ctx context.Context, req *pb.BlockHashInput) (_ pb.Queries_GetBlockItemsClient, err error) {
-	stream, err := c.grpcClient.GetBlockItems(ctx, req)
+func (c *Client) GetBlockItems(ctx context.Context, req isBlockHashInput) (_ []*pb.BlockItem, err error) {
+	stream, err := c.GrpcClient.GetBlockItems(ctx, convertBlockHashInput(req))
 	if err != nil {
 		return nil, err
 	}
 
-	return stream, nil
+	var blockItems []*pb.BlockItem
+
+	for err == nil {
+		blockItem, err := stream.Recv()
+		if err != nil {
+			if err.Error() == "EOF" {
+				break
+			}
+
+			return nil, err
+		}
+
+		blockItems = append(blockItems, blockItem)
+	}
+
+	return blockItems, nil
 }

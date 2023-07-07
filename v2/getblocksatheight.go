@@ -7,11 +7,18 @@ import (
 )
 
 // GetBlocksAtHeight get a list of live blocks at a given height.
-func (c *Client) GetBlocksAtHeight(ctx context.Context, req *pb.BlocksAtHeightRequest) (_ *pb.BlocksAtHeightResponse, err error) {
-	blockAtHeight, err := c.grpcClient.GetBlocksAtHeight(ctx, req)
+func (c *Client) GetBlocksAtHeight(ctx context.Context, req *pb.BlocksAtHeightRequest) (_ []BlockHash, err error) {
+	blockAtHeight, err := c.GrpcClient.GetBlocksAtHeight(ctx, req)
 	if err != nil {
-		return &pb.BlocksAtHeightResponse{}, err
+		return []BlockHash{}, err
 	}
 
-	return blockAtHeight, nil
+	var blockHashes []BlockHash
+	for i := 0; i < len(blockAtHeight.Blocks); i++ {
+		var blockHash BlockHash
+		copy(blockHash[:], blockAtHeight.Blocks[i].Value)
+		blockHashes = append(blockHashes, blockHash)
+	}
+
+	return blockHashes, nil
 }

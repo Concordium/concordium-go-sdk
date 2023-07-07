@@ -13,6 +13,31 @@
 go get -v github.com/BoostyLabs/concordium-go-sdk
 ```
 
+### Basic usage
+
+The core structure of the SDK is the Client which maintains a connection to the node and supports querying the node and sending messages to it. 
+This client is cheaply clonable.
+
+The Client is constructed using the new method.
+
+```go
+// NewClient creates new concordium grpc client.
+func NewClient(config Config) (_ *Client, err error) {
+	// creating grpc connection, using node address
+	conn, err := grpc.Dial(
+		config.NodeAddress,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	if err != nil {
+		return nil, err
+	}
+	
+	client := pb.NewQueriesClient(conn)
+
+	return &Client{grpcClient: client, ClientConn: conn, config: config}, nil
+}
+```
+
 ### Example
 
 #### Get Node Info
@@ -25,12 +50,14 @@ import (
 	"fmt"
 	"log"
 
-	"concordium-go-sdk/v2"
+	"github.com/BoostyLabs/concordium-go-sdk/v2"
 )
 
+// in this example we receive and print node info.
 func main() {
 	client, err := v2.NewClient(v2.Config{NodeAddress: "node.testnet.concordium.com:20000"})
 
+	// sending empty context, can also use any other context instead.
 	resp, err := client.GetNodeInfo(context.TODO())
 	if err != nil {
 		log.Fatalf("failed to get node info, err: %v", err)
@@ -38,6 +65,7 @@ func main() {
 
 	fmt.Println("node info: ", resp.String())
 }
+
 
 ```
 

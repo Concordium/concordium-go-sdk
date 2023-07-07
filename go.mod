@@ -3,6 +3,8 @@ module github.com/BoostyLabs/concordium-go-sdk
 go 1.18
 
 require (
+	github.com/btcsuite/btcutil v1.0.2
+	github.com/mr-tron/base58 v1.2.0
 	github.com/stretchr/testify v1.8.4
 	google.golang.org/grpc v1.55.0
 	google.golang.org/protobuf v1.30.0
