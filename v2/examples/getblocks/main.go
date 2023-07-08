@@ -9,7 +9,7 @@ import (
 	"github.com/BoostyLabs/concordium-go-sdk/v2"
 )
 
-// in this example we receive and print all blocks in base58 format.
+// in this example we receive and print 3 blocks in base58 format.
 func main() {
 	client, err := v2.NewClient(v2.Config{NodeAddress: "node.testnet.concordium.com:20000"})
 
@@ -21,8 +21,8 @@ func main() {
 
 	var blocks []*pb.ArrivedBlockInfo
 
-	// calling Recv method of received stream until we get EOF, to be sure we collected all accounts.
-	for err == nil {
+	// calling Recv method of received stream 3 times, since it will endlessly receive upcoming blocks (not until EOF as some other methods).
+	for i := 0; i < 3; i++ {
 		block, err := blocksStream.Recv()
 		if err != nil {
 			log.Fatalf("failed to receive block, err: %v", err)
@@ -33,6 +33,6 @@ func main() {
 
 	// print all blocks.
 	for i := 0; i < len(blocks); i++ {
-		fmt.Println("block: ", blocks[i].String())
+		fmt.Println("arrived block info: ", blocks[i].String())
 	}
 }

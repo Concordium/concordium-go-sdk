@@ -7,7 +7,7 @@ import (
 )
 
 // GetBlockItems get the items of a block.
-func (c *Client) GetBlockItems(ctx context.Context, req isBlockHashInput) (_ []*pb.BlockItem, err error) {
+func (c *Client) GetBlockItems(ctx context.Context, req isBlockHashInput) (_ []*BlockItem, err error) {
 	stream, err := c.GrpcClient.GetBlockItems(ctx, convertBlockHashInput(req))
 	if err != nil {
 		return nil, err
@@ -28,5 +28,5 @@ func (c *Client) GetBlockItems(ctx context.Context, req isBlockHashInput) (_ []*
 		blockItems = append(blockItems, blockItem)
 	}
 
-	return blockItems, nil
+	return convertBlockItems(blockItems), nil
 }

@@ -2,11 +2,10 @@ package tests_test
 
 import (
 	"context"
-	"testing"
-
 	"github.com/BoostyLabs/concordium-go-sdk/v2"
 	"github.com/BoostyLabs/concordium-go-sdk/v2/pb"
 	"github.com/stretchr/testify/require"
+	"testing"
 )
 
 func TestExamples(t *testing.T) {

@@ -12,7 +12,7 @@ import (
 func main() {
 	client, err := v2.NewClient(v2.Config{NodeAddress: "node.testnet.concordium.com:20000"})
 
-	// sending empty context, can also use any other context instead, and best block to receive stream of accounts belong to it.
+	// sending empty context, can also use any other context instead, best block can be changed with any other type that implement isBlockHashInput.
 	accounts, err := client.GetAccountList(context.TODO(), v2.BlockHashInputBest{})
 	if err != nil {
 		log.Fatalf("failed to get accounts stream, err: %v", err)
