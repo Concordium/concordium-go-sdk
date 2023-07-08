@@ -2,6 +2,7 @@ package v2
 
 import (
 	"encoding/hex"
+
 	"github.com/BoostyLabs/concordium-go-sdk/v2/pb"
 	"github.com/btcsuite/btcutil/base58"
 )
@@ -319,7 +320,7 @@ type isVersionedModuleSource interface {
 // ModuleSourceV0 v0.
 type ModuleSourceV0 []byte
 
-// ModuleSourceV1 v1
+// ModuleSourceV1 v1.
 type ModuleSourceV1 []byte
 
 func (ModuleSourceV0) isVersionedModuleSource() {}
@@ -340,7 +341,7 @@ type InitContractPayload struct {
 	Parameter *Parameter
 }
 
-// InitName the init name of a smart contract function
+// InitName the init name of a smart contract function.
 type InitName string
 
 // Amount an amount of microCCD.
