@@ -11,7 +11,7 @@ import (
 // Note. The peer might not be connected to instantly, in that case the node will try to establish the connection in near future.
 // This function returns a GRPC status 'Ok' in this case.
 func (c *Client) PeerConnect(ctx context.Context, req *pb.IpSocketAddress) (err error) {
-	_, err = c.grpcClient.PeerConnect(ctx, req)
+	_, err = c.GrpcClient.PeerConnect(ctx, req)
 	if err != nil {
 		return err
 	}

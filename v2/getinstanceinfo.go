@@ -7,8 +7,14 @@ import (
 )
 
 // GetInstanceInfo get info about a smart contract instance as it appears at the end of the given block.
-func (c *Client) GetInstanceInfo(ctx context.Context, req *pb.InstanceInfoRequest) (_ *pb.InstanceInfo, err error) {
-	instanceInfo, err := c.grpcClient.GetInstanceInfo(ctx, req)
+func (c *Client) GetInstanceInfo(ctx context.Context, blockHash isBlockHashInput, address ContractAddress) (_ *pb.InstanceInfo, err error) {
+	instanceInfo, err := c.GrpcClient.GetInstanceInfo(ctx, &pb.InstanceInfoRequest{
+		BlockHash: convertBlockHashInput(blockHash),
+		Address: &pb.ContractAddress{
+			Index:    address.Index,
+			Subindex: address.Subindex,
+		},
+	})
 	if err != nil {
 		return &pb.InstanceInfo{}, err
 	}

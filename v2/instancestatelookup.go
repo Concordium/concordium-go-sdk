@@ -10,7 +10,7 @@ import (
 // In contrast to `GetInstanceState` this is more efficient,
 // but requires the user to know the specific key to look for.
 func (c *Client) InstanceStateLookup(ctx context.Context, req *pb.InstanceStateLookupRequest) (_ *pb.InstanceStateValueAtKey, err error) {
-	instanceStateKeyValue, err := c.grpcClient.InstanceStateLookup(ctx, req)
+	instanceStateKeyValue, err := c.GrpcClient.InstanceStateLookup(ctx, req)
 	if err != nil {
 		return nil, err
 	}

@@ -12,7 +12,7 @@ import (
 // If an SDK is available then it is strongly recommended to compute this hash off-line using it.
 // That reduces the trust in the node, removes networking failure modes, and will perform better.
 func (c *Client) GetAccountTransactionSignHash(ctx context.Context, req *pb.PreAccountTransaction) (_ *pb.AccountTransactionSignHash, err error) {
-	accountTransactionSignHash, err := c.grpcClient.GetAccountTransactionSignHash(ctx, req)
+	accountTransactionSignHash, err := c.GrpcClient.GetAccountTransactionSignHash(ctx, req)
 	if err != nil {
 		return &pb.AccountTransactionSignHash{}, err
 	}

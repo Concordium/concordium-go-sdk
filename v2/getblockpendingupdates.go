@@ -8,11 +8,26 @@ import (
 
 // GetBlockPendingUpdates get the pending updates to chain parameters at the end of a given block.
 // The stream will end when all the pending updates for a given block have been returned.
-func (c *Client) GetBlockPendingUpdates(ctx context.Context, req *pb.BlockHashInput) (_ pb.Queries_GetBlockPendingUpdatesClient, err error) {
-	stream, err := c.grpcClient.GetBlockPendingUpdates(ctx, req)
+func (c *Client) GetBlockPendingUpdates(ctx context.Context, req isBlockHashInput) (_ []*pb.PendingUpdate, err error) {
+	stream, err := c.GrpcClient.GetBlockPendingUpdates(ctx, convertBlockHashInput(req))
 	if err != nil {
 		return nil, err
 	}
 
-	return stream, nil
+	var pendingUpdates []*pb.PendingUpdate
+
+	for err == nil {
+		pendingUpdate, err := stream.Recv()
+		if err != nil {
+			if err.Error() == "EOF" {
+				break
+			}
+
+			return nil, err
+		}
+
+		pendingUpdates = append(pendingUpdates, pendingUpdate)
+	}
+
+	return pendingUpdates, nil
 }

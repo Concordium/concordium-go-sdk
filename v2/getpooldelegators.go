@@ -12,7 +12,7 @@ import (
 // that are registered in the block. Any changes to delegators are immediately visible in this list.
 // The stream will end when all the delegators has been returned.
 func (c *Client) GetPoolDelegators(ctx context.Context, req *pb.GetPoolDelegatorsRequest) (_ pb.Queries_GetPoolDelegatorsClient, err error) {
-	stream, err := c.grpcClient.GetPoolDelegators(ctx, req)
+	stream, err := c.GrpcClient.GetPoolDelegators(ctx, req)
 	if err != nil {
 		return nil, err
 	}

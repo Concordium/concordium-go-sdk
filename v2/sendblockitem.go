@@ -11,11 +11,14 @@ import (
 // which creates a new account, or `UpdateInstruction`, which is an instruction to change
 // some parameters of the chain. Update instructions can only be sent by the governance committee.
 // Returns a hash of the block item, which can be used with `GetBlockItemStatus`.
-func (c *Client) SendBlockItem(ctx context.Context, req *pb.SendBlockItemRequest) (_ *pb.TransactionHash, err error) {
-	txHash, err := c.grpcClient.SendBlockItem(ctx, req)
+func (c *Client) SendBlockItem(ctx context.Context, req *pb.SendBlockItemRequest) (_ *TransactionHash, err error) {
+	txHash, err := c.GrpcClient.SendBlockItem(ctx, req)
 	if err != nil {
-		return nil, err
+		return &TransactionHash{}, err
 	}
 
-	return txHash, nil
+	var res *TransactionHash
+	copy(res.Value[:], txHash.Value)
+
+	return res, nil
 }
