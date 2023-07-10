@@ -11,8 +11,7 @@ import (
 )
 
 // TransactionHeaderSize describes size of a transaction Header. This is currently always 60 Bytes.
-// Future chain updates might revise this, but this is a big change so this
-// is expected to change seldomly.
+// Future chain updates might revise this, but this is a big change so this is expected to change seldom.
 const TransactionHeaderSize uint64 = 60 // 32 + 8 + 8 + 4 + 8.
 
 // TransactionHeader is a Header of an account transaction that contains basic data to check whether

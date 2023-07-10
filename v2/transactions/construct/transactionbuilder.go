@@ -60,12 +60,11 @@ func makeTransaction(sender types.AccountAddress, nonce types.Nonce, expiry type
 	energy types.GivenEnergy, payload payloads.Payload) *transactions.PreAccountTransaction {
 	builder := newTransactionBuilder(sender, nonce, expiry, payload)
 	cost := func(size uint64) types.Energy {
-		switch energy.(type) {
+		switch e := energy.(type) {
 		case *types.AbsoluteEnergy:
-			return types.Energy(*energy.(*types.AbsoluteEnergy))
+			return types.Energy(*e)
 		case *types.AddEnergy:
-			addEnergy := *energy.(*types.AddEnergy)
-			return costs.BaseCost(size, addEnergy.NumSigs) + addEnergy.Energy
+			return costs.BaseCost(size, e.NumSigs) + e.Energy
 		}
 		return 0
 	}
