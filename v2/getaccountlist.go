@@ -32,7 +32,7 @@ func (c *Client) GetAccountList(ctx context.Context, req isBlockHashInput) (_ []
 
 	for i := 0; i < len(accounts); i++ {
 		var accountAddress AccountAddress
-		copy(accountAddress[:], accounts[i].Value)
+		copy(accountAddress.Value[:], accounts[i].Value)
 		result = append(result, &accountAddress)
 	}
 

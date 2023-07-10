@@ -2,10 +2,11 @@ package tests_test
 
 import (
 	"context"
+	"testing"
+
 	"github.com/BoostyLabs/concordium-go-sdk/v2"
 	"github.com/BoostyLabs/concordium-go-sdk/v2/pb"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestExamples(t *testing.T) {
@@ -50,7 +51,7 @@ func TestExamples(t *testing.T) {
 			&pb.AccountIdentifierInput{
 				AccountIdentifierInput: &pb.AccountIdentifierInput_Address{
 					Address: &pb.AccountAddress{
-						Value: accList[0][:],
+						Value: accList[0].Value[:],
 					}}},
 			v2.BlockHashInputBest{})
 		require.NoError(t, err)
@@ -79,7 +80,7 @@ func TestExamples(t *testing.T) {
 				BlockHashInput: &pb.BlockHashInput_Best{},
 			},
 			ModuleRef: &pb.ModuleRef{
-				Value: modules[0][:],
+				Value: modules[0].Value[:],
 			},
 		})
 		require.NoError(t, err)
@@ -310,7 +311,7 @@ func TestExamples(t *testing.T) {
 		require.NotNil(t, blockInfo)
 
 		var blockHash v2.BlockHash
-		copy(blockHash[:], blockInfo.Hash.Value)
+		copy(blockHash.Value[:], blockInfo.Hash.Value)
 
 		blockTransactionEvents, err := client.GetBlockTransactionEvents(context.Background(), v2.BlockHashInputGiven{
 			Given: blockHash,

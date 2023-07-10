@@ -16,7 +16,7 @@ func (c *Client) GetBlocksAtHeight(ctx context.Context, req *pb.BlocksAtHeightRe
 	var blockHashes []BlockHash
 	for i := 0; i < len(blockAtHeight.Blocks); i++ {
 		var blockHash BlockHash
-		copy(blockHash[:], blockAtHeight.Blocks[i].Value)
+		copy(blockHash.Value[:], blockAtHeight.Blocks[i].Value)
 		blockHashes = append(blockHashes, blockHash)
 	}
 

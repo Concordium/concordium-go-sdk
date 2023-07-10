@@ -11,7 +11,7 @@ import (
 // Otherwise, this is the best guess, assuming all other transactions will be committed to blocks and eventually finalized.
 func (c *Client) GetNextAccountSequenceNumber(ctx context.Context, req *AccountAddress) (_ *pb.NextAccountSequenceNumber, err error) {
 	sequenceNumber, err := c.GrpcClient.GetNextAccountSequenceNumber(ctx, &pb.AccountAddress{
-		Value: req[:],
+		Value: req.Value[:],
 	})
 	if err != nil {
 		return &pb.NextAccountSequenceNumber{}, err

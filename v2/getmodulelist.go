@@ -33,7 +33,7 @@ func (c *Client) GetModuleList(ctx context.Context, req isBlockHashInput) (_ []*
 
 	for i := 0; i < len(moduleRefs); i++ {
 		var m ModuleRef
-		copy(m[:], moduleRefs[i].Value)
+		copy(m.Value[:], moduleRefs[i].Value)
 		result = append(result, &m)
 	}
 

@@ -37,7 +37,7 @@ func (c *Client) GetAncestors(ctx context.Context, amount uint64, b isBlockHashI
 
 	for i := 0; i < len(ancestorsBlockHashes); i++ {
 		var blockHash BlockHash
-		copy(blockHash[:], ancestorsBlockHashes[i].Value)
+		copy(blockHash.Value[:], ancestorsBlockHashes[i].Value)
 		result = append(result, blockHash)
 	}
 

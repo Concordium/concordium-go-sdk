@@ -28,14 +28,18 @@ type AccountKeys struct {
 
 // SignatureThreshold threshold for the number of signatures required.
 // The values of this type must maintain the property that they are not 0.
-type SignatureThreshold []uint8
+type SignatureThreshold struct {
+	Value []uint8
+}
 
 // AccountAddress an address of an account.
-type AccountAddress [AccountAddressLength]byte
+type AccountAddress struct {
+	Value [AccountAddressLength]byte
+}
 
 // ToBase58 encodes account address to string.
-func (a AccountAddress) ToBase58() string {
-	return base58.CheckEncode(a[:], 1)
+func (a *AccountAddress) ToBase58() string {
+	return base58.CheckEncode(a.Value[:], 1)
 }
 
 // AccountAddressFromString decodes string to account.
@@ -49,16 +53,18 @@ func AccountAddressFromBytes(b []byte) AccountAddress {
 	if len(b) > AccountAddressLength {
 		b = b[:AccountAddressLength]
 	}
-	copy(accountAddress[AccountAddressLength-len(b):], b)
+	copy(accountAddress.Value[AccountAddressLength-len(b):], b)
 	return accountAddress
 }
 
 // BlockHash hash of a block. This is always 32 bytes long.
-type BlockHash [BlockHashLength]byte
+type BlockHash struct {
+	Value [BlockHashLength]byte
+}
 
 // Hex encodes block hash to base16 string.
-func (b BlockHash) Hex() string {
-	return hex.EncodeToString(b[:])
+func (b *BlockHash) Hex() string {
+	return hex.EncodeToString(b.Value[:])
 }
 
 type isBlockHashInput interface {
@@ -80,21 +86,25 @@ func convertBlockHashInput(req isBlockHashInput) (_ *pb.BlockHashInput) {
 		res = &pb.BlockHashInput{
 			BlockHashInput: &pb.BlockHashInput_Given{
 				Given: &pb.BlockHash{
-					Value: v.Given[:],
+					Value: v.Given.Value[:],
 				}}}
 	case BlockHashInputAbsoluteHeight:
 		res = &pb.BlockHashInput{
 			BlockHashInput: &pb.BlockHashInput_AbsoluteHeight{
 				AbsoluteHeight: &pb.AbsoluteBlockHeight{
-					Value: uint64(v),
+					Value: v.Value,
 				}}}
 	case BlockHashInputRelativeHeight:
 		res = &pb.BlockHashInput{
 			BlockHashInput: &pb.BlockHashInput_RelativeHeight_{
 				RelativeHeight: &pb.BlockHashInput_RelativeHeight{
-					GenesisIndex: &pb.GenesisIndex{Value: v.GenesisIndex},
-					Height:       &pb.BlockHeight{Value: v.Height},
-					Restrict:     v.Restrict,
+					GenesisIndex: &pb.GenesisIndex{
+						Value: v.GenesisIndex,
+					},
+					Height: &pb.BlockHeight{
+						Value: v.Height,
+					},
+					Restrict: v.Restrict,
 				}}}
 	}
 
@@ -119,7 +129,9 @@ type BlockHashInputGiven struct {
 func (BlockHashInputGiven) isBlockHashInput() {}
 
 // BlockHashInputAbsoluteHeight query for a block at absolute height, if a unique block can be identified at that height.
-type BlockHashInputAbsoluteHeight uint64
+type BlockHashInputAbsoluteHeight struct {
+	Value uint64
+}
 
 func (BlockHashInputAbsoluteHeight) isBlockHashInput() {}
 
@@ -133,97 +145,139 @@ type BlockHashInputRelativeHeight struct {
 func (BlockHashInputRelativeHeight) isBlockHashInput() {}
 
 // TransactionHash hash of a transaction. This is always 32 bytes long.
-type TransactionHash [TransactionHashLength]byte
+type TransactionHash struct {
+	Value [TransactionHashLength]byte
+}
 
 // Hex encodes transaction hash to base16 string.
-func (t TransactionHash) Hex() string {
-	return hex.EncodeToString(t[:])
+func (t *TransactionHash) Hex() string {
+	return hex.EncodeToString(t.Value[:])
 }
 
 // ModuleRef a smart contract module reference. This is always 32 bytes long.
-type ModuleRef [ModuleRefLength]byte
+type ModuleRef struct {
+	Value [ModuleRefLength]byte
+}
 
 // Hex encodes module ref to base16 string.
-func (m ModuleRef) Hex() string {
-	return hex.EncodeToString(m[:])
+func (m *ModuleRef) Hex() string {
+	return hex.EncodeToString(m.Value[:])
 }
 
 // BlockInfo the response for GetBlockInfo.
 type BlockInfo struct {
-	Hash                   BlockHash
-	Height                 AbsoluteBlockHeight
-	ParentBlock            BlockHash
-	LastFinalizedBlock     BlockHash
-	GenesisIndex           GenesisIndex
-	EraBlockHeight         BlockHeight
-	ReceiveTime            Timestamp
-	ArriveTime             Timestamp
-	SlotNumber             Slot
-	SlotTime               Timestamp
-	Baker                  BakerId
+	Hash                   *BlockHash
+	Height                 *AbsoluteBlockHeight
+	ParentBlock            *BlockHash
+	LastFinalizedBlock     *BlockHash
+	GenesisIndex           *GenesisIndex
+	EraBlockHeight         *BlockHeight
+	ReceiveTime            *Timestamp
+	ArriveTime             *Timestamp
+	SlotNumber             *Slot
+	SlotTime               *Timestamp
+	Baker                  *BakerId
 	Finalized              bool
 	TransactionCount       uint32
-	TransactionsEnergyCost Energy
+	TransactionsEnergyCost *Energy
 	TransactionsSize       uint32
-	StateHash              StateHash
+	StateHash              *StateHash
 	ProtocolVersion        ProtocolVersion
 }
 
 // ProtocolVersion he different versions of the protocol.
-type ProtocolVersion int32
+type ProtocolVersion struct {
+	Value int32
+}
 
 // StateHash hash of the state after some block. This is always 32 bytes long.
-type StateHash []byte
+type StateHash struct {
+	Value []byte
+}
 
 // BakerId the ID of a baker, which is the index of its account.
-type BakerId uint64
+type BakerId struct {
+	Value uint64
+}
 
 // Slot a number representing a slot for baking a block.
-type Slot uint64
+type Slot struct {
+	Value uint64
+}
 
 // Timestamp unix timestamp in milliseconds.
-type Timestamp uint64
+type Timestamp struct {
+	Value uint64
+}
 
 // GenesisIndex the number of chain restarts via a protocol update. An effected
 // protocol update instruction might not change the protocol version
 // specified in the previous field, but it always increments the genesis
 // index.
-type GenesisIndex uint32
+type GenesisIndex struct {
+	Value uint32
+}
 
 // AbsoluteBlockHeight this is the number of ancestors of a block
 // since the genesis block. In particular, the chain genesis block has absolute
 // height 0.
-type AbsoluteBlockHeight uint64
+type AbsoluteBlockHeight struct {
+	Value uint64
+}
 
 // BlockHeight the height of a block relative to the last genesis. This differs from the
 // absolute block height in that it counts height from the last protocol update.
-type BlockHeight uint64
+type BlockHeight struct {
+	Value uint64
+}
 
-func convertBlockInfo(b *pb.BlockInfo) BlockInfo {
+func convertBlockInfo(b *pb.BlockInfo) *BlockInfo {
 	var hash, parentBlock, lastFinalizedBlock BlockHash
 
-	copy(hash[:], b.Hash.Value)
-	copy(parentBlock[:], b.ParentBlock.Value)
-	copy(lastFinalizedBlock[:], b.LastFinalizedBlock.Value)
+	copy(hash.Value[:], b.Hash.Value)
+	copy(parentBlock.Value[:], b.ParentBlock.Value)
+	copy(lastFinalizedBlock.Value[:], b.LastFinalizedBlock.Value)
 
-	return BlockInfo{
-		Hash:                   hash,
-		Height:                 AbsoluteBlockHeight(b.Height.Value),
-		ParentBlock:            parentBlock,
-		LastFinalizedBlock:     lastFinalizedBlock,
-		GenesisIndex:           GenesisIndex(b.GenesisIndex.Value),
-		EraBlockHeight:         BlockHeight(b.EraBlockHeight.Value),
-		ReceiveTime:            Timestamp(b.ReceiveTime.Value),
-		ArriveTime:             Timestamp(b.ArriveTime.Value),
-		SlotNumber:             Slot(b.SlotNumber.Value),
-		SlotTime:               Timestamp(b.SlotTime.Value),
-		Baker:                  BakerId(b.Baker.Value),
-		Finalized:              b.Finalized,
-		TransactionCount:       b.TransactionCount,
-		TransactionsEnergyCost: Energy(b.TransactionsEnergyCost.Value),
-		TransactionsSize:       b.TransactionsSize,
-		StateHash:              b.StateHash.Value,
-		ProtocolVersion:        ProtocolVersion(b.ProtocolVersion),
+	return &BlockInfo{
+		Hash: &hash,
+		Height: &AbsoluteBlockHeight{
+			Value: b.Height.Value,
+		},
+		ParentBlock:        &parentBlock,
+		LastFinalizedBlock: &lastFinalizedBlock,
+		GenesisIndex: &GenesisIndex{
+			Value: b.GenesisIndex.Value,
+		},
+		EraBlockHeight: &BlockHeight{
+			Value: b.EraBlockHeight.Value,
+		},
+		ReceiveTime: &Timestamp{
+			Value: b.ReceiveTime.Value,
+		},
+		ArriveTime: &Timestamp{
+			Value: b.ArriveTime.Value,
+		},
+		SlotNumber: &Slot{
+			Value: b.SlotNumber.Value,
+		},
+		SlotTime: &Timestamp{
+			Value: b.SlotTime.Value,
+		},
+		Baker: &BakerId{
+			Value: b.Baker.Value,
+		},
+		Finalized:        b.Finalized,
+		TransactionCount: b.TransactionCount,
+		TransactionsEnergyCost: &Energy{
+			Value: b.TransactionsEnergyCost.Value,
+		},
+		TransactionsSize: b.TransactionsSize,
+		StateHash: &StateHash{
+			Value: b.StateHash.Value,
+		},
+		ProtocolVersion: ProtocolVersion{
+			Value: int32(b.ProtocolVersion),
+		},
 	}
 }
 
@@ -265,7 +319,9 @@ type AccountSignatureMap struct {
 }
 
 // Signature a single signature. Used when sending block items to a node with `SendBlockItem`.
-type Signature []byte
+type Signature struct {
+	Value []byte
+}
 
 // AccountTransactionHeader header of an account transaction that contains basic data to check whether
 // the sender and the transaction are valid. The header is shared by all transaction types.
@@ -278,14 +334,20 @@ type AccountTransactionHeader struct {
 
 // SequenceNumber a sequence number that determines the ordering of transactions from the
 // account. The minimum sequence number is 1.
-type SequenceNumber uint64
+type SequenceNumber struct {
+	Value uint64
+}
 
 // Energy is used to count exact execution cost.
 // This cost is then converted to CCD amounts.
-type Energy uint64
+type Energy struct {
+	Value uint64
+}
 
 // TransactionTime specified as seconds since unix epoch.
-type TransactionTime uint64
+type TransactionTime struct {
+	Value uint64
+}
 
 // AccountTransactionPayload the payload for an account transaction.
 type AccountTransactionPayload struct {
@@ -297,7 +359,9 @@ type isAccountTransactionPayload interface {
 }
 
 // RawPayload a pre-serialized payload in the binary serialization format defined by the protocol.
-type RawPayload []byte
+type RawPayload struct {
+	Value []byte
+}
 
 func (RawPayload) isAccountTransactionPayload() {}
 
@@ -318,10 +382,14 @@ type isVersionedModuleSource interface {
 }
 
 // ModuleSourceV0 v0.
-type ModuleSourceV0 []byte
+type ModuleSourceV0 struct {
+	Value []byte
+}
 
 // ModuleSourceV1 v1.
-type ModuleSourceV1 []byte
+type ModuleSourceV1 struct {
+	Value []byte
+}
 
 func (ModuleSourceV0) isVersionedModuleSource() {}
 
@@ -342,13 +410,19 @@ type InitContractPayload struct {
 }
 
 // InitName the init name of a smart contract function.
-type InitName string
+type InitName struct {
+	Value string
+}
 
 // Amount an amount of microCCD.
-type Amount uint64
+type Amount struct {
+	Value uint64
+}
 
 // Parameter to a smart contract initialization or invocation.
-type Parameter []byte
+type Parameter struct {
+	Value []byte
+}
 
 type UpdateContract struct {
 	Payload *UpdateContractPayload
@@ -367,7 +441,9 @@ type UpdateContractPayload struct {
 // ReceiveName the reception name of a smart contract function. Expected format:
 // `<contract_name>.<func_name>`. It must only consist of atmost 100 ASCII
 // alphanumeric or punctuation characters, and must contain a '.'.
-type ReceiveName string
+type ReceiveName struct {
+	Value string
+}
 
 type Transfer struct {
 	Payload *TransferPayload
@@ -395,7 +471,9 @@ type TransferWithMemoPayload struct {
 }
 
 // Memo a memo which can be included as part of a transfer. Max size is 256 bytes.
-type Memo []byte
+type Memo struct {
+	Value []byte
+}
 
 type RegisterData struct {
 	Payload *RegisteredData
@@ -404,7 +482,9 @@ type RegisterData struct {
 func (RegisterData) isAccountTransactionPayload() {}
 
 // RegisteredData data registered on the chain with a register data transaction.
-type RegisteredData []byte
+type RegisteredData struct {
+	Value []byte
+}
 
 // CredentialDeployment create new accounts. They are not paid for
 // directly by the sender. Instead, bakers are rewarded by the protocol for
@@ -447,7 +527,9 @@ type UpdateInstructionHeader struct {
 // UpdateSequenceNumber determines the ordering of update transactions.
 // Equivalent to `SequenceNumber` for account transactions.
 // Update sequence numbers are per update type and the minimum value is 1.
-type UpdateSequenceNumber uint64
+type UpdateSequenceNumber struct {
+	Value uint64
+}
 
 // UpdateInstructionPayload payload.
 type UpdateInstructionPayload struct {
@@ -460,173 +542,184 @@ type isUpdateInstructionPayload interface {
 
 func (RawPayload) isUpdateInstructionPayload() {}
 
-func convertBlockItems(c []*pb.BlockItem) []*BlockItem {
+func convertBlockItems(input []*pb.BlockItem) []*BlockItem {
 	var result []*BlockItem
 
-	for _, v := range c {
+	for _, v := range input {
 		var blockItem BlockItem
-		var t TransactionHash
-		copy(t[:], v.Hash.Value)
-		blockItem.Hash = &t
+		var hash TransactionHash
+		copy(hash.Value[:], v.Hash.Value)
+
+		blockItem.Hash = &hash
 
 		switch k := v.BlockItem.(type) {
 		case *pb.BlockItem_AccountTransaction:
-			signatures := make(map[uint32]*AccountSignatureMap)
+			signaturesMap := make(map[uint32]*AccountSignatureMap)
 
 			for i, v := range k.AccountTransaction.Signature.Signatures {
-				sig := make(map[uint32]*Signature)
+				signatures := make(map[uint32]*Signature)
 
 				for j, k := range v.Signatures {
-					var s Signature
-					copy(s, k.Value)
-					sig[j] = &s
+					signatures[j] = &Signature{
+						Value: k.Value,
+					}
 				}
 
-				signatures[i] = &AccountSignatureMap{Signatures: sig}
+				signaturesMap[i] = &AccountSignatureMap{
+					Signatures: signatures,
+				}
 			}
-
-			var accountAddress AccountAddress
-			copy(accountAddress[:], k.AccountTransaction.Header.Sender.Value)
-
-			var sequenceNumber = SequenceNumber(k.AccountTransaction.Header.SequenceNumber.Value)
-			var energy = Energy(k.AccountTransaction.Header.EnergyAmount.Value)
-			var expiry = TransactionTime(k.AccountTransaction.Header.Expiry.Value)
 
 			var accountTransactionPayload AccountTransactionPayload
 
 			switch payload := k.AccountTransaction.Payload.Payload.(type) {
 			case *pb.AccountTransactionPayload_RawPayload:
-				var rawPayload RawPayload
-				copy(rawPayload[:], payload.RawPayload)
-				accountTransactionPayload.Payload = &rawPayload
+				accountTransactionPayload.Payload = &RawPayload{
+					Value: payload.RawPayload,
+				}
 			case *pb.AccountTransactionPayload_DeployModule:
-				var deployModule DeployModule
 				switch dm := payload.DeployModule.Module.(type) {
 				case *pb.VersionedModuleSource_V0:
-					var mod ModuleSourceV0
-					copy(mod, dm.V0.Value)
-					deployModule.DeployModule.Module = &mod
+					accountTransactionPayload.Payload = &DeployModule{
+						DeployModule: &VersionedModuleSource{
+							&ModuleSourceV0{
+								Value: dm.V0.Value,
+							}}}
 				case *pb.VersionedModuleSource_V1:
-					var mod ModuleSourceV1
-					copy(mod, dm.V1.Value)
-					deployModule.DeployModule.Module = &mod
+					accountTransactionPayload.Payload = &DeployModule{
+						DeployModule: &VersionedModuleSource{
+							&ModuleSourceV1{
+								Value: dm.V1.Value,
+							}}}
 				}
-				accountTransactionPayload.Payload = &deployModule
 			case *pb.AccountTransactionPayload_InitContract:
-				var initContract InitContract
-
-				var initName = InitName(payload.InitContract.InitName.Value)
-				var amount = Amount(payload.InitContract.Amount.Value)
-				var parameter Parameter
-				copy(parameter, payload.InitContract.Parameter.Value)
 				var moduleRef ModuleRef
-				copy(moduleRef[:], payload.InitContract.ModuleRef.Value)
+				copy(moduleRef.Value[:], payload.InitContract.ModuleRef.Value)
 
-				initContract.Payload.InitName = &initName
-				initContract.Payload.Amount = &amount
-				initContract.Payload.Parameter = &parameter
-				initContract.Payload.ModuleRef = &moduleRef
-
-				accountTransactionPayload.Payload = initContract
+				accountTransactionPayload.Payload = &InitContract{Payload: &InitContractPayload{
+					Amount: &Amount{
+						Value: payload.InitContract.Amount.Value,
+					},
+					ModuleRef: &moduleRef,
+					InitName: &InitName{
+						Value: payload.InitContract.InitName.Value,
+					},
+					Parameter: &Parameter{
+						Value: payload.InitContract.Parameter.Value,
+					},
+				}}
 			case *pb.AccountTransactionPayload_UpdateContract:
-				var updateContract UpdateContract
-
-				var amount = Amount(payload.UpdateContract.Amount.Value)
-				var parameter Parameter
-				copy(parameter, payload.UpdateContract.Parameter.Value)
-				var address ContractAddress
-				address.Subindex = payload.UpdateContract.Address.Subindex
-				address.Index = payload.UpdateContract.Address.Index
-				var receiveName = ReceiveName(payload.UpdateContract.ReceiveName.Value)
-
-				updateContract.Payload.Address = &address
-				updateContract.Payload.ReceiveName = &receiveName
-				updateContract.Payload.Amount = &amount
-				updateContract.Payload.Parameter = &parameter
-
-				accountTransactionPayload.Payload = updateContract
+				accountTransactionPayload.Payload = &UpdateContract{
+					Payload: &UpdateContractPayload{
+						Amount: &Amount{
+							Value: payload.UpdateContract.Amount.Value,
+						},
+						Address: &ContractAddress{
+							Index:    payload.UpdateContract.Address.Index,
+							Subindex: payload.UpdateContract.Address.Subindex,
+						},
+						ReceiveName: &ReceiveName{
+							Value: payload.UpdateContract.ReceiveName.Value,
+						},
+						Parameter: &Parameter{
+							Value: payload.UpdateContract.Parameter.Value,
+						},
+					}}
 			case *pb.AccountTransactionPayload_Transfer:
-				var transfer Transfer
+				var accAddress AccountAddress
+				copy(accAddress.Value[:], payload.Transfer.Receiver.Value)
 
-				var amount = Amount(payload.Transfer.Amount.Value)
-				var receiver AccountAddress
-				copy(receiver[:], payload.Transfer.Receiver.Value)
-
-				transfer.Payload.Receiver = &receiver
-				transfer.Payload.Amount = &amount
-
-				accountTransactionPayload.Payload = transfer
+				accountTransactionPayload.Payload = &Transfer{
+					Payload: &TransferPayload{
+						Amount: &Amount{
+							Value: payload.Transfer.Amount.Value,
+						},
+						Receiver: &accAddress,
+					}}
 			case *pb.AccountTransactionPayload_TransferWithMemo:
-				var transferWithMemo TransferWithMemo
-
-				var amount = Amount(payload.TransferWithMemo.Amount.Value)
 				var receiver AccountAddress
-				copy(receiver[:], payload.TransferWithMemo.Receiver.Value)
-				var memo Memo
-				copy(memo, payload.TransferWithMemo.Memo.Value)
+				copy(receiver.Value[:], payload.TransferWithMemo.Receiver.Value)
 
-				transferWithMemo.Payload.Memo = &memo
-				transferWithMemo.Payload.Amount = &amount
-				transferWithMemo.Payload.Receiver = &receiver
-
-				accountTransactionPayload.Payload = transferWithMemo
+				accountTransactionPayload.Payload = &TransferWithMemo{
+					Payload: &TransferWithMemoPayload{
+						Amount: &Amount{
+							Value: payload.TransferWithMemo.Amount.Value,
+						},
+						Receiver: &receiver,
+						Memo: &Memo{
+							Value: payload.TransferWithMemo.Memo.Value,
+						},
+					}}
 			case *pb.AccountTransactionPayload_RegisterData:
-				var registerData RegisterData
-				var r RegisteredData
-				copy(r, payload.RegisterData.Value)
-
-				registerData.Payload = &r
-				accountTransactionPayload.Payload = &registerData
+				accountTransactionPayload.Payload = &RegisterData{
+					Payload: &RegisteredData{
+						Value: payload.RegisterData.Value,
+					}}
 			}
+
+			var accountAddress AccountAddress
+			copy(accountAddress.Value[:], k.AccountTransaction.Header.Sender.Value)
 
 			blockItem.BlockItem = &AccountTransaction{
 				Signature: &AccountTransactionSignature{
-					Signatures: signatures,
+					Signatures: signaturesMap,
 				},
 				Header: &AccountTransactionHeader{
-					Sender:         &accountAddress,
-					SequenceNumber: &sequenceNumber,
-					EnergyAmount:   &energy,
-					Expiry:         &expiry,
+					Sender: &accountAddress,
+					SequenceNumber: &SequenceNumber{
+						Value: k.AccountTransaction.Header.SequenceNumber.Value,
+					},
+					EnergyAmount: &Energy{
+						Value: k.AccountTransaction.Header.EnergyAmount.Value,
+					},
+					Expiry: &TransactionTime{
+						Value: k.AccountTransaction.Header.Expiry.Value,
+					},
 				},
 				Payload: &accountTransactionPayload,
 			}
 		case *pb.BlockItem_CredentialDeployment:
-			var credentialDeployment CredentialDeployment
-			var transactionTime = TransactionTime(k.CredentialDeployment.MessageExpiry.Value)
-			credentialDeployment.MessageExpiry = &transactionTime
-
+			var payload RawPayload
 			switch v := k.CredentialDeployment.Payload.(type) {
 			case *pb.CredentialDeployment_RawPayload:
-				var payload = RawPayload(v.RawPayload)
-				credentialDeployment.Payload = &payload
+				payload.Value = v.RawPayload
 			}
 
-			blockItem.BlockItem = &credentialDeployment
+			blockItem.BlockItem = &CredentialDeployment{
+				MessageExpiry: &TransactionTime{
+					Value: k.CredentialDeployment.MessageExpiry.Value,
+				},
+				Payload: &payload,
+			}
 		case *pb.BlockItem_UpdateInstruction:
 			var signatureMap SignatureMap
 			for i, v := range k.UpdateInstruction.Signatures.Signatures {
-				signature := Signature(v.Value)
-				signatureMap.Signatures[i] = &signature
+				signatureMap.Signatures[i] = &Signature{
+					Value: v.Value,
+				}
 			}
-
-			sequenceNumber := UpdateSequenceNumber(k.UpdateInstruction.Header.SequenceNumber.Value)
-			effectiveTime := TransactionTime(k.UpdateInstruction.Header.EffectiveTime.Value)
-			timeout := TransactionTime(k.UpdateInstruction.Header.Timeout.Value)
 
 			var updInstructionPayload = UpdateInstructionPayload{}
 
 			switch t := k.UpdateInstruction.Payload.Payload.(type) {
 			case *pb.UpdateInstructionPayload_RawPayload:
-				updInstructionPayload.Payload = RawPayload(t.RawPayload)
+				updInstructionPayload.Payload = &RawPayload{
+					Value: t.RawPayload,
+				}
 			}
 
 			blockItem.BlockItem = &UpdateInstruction{
 				Signatures: &signatureMap,
 				Header: &UpdateInstructionHeader{
-					SequenceNumber: &sequenceNumber,
-					EffectiveTime:  &effectiveTime,
-					Timeout:        &timeout,
+					SequenceNumber: &UpdateSequenceNumber{
+						Value: k.UpdateInstruction.Header.SequenceNumber.Value,
+					},
+					EffectiveTime: &TransactionTime{
+						Value: k.UpdateInstruction.Header.EffectiveTime.Value,
+					},
+					Timeout: &TransactionTime{
+						Value: k.UpdateInstruction.Header.Timeout.Value,
+					},
 				},
 				Payload: &updInstructionPayload,
 			}
