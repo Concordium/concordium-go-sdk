@@ -154,22 +154,6 @@ func (t *TransactionHash) Hex() string {
 	return hex.EncodeToString(t.Value[:])
 }
 
-type WasmModule struct {
-	Version WasmVersion
-	Source  ModuleSource
-}
-
-type ModuleSource []byte
-
-func (moduleSource ModuleSource) Size() uint64 {
-	return uint64(len(moduleSource))
-}
-
-type WasmVersion uint8
-
-const WasmVersion0 WasmVersion = 0
-const WasmVersion1 WasmVersion = 1
-
 // ModuleRef a smart contract module reference. This is always 32 bytes long.
 type ModuleRef struct {
 	Value [ModuleRefLength]byte
@@ -325,12 +309,21 @@ type Energy struct {
 	Value uint64
 }
 
+// GivenEnergy helps handle the fixed costs and allows the user to focus only on the transaction
+// specific ones. The most important case for this are smart contract initialisations and updates.
+//
+// An upper bound on the amount of energy to spend on a transaction. Transaction costs have two
+// components, one is based on the size of the transaction and the number of signatures, and then
+// there is a transaction specific one.
 type GivenEnergy interface {
 	isGivenEnergy()
 }
 
+// AbsoluteEnergy is an amount of Energy that will be exact used.
 type AbsoluteEnergy Energy
 
+// AddEnergy is an amount of Energy that will be added to the base amount.
+// The base amount covers transaction size and signature checking.
 type AddEnergy struct {
 	Energy  Energy
 	NumSigs uint32
@@ -339,11 +332,17 @@ type AddEnergy struct {
 func (*AbsoluteEnergy) isGivenEnergy() {}
 func (*AddEnergy) isGivenEnergy()      {}
 
+// CredentialType describes type of credential.
 type CredentialType interface {
 	isCredentialType()
 }
+
+// CredentialTypeInitial is a credential type that is submitted by the identity
+// provider on behalf of the user. There is only one initial credential per identity.
 type CredentialTypeInitial struct{}
 
+// CredentialTypeNormal is one where the identity behind it is only known to
+// the owner of the account, unless the anonymity revocation process was followed.
 type CredentialTypeNormal struct{}
 
 func (CredentialTypeInitial) isCredentialType() {}
@@ -379,25 +378,30 @@ func (rawPayload RawPayload) Encode() EncodedPayload {
 	return rawPayload.Value
 }
 
-// DeployModule a transfer between two accounts. With an optional memo.
+// DeployModule deploys a Wasm module with the given source.
 type DeployModule struct {
-	DeployModule *VersionedModuleSource
+	Payload *DeployModulePayload
 }
 
 func (DeployModule) isAccountTransactionPayload() {}
 func (deployModule DeployModule) Encode() EncodedPayload {
-	switch m := deployModule.DeployModule.Module.(type) {
-	case ModuleSourceV0:
-		return m.Value
-	case ModuleSourceV1:
-		return m.Value
-	}
-	return []byte{}
+	return deployModule.Payload.Encode()
 }
 
 // VersionedModuleSource source bytes of a versioned smart contract module.
 type VersionedModuleSource struct {
 	Module isVersionedModuleSource
+}
+
+// Size returns size of
+func (versionedModulePayload VersionedModuleSource) Size() int {
+	switch m := versionedModulePayload.Module.(type) {
+	case ModuleSourceV0:
+		return len(m.Value)
+	case ModuleSourceV1:
+		return len(m.Value)
+	}
+	return 0
 }
 
 type isVersionedModuleSource interface {
@@ -417,6 +421,11 @@ type ModuleSourceV1 struct {
 func (ModuleSourceV0) isVersionedModuleSource() {}
 
 func (ModuleSourceV1) isVersionedModuleSource() {}
+
+type moduleVersion uint8
+
+const ModuleVersion0 moduleVersion = 0
+const ModuleVersion1 moduleVersion = 1
 
 type InitContract struct {
 	Payload *InitContractPayload
@@ -590,16 +599,18 @@ func convertBlockItems(input []*pb.BlockItem) []*BlockItem {
 				switch dm := payload.DeployModule.Module.(type) {
 				case *pb.VersionedModuleSource_V0:
 					accountTransactionPayload.Payload = &DeployModule{
-						DeployModule: &VersionedModuleSource{
-							&ModuleSourceV0{
-								Value: dm.V0.Value,
-							}}}
+						Payload: &DeployModulePayload{
+							DeployModule: &VersionedModuleSource{
+								&ModuleSourceV0{
+									Value: dm.V0.Value,
+								}}}}
 				case *pb.VersionedModuleSource_V1:
 					accountTransactionPayload.Payload = &DeployModule{
-						DeployModule: &VersionedModuleSource{
-							&ModuleSourceV1{
-								Value: dm.V1.Value,
-							}}}
+						Payload: &DeployModulePayload{
+							DeployModule: &VersionedModuleSource{
+								&ModuleSourceV1{
+									Value: dm.V1.Value,
+								}}}}
 				}
 			case *pb.AccountTransactionPayload_InitContract:
 				var moduleRef ModuleRef

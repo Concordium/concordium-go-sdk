@@ -64,11 +64,10 @@ func decode(payloadBytes []byte) (payload *AccountTransactionPayload, err error)
 	}
 
 	switch PayloadType(payloadBytes[:PayloadTypeSize][0]) {
-	// TODO: fix it.
-	// case DeployModulePayloadType:
-	//	deployModulePayload := new(DeployModulePayload)
-	//	err = deployModulePayload.Decode(payloadBytes[PayloadTypeSize:])
-	//	payload.Payload = deployModulePayload
+	case DeployModulePayloadType:
+		deployModulePayload := new(DeployModulePayload)
+		err = deployModulePayload.Decode(payloadBytes[PayloadTypeSize:])
+		payload.Payload = DeployModule{Payload: deployModulePayload}
 	case InitContractPayloadType:
 		initContractPayload := new(InitContractPayload)
 		err = initContractPayload.Decode(payloadBytes[PayloadTypeSize:])
@@ -100,8 +99,6 @@ func decode(payloadBytes []byte) (payload *AccountTransactionPayload, err error)
 // EncodedPayload describes Payload in serialized state.
 type EncodedPayload []byte
 
-func (EncodedPayload) isPayloadLike() {}
-
 // Encode encodes the transaction payload by serializing.
 func (encodedPayload EncodedPayload) Encode() EncodedPayload {
 	return encodedPayload[:]
@@ -127,7 +124,7 @@ func (encodedPayload EncodedPayload) Serialize() []byte {
 var _ Payload = (*DeployModulePayload)(nil)
 
 type DeployModulePayload struct {
-	Module WasmModule
+	DeployModule *VersionedModuleSource
 }
 
 // Encode encodes Payload into EncodedPayload.
@@ -135,9 +132,18 @@ func (payload *DeployModulePayload) Encode() EncodedPayload {
 	// Payload type byte + payload size.
 	buf := make([]byte, 0, payload.Size()+1)
 	buf = append(buf, byte(DeployModulePayloadType))
-	buf = append(buf, byte(payload.Module.Version))
-	buf = binary.BigEndian.AppendUint32(buf, uint32(payload.Module.Source.Size()))
-	buf = append(buf, payload.Module.Source...)
+
+	module := make([]byte, 0)
+	switch m := payload.DeployModule.Module.(type) {
+	case ModuleSourceV0:
+		buf = append(buf, byte(ModuleVersion0))
+		module = m.Value
+	case ModuleSourceV1:
+		buf = append(buf, byte(ModuleVersion1))
+		module = m.Value
+	}
+	buf = binary.BigEndian.AppendUint32(buf, uint32(len(module)))
+	buf = append(buf, module...)
 	return buf
 }
 
@@ -147,24 +153,33 @@ func (payload *DeployModulePayload) Decode(source []byte) error {
 		return InvalidEncodedPayloadSize
 	}
 
-	payload.Module.Version = WasmVersion(source[:1][0])
-	sourceModuleSize := binary.BigEndian.Uint32(source[1:5])
-	if len(source) != int(sourceModuleSize+5) {
+	version := moduleVersion(source[:1][0])
+	moduleSize := binary.BigEndian.Uint32(source[1:5])
+	if len(source) != int(moduleSize+5) {
 		return InvalidEncodedPayloadSize
 	}
 
-	payload.Module.Source = source[5:]
+	module := make([]byte, 0, moduleSize)
+	module = append(module, source[5:]...)
+	switch version {
+	case ModuleVersion0:
+		payload.DeployModule = &VersionedModuleSource{Module: ModuleSourceV0{Value: module}}
+	case ModuleVersion1:
+		payload.DeployModule = &VersionedModuleSource{Module: ModuleSourceV1{Value: module}}
+	default:
+		return errors.New("invalid module source version")
+	}
+
 	return nil
 }
 
 // Size returns the size of the payload in number of bytes.
 func (payload *DeployModulePayload) Size() int {
 	// 1 byte (module version) + 4 bytes (source module size) + source module bytes.
-	return 5 + len(payload.Module.Source)
+	return 5 + payload.DeployModule.Size()
 }
 
-func (*DeployModulePayload) isPayload()     {}
-func (*DeployModulePayload) isPayloadLike() {}
+func (*DeployModulePayload) isPayload() {}
 
 // Ensure that InitContractPayload implements Payload.
 var _ Payload = (*InitContractPayload)(nil)
@@ -222,13 +237,12 @@ func (payload *InitContractPayload) Decode(source []byte) error {
 
 // Size returns the size of the payload in number of bytes.
 func (payload *InitContractPayload) Size() int {
-	// 8 bytes (Amount) + 32 bytes (Module reference) + 2 bytes (Init name size) +
+	// 8 bytes (Amount) + 32 bytes (DeployModule reference) + 2 bytes (Init name size) +
 	// Init name bytes + 2 bytes (Parameter size) + Parameter bytes.
 	return 44 + len(payload.InitName.Value) + len(payload.Parameter.Value)
 }
 
-func (*InitContractPayload) isPayload()     {}
-func (*InitContractPayload) isPayloadLike() {}
+func (*InitContractPayload) isPayload() {}
 
 // Ensure that RegisterDataPayload implements Payload.
 var _ Payload = (*RegisterDataPayload)(nil)
@@ -271,8 +285,7 @@ func (payload *RegisterDataPayload) Size() int {
 	return 2 + len(payload.Data.Value)
 }
 
-func (*RegisterDataPayload) isPayload()     {}
-func (*RegisterDataPayload) isPayloadLike() {}
+func (*RegisterDataPayload) isPayload() {}
 
 // Ensure that TransferPayload implements Payload.
 var _ Payload = (*TransferPayload)(nil)
@@ -313,8 +326,7 @@ func (payload *TransferPayload) Size() int {
 	return 40
 }
 
-func (*TransferPayload) isPayload()     {}
-func (*TransferPayload) isPayloadLike() {}
+func (*TransferPayload) isPayload() {}
 
 // Ensure that TransferWithMemoPayload implements Payload.
 var _ Payload = (*TransferWithMemoPayload)(nil)
@@ -365,8 +377,7 @@ func (payload *TransferWithMemoPayload) Size() int {
 	return 42 + len(payload.Memo.Value)
 }
 
-func (*TransferWithMemoPayload) isPayload()     {}
-func (*TransferWithMemoPayload) isPayloadLike() {}
+func (*TransferWithMemoPayload) isPayload() {}
 
 // Ensure that UpdateContractPayload implements Payload.
 var _ Payload = (*UpdateContractPayload)(nil)
@@ -432,5 +443,4 @@ func (payload *UpdateContractPayload) Size() int {
 	return 28 + len(payload.ReceiveName.Value) + len(payload.Parameter.Value)
 }
 
-func (*UpdateContractPayload) isPayload()     {}
-func (*UpdateContractPayload) isPayloadLike() {}
+func (*UpdateContractPayload) isPayload() {}
