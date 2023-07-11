@@ -1,52 +1,49 @@
-package transactions
+package v2
 
 import (
 	"crypto/sha256"
 	"encoding/binary"
 	"errors"
 	"fmt"
-
-	"github.com/BoostyLabs/concordium-go-sdk/v2/transactions/payloads"
-	"github.com/BoostyLabs/concordium-go-sdk/v2/transactions/types"
 )
 
 // TransactionHeaderSize describes size of a transaction Header. This is currently always 60 Bytes.
 // Future chain updates might revise this, but this is a big change so this is expected to change seldom.
 const TransactionHeaderSize uint64 = 60 // 32 + 8 + 8 + 4 + 8.
 
-// TransactionHeader is a Header of an account transaction that contains basic data to check whether
-// the sender and the transaction is valid.
-type TransactionHeader struct {
+// AccountTransactionHeader header of an account transaction that contains basic data to check whether
+// the sender and the transaction are valid. The header is shared by all transaction types.
+type AccountTransactionHeader struct {
 	// Sender account of the transaction.
-	Sender types.AccountAddress
+	Sender *AccountAddress
 	// Sequence number of the transaction.
-	Nonce types.Nonce
+	SequenceNumber *SequenceNumber
 	// Maximum amount of energy the transaction can take to execute.
-	EnergyAmount types.Energy
+	EnergyAmount *Energy
 	// Size of the transaction Payload. This is used to deserialize the Payload.
-	PayloadSize types.PayloadSize
+	PayloadSize *PayloadSize
 	// Latest time the transaction can be included in a block.
-	Expiry types.TransactionTime
+	Expiry *TransactionTime
 }
 
-// Serialize returns serialized TransactionHeader.
-func (transactionHeader *TransactionHeader) Serialize() []byte {
+// Serialize returns serialized AccountTransactionHeader.
+func (transactionHeader *AccountTransactionHeader) Serialize() []byte {
 	buf := make([]byte, 0, TransactionHeaderSize)
-	buf = append(buf, transactionHeader.Sender...)
-	buf = binary.BigEndian.AppendUint64(buf, uint64(transactionHeader.Nonce))
-	buf = binary.BigEndian.AppendUint64(buf, uint64(transactionHeader.EnergyAmount))
-	buf = binary.BigEndian.AppendUint32(buf, uint32(transactionHeader.PayloadSize))
-	buf = binary.BigEndian.AppendUint64(buf, uint64(transactionHeader.Expiry))
+	buf = append(buf, transactionHeader.Sender.Value[:]...)
+	buf = binary.BigEndian.AppendUint64(buf, transactionHeader.SequenceNumber.Value)
+	buf = binary.BigEndian.AppendUint64(buf, transactionHeader.EnergyAmount.Value)
+	buf = binary.BigEndian.AppendUint32(buf, transactionHeader.PayloadSize.Value)
+	buf = binary.BigEndian.AppendUint64(buf, transactionHeader.Expiry.Value)
 
 	return buf
 }
 
 // PreAccountTransaction describes account transaction before signing.
 type PreAccountTransaction struct {
-	Header     *TransactionHeader
-	Payload    payloads.Payload
-	Encoded    payloads.EncodedPayload
-	HashToSign types.TransactionSignHash
+	Header     *AccountTransactionHeader
+	Payload    *AccountTransactionPayload
+	Encoded    EncodedPayload
+	HashToSign TransactionHash
 }
 
 // Sign signs PreAccountTransaction with TransactionSigner and returns AccountTransaction.
@@ -56,7 +53,7 @@ func (preAccountTransaction *PreAccountTransaction) Sign(signer TransactionSigne
 
 // Serialize returns serialized PreAccountTransaction.
 func (preAccountTransaction *PreAccountTransaction) Serialize() []byte {
-	buf := make([]byte, 0, int(TransactionHeaderSize)+int(preAccountTransaction.Encoded.Size()))
+	buf := make([]byte, 0, int(TransactionHeaderSize)+int(preAccountTransaction.Encoded.Size().Value))
 	buf = append(buf, preAccountTransaction.Header.Serialize()...)
 	buf = append(buf, preAccountTransaction.Encoded.Serialize()...)
 
@@ -69,15 +66,16 @@ func (preAccountTransaction *PreAccountTransaction) Deserialize(source []byte) (
 		return errors.New("could not deserialize PreAccountTransaction: invalid length")
 	}
 
-	preAccountTransaction.Header = &TransactionHeader{
-		Sender:       source[:32],
-		Nonce:        types.Nonce(binary.BigEndian.Uint64(source[32:40])),
-		EnergyAmount: types.Energy(binary.BigEndian.Uint64(source[40:48])),
-		PayloadSize:  types.PayloadSize(binary.BigEndian.Uint32(source[48:52])),
-		Expiry:       types.TransactionTime(binary.BigEndian.Uint64(source[52:TransactionHeaderSize])),
+	sender := AccountAddressFromBytes(source[:32])
+	preAccountTransaction.Header = &AccountTransactionHeader{
+		Sender:         &sender,
+		SequenceNumber: &SequenceNumber{Value: binary.BigEndian.Uint64(source[32:40])},
+		EnergyAmount:   &Energy{Value: binary.BigEndian.Uint64(source[40:48])},
+		PayloadSize:    &PayloadSize{Value: binary.BigEndian.Uint32(source[48:52])},
+		Expiry:         &TransactionTime{Value: binary.BigEndian.Uint64(source[52:TransactionHeaderSize])},
 	}
 
-	if len(source) < int(TransactionHeaderSize)+int(preAccountTransaction.Header.PayloadSize) {
+	if len(source) < int(TransactionHeaderSize)+int(preAccountTransaction.Header.PayloadSize.Value) {
 		return errors.New("could not deserialize PreAccountTransaction: invalid length")
 	}
 
@@ -95,7 +93,7 @@ func (preAccountTransaction *PreAccountTransaction) Deserialize(source []byte) (
 // TransactionSigner is an interface for signing transactions.
 type TransactionSigner interface {
 	// SignTransactionHash signs transaction hash and returns signatures in TransactionSignature type.
-	SignTransactionHash(hashToSign types.TransactionSignHash) (types.TransactionSignature, error)
+	SignTransactionHash(hashToSign TransactionHash) (*AccountTransactionSignature, error)
 }
 
 // ExactSizeTransactionSigner describes TransactionSigner with ability to return number of signers.
@@ -105,16 +103,35 @@ type ExactSizeTransactionSigner interface {
 	NumberOfKeys() uint32
 }
 
-// AccountTransaction describes signed account transaction.
+// AccountTransaction messages which are signed and paid for by the sender account.
 type AccountTransaction struct {
-	Signature types.TransactionSignature
-	Header    TransactionHeader
-	Payload   payloads.PayloadLike
+	Signature *AccountTransactionSignature
+	Header    *AccountTransactionHeader
+	Payload   *AccountTransactionPayload
+}
+
+func (AccountTransaction) isBlockItem() {}
+
+// AccountTransactionSignature transaction signature.
+type AccountTransactionSignature struct {
+	Signatures map[uint32]*AccountSignatureMap
+}
+
+// AccountSignatureMap wrapper for a map from indexes to signatures.
+// Needed because protobuf doesn't allow nested maps directly.
+// The keys in the SignatureMap must not exceed 2^8.
+type AccountSignatureMap struct {
+	Signatures map[uint32]*Signature
+}
+
+// Signature a single signature. Used when sending block items to a node with `SendBlockItem`.
+type Signature struct {
+	Value []byte
 }
 
 // signTransaction signs the Header and Payload, construct the transaction, and return it.
-func signTransaction(signer TransactionSigner, header *TransactionHeader, payload payloads.PayloadLike) (*AccountTransaction, error) {
-	hashToSign := ComputeTransactionSignHash(header, payload)
+func signTransaction(signer TransactionSigner, header *AccountTransactionHeader, payload *AccountTransactionPayload) (*AccountTransaction, error) {
+	hashToSign := ComputeTransactionSignHash(header, payload.Payload)
 	signature, err := signer.SignTransactionHash(hashToSign)
 	if err != nil {
 		return &AccountTransaction{}, err
@@ -122,17 +139,20 @@ func signTransaction(signer TransactionSigner, header *TransactionHeader, payloa
 
 	return &AccountTransaction{
 		Signature: signature,
-		Header:    *header,
+		Header:    header,
 		Payload:   payload,
 	}, nil
 }
 
 // ComputeTransactionSignHash computes the transaction sign hash from an EncodedPayload and Header.
-func ComputeTransactionSignHash(header *TransactionHeader, payload payloads.PayloadLike) types.TransactionSignHash {
+func ComputeTransactionSignHash(header *AccountTransactionHeader, payload Payload) TransactionHash {
 	encodedPayload := payload.Encode()
 	buf := make([]byte, 0, int(TransactionHeaderSize)+len(encodedPayload))
 	buf = append(buf, header.Serialize()...)
 	buf = append(buf, encodedPayload...)
 
-	return sha256.Sum256(buf)
+	var hash TransactionHash
+	hash.Value = sha256.Sum256(buf)
+
+	return hash
 }

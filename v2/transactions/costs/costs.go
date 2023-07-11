@@ -1,6 +1,6 @@
 package costs
 
-import "github.com/BoostyLabs/concordium-go-sdk/v2/transactions/types"
+import "github.com/BoostyLabs/concordium-go-sdk/v2"
 
 const (
 	// A is the constant for NRG assignment. This scales the effect of the number of signatures on the energy.
@@ -13,49 +13,49 @@ const (
 // BaseCost returns base cost of a transaction, which is the minimum cost
 // that accounts pays for transaction size and signature checking. In addition
 // to base cost each transaction has a transaction-type specific cost.
-func BaseCost(transactionSize uint64, numSignatures uint32) types.Energy {
-	return types.Energy(B*transactionSize + A*uint64(numSignatures))
+func BaseCost(transactionSize uint64, numSignatures uint32) v2.Energy {
+	return v2.Energy{Value: B*transactionSize + A*uint64(numSignatures)}
 }
 
-const (
+var (
 	// SimpleTransfer is an additional cost of a normal, account to account, transfer.
-	SimpleTransfer types.Energy = 300
+	SimpleTransfer = v2.Energy{Value: 300}
 
 	// EncryptedTransfer is an additional cost of an encrypted transfer.
-	EncryptedTransfer types.Energy = 27000
+	EncryptedTransfer = v2.Energy{Value: 27000}
 
 	// TransferToEncrypted is an additional cost of a transfer from public to encrypted balance.
-	TransferToEncrypted types.Energy = 600
+	TransferToEncrypted = v2.Energy{Value: 600}
 
 	// TransferToPublic is an additional cost of a transfer from encrypted to public balance.
-	TransferToPublic types.Energy = 14850
+	TransferToPublic = v2.Energy{Value: 14850}
 
 	// AddBaker is an additional cost of registerding the account as a baker.
-	AddBaker types.Energy = 4050
+	AddBaker = v2.Energy{Value: 4050}
 
 	// UpdateBakerKeys is an additional cost of updating baker's keys.
-	UpdateBakerKeys types.Energy = 4050
+	UpdateBakerKeys = v2.Energy{Value: 4050}
 
 	// UpdateBakerStake is an additional cost of updating the baker's stake, either increasing or lowering it.
-	UpdateBakerStake types.Energy = 300
+	UpdateBakerStake = v2.Energy{Value: 300}
 
 	// UpdateBakerRestake is an additional cost of updating the baker's restake flag.
-	UpdateBakerRestake types.Energy = 300
+	UpdateBakerRestake = v2.Energy{Value: 300}
 
 	// RemoveBaker is an additional cost of removing a baker.
-	RemoveBaker types.Energy = 300
+	RemoveBaker = v2.Energy{Value: 300}
 
 	// RegisterData is an additional cost of registering a piece of data.
-	RegisterData types.Energy = 300
+	RegisterData = v2.Energy{Value: 300}
 
 	// ConfigureBakerWithKeys is an additional cost of configuring a baker if new keys are registered.
-	ConfigureBakerWithKeys types.Energy = 4050
+	ConfigureBakerWithKeys = v2.Energy{Value: 4050}
 
 	// ConfigureBakerWithoutKeys is an additional cost of configuring a baker if new keys are **not** registered.
-	ConfigureBakerWithoutKeys types.Energy = 300
+	ConfigureBakerWithoutKeys = v2.Energy{Value: 300}
 
 	// ConfigureDelegation is an additional cost of configuring delegation.
-	ConfigureDelegation types.Energy = 300
+	ConfigureDelegation = v2.Energy{Value: 300}
 
 	// UpdateCredentialsBase cost is going to be negligible compared to
 	// verifying the credential, if he credential updates are genuine.
@@ -63,49 +63,51 @@ const (
 	// There is a non-trivial amount of lookup
 	// that needs to be done before we can start any checking. This ensures
 	// that those lookups are not a problem.
-	UpdateCredentialsBase types.Energy = 500
+	UpdateCredentialsBase = v2.Energy{Value: 500}
 )
 
 // ScheduledTransfer returns cost of a scheduled transfer, parametrized by the number of releases.
-func ScheduledTransfer(numReleases uint16) types.Energy {
-	return types.Energy(uint64(numReleases) * (300 + 64))
+func ScheduledTransfer(numReleases uint16) v2.Energy {
+	return v2.Energy{Value: uint64(numReleases) * (300 + 64)}
 }
 
 // UpdateCredentialKeys returns an additional cost of updating existing credential
 // keys. Parametrised by amount of existing credentials and new keys. Due to the way
 // the accounts are stored a new copy of all credentials will be created, so we need to account for that storage increase.
-func UpdateCredentialKeys(numCredentialsBefore uint16, numKeys uint16) types.Energy {
-	return types.Energy(500*uint64(numCredentialsBefore) + 100*uint64(numKeys))
+func UpdateCredentialKeys(numCredentialsBefore uint16, numKeys uint16) v2.Energy {
+	return v2.Energy{Value: 500*uint64(numCredentialsBefore) + 100*uint64(numKeys)}
 }
 
 // DeployModuleCost returns additional cost of deploying a smart contract module,
 // parametrized by the size of the module, which is defined to be the size of
 // the binary `.wasm` file that is sent as part of the transaction.
-func DeployModuleCost(moduleSize uint64) types.Energy {
-	return types.Energy(moduleSize / 10)
+func DeployModuleCost(moduleSize uint64) v2.Energy {
+	return v2.Energy{Value: moduleSize / 10}
 }
 
 // DeployCredential returns additional cost of deploying a credential
 // of the given type and with the given number of keys.
-func DeployCredential(credentialType types.CredentialType, numKeys uint16) types.Energy {
+func DeployCredential(credentialType v2.CredentialType, numKeys uint16) v2.Energy {
 	switch credentialType.(type) {
-	case types.CredentialTypeInitial:
-		return types.Energy(1000 + 100*uint64(numKeys))
-	case types.CredentialTypeNormal:
-		return types.Energy(54000 + 100*uint64(numKeys))
+	case v2.CredentialTypeInitial:
+		return v2.Energy{Value: 1000 + 100*uint64(numKeys)}
+	case v2.CredentialTypeNormal:
+		return v2.Energy{Value: 54000 + 100*uint64(numKeys)}
 	}
-	return 0
+	return v2.Energy{Value: 0}
 }
 
 // UpdateCredentials returns additional cost of updating account's credentials, parametrized by
 // - the number of credentials on the account before the update
 // - list of keys of credentials to be added.
-func UpdateCredentials(numCredentialsBefore uint16, numKeys []uint16) types.Energy {
-	return UpdateCredentialsBase + UpdateCredentialsVariable(numCredentialsBefore, numKeys)
+func UpdateCredentials(numCredentialsBefore uint16, numKeys []uint16) v2.Energy {
+	return v2.Energy{
+		Value: UpdateCredentialsBase.Value + UpdateCredentialsVariable(numCredentialsBefore, numKeys).Value,
+	}
 }
 
 // UpdateCredentialsVariable determines the cost of updating credentials on an account.
-func UpdateCredentialsVariable(numCredentialsBefore uint16, numKeys []uint16) types.Energy {
+func UpdateCredentialsVariable(numCredentialsBefore uint16, numKeys []uint16) v2.Energy {
 	// the 500 * num_credentials_before is to account for transactions which do
 	// nothing, e.g., don't add don't remove, and don't update the
 	// threshold. These still have a cost since the way the accounts are
@@ -113,7 +115,7 @@ func UpdateCredentialsVariable(numCredentialsBefore uint16, numKeys []uint16) ty
 	// quite a bit of space per credential.
 	energy := 500 * uint64(numCredentialsBefore)
 	for _, key := range numKeys {
-		energy += uint64(DeployCredential(types.CredentialTypeNormal{}, key))
+		energy += DeployCredential(v2.CredentialTypeNormal{}, key).Value
 	}
-	return types.Energy(energy)
+	return v2.Energy{Value: energy}
 }

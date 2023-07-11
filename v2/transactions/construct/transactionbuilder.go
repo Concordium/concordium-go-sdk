@@ -1,10 +1,8 @@
 package construct
 
 import (
-	"github.com/BoostyLabs/concordium-go-sdk/v2/transactions"
+	"github.com/BoostyLabs/concordium-go-sdk/v2"
 	"github.com/BoostyLabs/concordium-go-sdk/v2/transactions/costs"
-	"github.com/BoostyLabs/concordium-go-sdk/v2/transactions/payloads"
-	"github.com/BoostyLabs/concordium-go-sdk/v2/transactions/types"
 )
 
 // transactionBuilder is a helper structure to store the intermediate state of a transaction.
@@ -13,20 +11,21 @@ import (
 // we could compute this manually, but in general it is less error-prone to serialize
 // and get the length. `EnergyAmount` value is being computed before transaction signed with signer.
 type transactionBuilder struct {
-	header  *transactions.TransactionHeader
-	payload payloads.Payload
-	encoded payloads.EncodedPayload
+	header  *v2.AccountTransactionHeader
+	payload *v2.AccountTransactionPayload
+	encoded v2.EncodedPayload
 }
 
 // newTransactionBuilder is a constructor for transactionBuilder.
-func newTransactionBuilder(sender types.AccountAddress, nonce types.Nonce, expiry types.TransactionTime, payload payloads.Payload) *transactionBuilder {
-	encoded := payload.Encode()
-	header := &transactions.TransactionHeader{
-		Sender:       sender,
-		Nonce:        nonce,
-		EnergyAmount: 0,
-		PayloadSize:  encoded.Size(),
-		Expiry:       expiry,
+func newTransactionBuilder(sender v2.AccountAddress, nonce v2.SequenceNumber, expiry v2.TransactionTime, payload *v2.AccountTransactionPayload) *transactionBuilder {
+	encoded := payload.Payload.Encode()
+	payloadSize := encoded.Size()
+	header := &v2.AccountTransactionHeader{
+		Sender:         &sender,
+		SequenceNumber: &nonce,
+		EnergyAmount:   &v2.Energy{Value: 0},
+		PayloadSize:    &payloadSize,
+		Expiry:         &expiry,
 	}
 
 	return &transactionBuilder{
@@ -38,16 +37,16 @@ func newTransactionBuilder(sender types.AccountAddress, nonce types.Nonce, expir
 
 // size returns size of built transaction.
 func (transactionBuilder *transactionBuilder) size() uint64 {
-	return transactions.TransactionHeaderSize + uint64(transactionBuilder.header.PayloadSize)
+	return v2.TransactionHeaderSize + uint64(transactionBuilder.header.PayloadSize.Value)
 }
 
 // construct builds PreAccountTransaction with updated energy amount by transmitted counting function.
-func (transactionBuilder *transactionBuilder) construct(countEnergyAmountFunc func(uint64) types.Energy) *transactions.PreAccountTransaction {
+func (transactionBuilder *transactionBuilder) construct(countEnergyAmountFunc func(uint64) *v2.Energy) *v2.PreAccountTransaction {
 	size := transactionBuilder.size()
 	transactionBuilder.header.EnergyAmount = countEnergyAmountFunc(size)
-	hashToSign := transactions.ComputeTransactionSignHash(transactionBuilder.header, transactionBuilder.encoded)
+	hashToSign := v2.ComputeTransactionSignHash(transactionBuilder.header, transactionBuilder.encoded)
 
-	return &transactions.PreAccountTransaction{
+	return &v2.PreAccountTransaction{
 		Header:     transactionBuilder.header,
 		Payload:    transactionBuilder.payload,
 		Encoded:    transactionBuilder.encoded,
@@ -56,17 +55,17 @@ func (transactionBuilder *transactionBuilder) construct(countEnergyAmountFunc fu
 }
 
 // makeTransaction returns PreAccountTransaction with computed energy amount and specific Payload.
-func makeTransaction(sender types.AccountAddress, nonce types.Nonce, expiry types.TransactionTime,
-	energy types.GivenEnergy, payload payloads.Payload) *transactions.PreAccountTransaction {
+func makeTransaction(sender v2.AccountAddress, nonce v2.SequenceNumber, expiry v2.TransactionTime,
+	energy v2.GivenEnergy, payload *v2.AccountTransactionPayload) *v2.PreAccountTransaction {
 	builder := newTransactionBuilder(sender, nonce, expiry, payload)
-	cost := func(size uint64) types.Energy {
+	cost := func(size uint64) *v2.Energy {
 		switch e := energy.(type) {
-		case *types.AbsoluteEnergy:
-			return types.Energy(*e)
-		case *types.AddEnergy:
-			return costs.BaseCost(size, e.NumSigs) + e.Energy
+		case *v2.AbsoluteEnergy:
+			return &v2.Energy{Value: e.Value}
+		case *v2.AddEnergy:
+			return &v2.Energy{Value: costs.BaseCost(size, e.NumSigs).Value + e.Energy.Value}
 		}
-		return 0
+		return &v2.Energy{Value: 0}
 	}
 	return builder.construct(cost)
 }

@@ -154,6 +154,22 @@ func (t *TransactionHash) Hex() string {
 	return hex.EncodeToString(t.Value[:])
 }
 
+type WasmModule struct {
+	Version WasmVersion
+	Source  ModuleSource
+}
+
+type ModuleSource []byte
+
+func (moduleSource ModuleSource) Size() uint64 {
+	return uint64(len(moduleSource))
+}
+
+type WasmVersion uint8
+
+const WasmVersion0 WasmVersion = 0
+const WasmVersion1 WasmVersion = 1
+
 // ModuleRef a smart contract module reference. This is always 32 bytes long.
 type ModuleRef struct {
 	Value [ModuleRefLength]byte
@@ -297,41 +313,6 @@ type isBlockItem interface {
 	isBlockItem()
 }
 
-// AccountTransaction messages which are signed and paid for by the sender account.
-type AccountTransaction struct {
-	Signature *AccountTransactionSignature
-	Header    *AccountTransactionHeader
-	Payload   *AccountTransactionPayload
-}
-
-func (AccountTransaction) isBlockItem() {}
-
-// AccountTransactionSignature transaction signature.
-type AccountTransactionSignature struct {
-	Signatures map[uint32]*AccountSignatureMap
-}
-
-// AccountSignatureMap wrapper for a map from indexes to signatures.
-// Needed because protobuf doesn't allow nested maps directly.
-// The keys in the SignatureMap must not exceed 2^8.
-type AccountSignatureMap struct {
-	Signatures map[uint32]*Signature
-}
-
-// Signature a single signature. Used when sending block items to a node with `SendBlockItem`.
-type Signature struct {
-	Value []byte
-}
-
-// AccountTransactionHeader header of an account transaction that contains basic data to check whether
-// the sender and the transaction are valid. The header is shared by all transaction types.
-type AccountTransactionHeader struct {
-	Sender         *AccountAddress
-	SequenceNumber *SequenceNumber
-	EnergyAmount   *Energy
-	Expiry         *TransactionTime
-}
-
 // SequenceNumber a sequence number that determines the ordering of transactions from the
 // account. The minimum sequence number is 1.
 type SequenceNumber struct {
@@ -342,6 +323,35 @@ type SequenceNumber struct {
 // This cost is then converted to CCD amounts.
 type Energy struct {
 	Value uint64
+}
+
+type GivenEnergy interface {
+	isGivenEnergy()
+}
+
+type AbsoluteEnergy Energy
+
+type AddEnergy struct {
+	Energy  Energy
+	NumSigs uint32
+}
+
+func (*AbsoluteEnergy) isGivenEnergy() {}
+func (*AddEnergy) isGivenEnergy()      {}
+
+type CredentialType interface {
+	isCredentialType()
+}
+type CredentialTypeInitial struct{}
+
+type CredentialTypeNormal struct{}
+
+func (CredentialTypeInitial) isCredentialType() {}
+func (CredentialTypeNormal) isCredentialType()  {}
+
+// PayloadSize describes size of the transaction Payload. This is used to deserialize the Payload.
+type PayloadSize struct {
+	Value uint32
 }
 
 // TransactionTime specified as seconds since unix epoch.
@@ -355,6 +365,7 @@ type AccountTransactionPayload struct {
 }
 
 type isAccountTransactionPayload interface {
+	Encode() EncodedPayload
 	isAccountTransactionPayload()
 }
 
@@ -364,6 +375,9 @@ type RawPayload struct {
 }
 
 func (RawPayload) isAccountTransactionPayload() {}
+func (rawPayload RawPayload) Encode() EncodedPayload {
+	return rawPayload.Value
+}
 
 // DeployModule a transfer between two accounts. With an optional memo.
 type DeployModule struct {
@@ -371,6 +385,15 @@ type DeployModule struct {
 }
 
 func (DeployModule) isAccountTransactionPayload() {}
+func (deployModule DeployModule) Encode() EncodedPayload {
+	switch m := deployModule.DeployModule.Module.(type) {
+	case ModuleSourceV0:
+		return m.Value
+	case ModuleSourceV1:
+		return m.Value
+	}
+	return []byte{}
+}
 
 // VersionedModuleSource source bytes of a versioned smart contract module.
 type VersionedModuleSource struct {
@@ -400,13 +423,8 @@ type InitContract struct {
 }
 
 func (InitContract) isAccountTransactionPayload() {}
-
-// InitContractPayload data required to initialize a new contract instance.
-type InitContractPayload struct {
-	Amount    *Amount
-	ModuleRef *ModuleRef
-	InitName  *InitName
-	Parameter *Parameter
+func (initContract InitContract) Encode() EncodedPayload {
+	return initContract.Payload.Encode()
 }
 
 // InitName the init name of a smart contract function.
@@ -429,17 +447,12 @@ type UpdateContract struct {
 }
 
 func (UpdateContract) isAccountTransactionPayload() {}
-
-// UpdateContractPayload data required to update a contract instance.
-type UpdateContractPayload struct {
-	Amount      *Amount
-	Address     *ContractAddress
-	ReceiveName *ReceiveName
-	Parameter   *Parameter
+func (updateContract UpdateContract) Encode() EncodedPayload {
+	return updateContract.Payload.Encode()
 }
 
 // ReceiveName the reception name of a smart contract function. Expected format:
-// `<contract_name>.<func_name>`. It must only consist of atmost 100 ASCII
+// `<contract_name>.<func_name>`. It must only consist of at most 100 ASCII
 // alphanumeric or punctuation characters, and must contain a '.'.
 type ReceiveName struct {
 	Value string
@@ -450,11 +463,8 @@ type Transfer struct {
 }
 
 func (Transfer) isAccountTransactionPayload() {}
-
-// TransferPayload payload of a transfer between two accounts.
-type TransferPayload struct {
-	Amount   *Amount
-	Receiver *AccountAddress
+func (transfer Transfer) Encode() EncodedPayload {
+	return transfer.Payload.Encode()
 }
 
 type TransferWithMemo struct {
@@ -462,12 +472,8 @@ type TransferWithMemo struct {
 }
 
 func (TransferWithMemo) isAccountTransactionPayload() {}
-
-// TransferWithMemoPayload payload of a transfer between two accounts with a memo.
-type TransferWithMemoPayload struct {
-	Amount   *Amount
-	Receiver *AccountAddress
-	Memo     *Memo
+func (transferWithMemo TransferWithMemo) Encode() EncodedPayload {
+	return transferWithMemo.Payload.Encode()
 }
 
 // Memo a memo which can be included as part of a transfer. Max size is 256 bytes.
@@ -476,10 +482,13 @@ type Memo struct {
 }
 
 type RegisterData struct {
-	Payload *RegisteredData
+	Payload *RegisterDataPayload
 }
 
 func (RegisterData) isAccountTransactionPayload() {}
+func (registerData RegisterData) Encode() EncodedPayload {
+	return registerData.Payload.Encode()
+}
 
 // RegisteredData data registered on the chain with a register data transaction.
 type RegisteredData struct {
@@ -652,8 +661,10 @@ func convertBlockItems(input []*pb.BlockItem) []*BlockItem {
 					}}
 			case *pb.AccountTransactionPayload_RegisterData:
 				accountTransactionPayload.Payload = &RegisterData{
-					Payload: &RegisteredData{
-						Value: payload.RegisterData.Value,
+					Payload: &RegisterDataPayload{
+						Data: &RegisteredData{
+							Value: payload.RegisterData.Value,
+						},
 					}}
 			}
 

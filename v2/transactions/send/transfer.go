@@ -1,13 +1,12 @@
 package send
 
 import (
-	"github.com/BoostyLabs/concordium-go-sdk/v2/transactions"
+	"github.com/BoostyLabs/concordium-go-sdk/v2"
 	"github.com/BoostyLabs/concordium-go-sdk/v2/transactions/construct"
-	"github.com/BoostyLabs/concordium-go-sdk/v2/transactions/types"
 )
 
 // Transfer constructs a transfer transaction.
-func Transfer(signer transactions.ExactSizeTransactionSigner, sender types.AccountAddress, nonce types.Nonce,
-	expiry types.TransactionTime, receiver types.AccountAddress, amount types.Amount) (*transactions.AccountTransaction, error) {
+func Transfer(signer v2.ExactSizeTransactionSigner, sender v2.AccountAddress, nonce v2.SequenceNumber,
+	expiry v2.TransactionTime, receiver v2.AccountAddress, amount v2.Amount) (*v2.AccountTransaction, error) {
 	return construct.Transfer(signer.NumberOfKeys(), sender, nonce, expiry, receiver, amount).Sign(signer)
 }
