@@ -13,7 +13,7 @@ import (
 type transactionBuilder struct {
 	header  *v2.AccountTransactionHeader
 	payload *v2.AccountTransactionPayload
-	encoded v2.EncodedPayload
+	encoded *v2.RawPayload
 }
 
 // newTransactionBuilder is a constructor for transactionBuilder.
@@ -44,7 +44,8 @@ func (transactionBuilder *transactionBuilder) size() uint64 {
 func (transactionBuilder *transactionBuilder) construct(countEnergyAmountFunc func(uint64) *v2.Energy) *v2.PreAccountTransaction {
 	size := transactionBuilder.size()
 	transactionBuilder.header.EnergyAmount = countEnergyAmountFunc(size)
-	hashToSign := v2.ComputeTransactionSignHash(transactionBuilder.header, transactionBuilder.encoded)
+	hashToSign := v2.ComputeTransactionSignHash(transactionBuilder.header,
+		&v2.AccountTransactionPayload{Payload: transactionBuilder.encoded})
 
 	return &v2.PreAccountTransaction{
 		Header:     transactionBuilder.header,

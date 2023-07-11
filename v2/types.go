@@ -364,18 +364,8 @@ type AccountTransactionPayload struct {
 }
 
 type isAccountTransactionPayload interface {
-	Encode() EncodedPayload
+	Encode() *RawPayload
 	isAccountTransactionPayload()
-}
-
-// RawPayload a pre-serialized payload in the binary serialization format defined by the protocol.
-type RawPayload struct {
-	Value []byte
-}
-
-func (RawPayload) isAccountTransactionPayload() {}
-func (rawPayload RawPayload) Encode() EncodedPayload {
-	return rawPayload.Value
 }
 
 // DeployModule deploys a Wasm module with the given source.
@@ -384,7 +374,7 @@ type DeployModule struct {
 }
 
 func (DeployModule) isAccountTransactionPayload() {}
-func (deployModule DeployModule) Encode() EncodedPayload {
+func (deployModule DeployModule) Encode() *RawPayload {
 	return deployModule.Payload.Encode()
 }
 
@@ -432,7 +422,7 @@ type InitContract struct {
 }
 
 func (InitContract) isAccountTransactionPayload() {}
-func (initContract InitContract) Encode() EncodedPayload {
+func (initContract InitContract) Encode() *RawPayload {
 	return initContract.Payload.Encode()
 }
 
@@ -456,7 +446,7 @@ type UpdateContract struct {
 }
 
 func (UpdateContract) isAccountTransactionPayload() {}
-func (updateContract UpdateContract) Encode() EncodedPayload {
+func (updateContract UpdateContract) Encode() *RawPayload {
 	return updateContract.Payload.Encode()
 }
 
@@ -472,7 +462,7 @@ type Transfer struct {
 }
 
 func (Transfer) isAccountTransactionPayload() {}
-func (transfer Transfer) Encode() EncodedPayload {
+func (transfer Transfer) Encode() *RawPayload {
 	return transfer.Payload.Encode()
 }
 
@@ -481,7 +471,7 @@ type TransferWithMemo struct {
 }
 
 func (TransferWithMemo) isAccountTransactionPayload() {}
-func (transferWithMemo TransferWithMemo) Encode() EncodedPayload {
+func (transferWithMemo TransferWithMemo) Encode() *RawPayload {
 	return transferWithMemo.Payload.Encode()
 }
 
@@ -495,7 +485,7 @@ type RegisterData struct {
 }
 
 func (RegisterData) isAccountTransactionPayload() {}
-func (registerData RegisterData) Encode() EncodedPayload {
+func (registerData RegisterData) Encode() *RawPayload {
 	return registerData.Payload.Encode()
 }
 

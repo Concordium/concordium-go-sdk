@@ -42,8 +42,8 @@ func (transactionHeader *AccountTransactionHeader) Serialize() []byte {
 type PreAccountTransaction struct {
 	Header     *AccountTransactionHeader
 	Payload    *AccountTransactionPayload
-	Encoded    EncodedPayload
-	HashToSign TransactionHash
+	Encoded    *RawPayload
+	HashToSign *TransactionHash
 }
 
 // Sign signs PreAccountTransaction with TransactionSigner and returns AccountTransaction.
@@ -79,13 +79,14 @@ func (preAccountTransaction *PreAccountTransaction) Deserialize(source []byte) (
 		return errors.New("could not deserialize PreAccountTransaction: invalid length")
 	}
 
-	preAccountTransaction.Encoded = source[TransactionHeaderSize:]
+	preAccountTransaction.Encoded.Value = source[TransactionHeaderSize:]
 	preAccountTransaction.Payload, err = preAccountTransaction.Encoded.Decode()
 	if err != nil {
 		return errors.New(fmt.Sprintf("could not decode Encoded Payload: %v", err))
 	}
 
-	preAccountTransaction.HashToSign = ComputeTransactionSignHash(preAccountTransaction.Header, preAccountTransaction.Encoded)
+	preAccountTransaction.HashToSign = ComputeTransactionSignHash(preAccountTransaction.Header,
+		&AccountTransactionPayload{Payload: preAccountTransaction.Encoded})
 
 	return nil
 }
@@ -93,7 +94,7 @@ func (preAccountTransaction *PreAccountTransaction) Deserialize(source []byte) (
 // TransactionSigner is an interface for signing transactions.
 type TransactionSigner interface {
 	// SignTransactionHash signs transaction hash and returns signatures in TransactionSignature type.
-	SignTransactionHash(hashToSign TransactionHash) (*AccountTransactionSignature, error)
+	SignTransactionHash(hashToSign *TransactionHash) (*AccountTransactionSignature, error)
 }
 
 // ExactSizeTransactionSigner describes TransactionSigner with ability to return number of signers.
@@ -131,7 +132,7 @@ type Signature struct {
 
 // signTransaction signs the Header and Payload, construct the transaction, and return it.
 func signTransaction(signer TransactionSigner, header *AccountTransactionHeader, payload *AccountTransactionPayload) (*AccountTransaction, error) {
-	hashToSign := ComputeTransactionSignHash(header, payload.Payload)
+	hashToSign := ComputeTransactionSignHash(header, payload)
 	signature, err := signer.SignTransactionHash(hashToSign)
 	if err != nil {
 		return &AccountTransaction{}, err
@@ -144,14 +145,14 @@ func signTransaction(signer TransactionSigner, header *AccountTransactionHeader,
 	}, nil
 }
 
-// ComputeTransactionSignHash computes the transaction sign hash from an EncodedPayload and Header.
-func ComputeTransactionSignHash(header *AccountTransactionHeader, payload Payload) TransactionHash {
-	encodedPayload := payload.Encode()
-	buf := make([]byte, 0, int(TransactionHeaderSize)+len(encodedPayload))
+// ComputeTransactionSignHash computes the transaction sign hash from an RawPayload and Header.
+func ComputeTransactionSignHash(header *AccountTransactionHeader, payload *AccountTransactionPayload) *TransactionHash {
+	encodedPayload := payload.Payload.Encode()
+	buf := make([]byte, 0, int(TransactionHeaderSize)+len(encodedPayload.Value))
 	buf = append(buf, header.Serialize()...)
-	buf = append(buf, encodedPayload...)
+	buf = append(buf, encodedPayload.Value...)
 
-	var hash TransactionHash
+	hash := new(TransactionHash)
 	hash.Value = sha256.Sum256(buf)
 
 	return hash

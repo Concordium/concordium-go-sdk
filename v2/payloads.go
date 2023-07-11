@@ -12,12 +12,6 @@ var (
 	InvalidEncodedPayloadSize = errors.New("invalid encoded payload size")
 )
 
-// Payload describes payload of an account transaction.
-type Payload interface {
-	// Encode encodes the transaction payload by serializing.
-	Encode() EncodedPayload
-}
-
 const PayloadTypeSize = 1
 
 // PayloadType defines Payload type byte.
@@ -96,39 +90,40 @@ func decode(payloadBytes []byte) (payload *AccountTransactionPayload, err error)
 	return payload, nil
 }
 
-// EncodedPayload describes Payload in serialized state.
-type EncodedPayload []byte
+// RawPayload a pre-serialized payload in the binary serialization format defined by the protocol.
+type RawPayload struct {
+	Value []byte
+}
+
+func (RawPayload) isAccountTransactionPayload() {}
 
 // Encode encodes the transaction payload by serializing.
-func (encodedPayload EncodedPayload) Encode() EncodedPayload {
-	return encodedPayload[:]
+func (rawPayload RawPayload) Encode() *RawPayload {
+	return &rawPayload
 }
 
 // Size return size of Encoded Payload.
-func (encodedPayload EncodedPayload) Size() PayloadSize {
-	return PayloadSize{Value: uint32(len(encodedPayload))}
+func (rawPayload RawPayload) Size() PayloadSize {
+	return PayloadSize{Value: uint32(len(rawPayload.Value))}
 }
 
-// Decode decodes the EncodedPayload into a structured Payload.
+// Decode decodes the RawPayload into a structured Payload.
 // This also checks that all data is used, i.e., that there are no remaining trailing bytes.
-func (encodedPayload EncodedPayload) Decode() (*AccountTransactionPayload, error) {
-	return decode(encodedPayload[:])
+func (rawPayload RawPayload) Decode() (*AccountTransactionPayload, error) {
+	return decode(rawPayload.Value)
 }
 
 // Serialize returns serialized encoded payload.
-func (encodedPayload EncodedPayload) Serialize() []byte {
-	return encodedPayload[:]
+func (rawPayload RawPayload) Serialize() []byte {
+	return rawPayload.Value
 }
-
-// Ensure that DeployModulePayload implements Payload.
-var _ Payload = (*DeployModulePayload)(nil)
 
 type DeployModulePayload struct {
 	DeployModule *VersionedModuleSource
 }
 
-// Encode encodes Payload into EncodedPayload.
-func (payload *DeployModulePayload) Encode() EncodedPayload {
+// Encode encodes Payload into RawPayload.
+func (payload *DeployModulePayload) Encode() *RawPayload {
 	// Payload type byte + payload size.
 	buf := make([]byte, 0, payload.Size()+1)
 	buf = append(buf, byte(DeployModulePayloadType))
@@ -144,7 +139,7 @@ func (payload *DeployModulePayload) Encode() EncodedPayload {
 	}
 	buf = binary.BigEndian.AppendUint32(buf, uint32(len(module)))
 	buf = append(buf, module...)
-	return buf
+	return &RawPayload{Value: buf}
 }
 
 // Decode decodes bytes into DeployModulePayload.
@@ -179,11 +174,6 @@ func (payload *DeployModulePayload) Size() int {
 	return 5 + payload.DeployModule.Size()
 }
 
-func (*DeployModulePayload) isPayload() {}
-
-// Ensure that InitContractPayload implements Payload.
-var _ Payload = (*InitContractPayload)(nil)
-
 // InitContractPayload contains data needed to initialize a smart contract.
 type InitContractPayload struct {
 	// Deposit this amount of CCD.
@@ -196,8 +186,8 @@ type InitContractPayload struct {
 	Parameter *Parameter
 }
 
-// Encode encodes Payload into EncodedPayload.
-func (payload *InitContractPayload) Encode() EncodedPayload {
+// Encode encodes Payload into RawPayload.
+func (payload *InitContractPayload) Encode() *RawPayload {
 	// Payload type byte + payload size.
 	buf := make([]byte, 0, payload.Size()+1)
 	buf = append(buf, byte(InitContractPayloadType))
@@ -207,7 +197,7 @@ func (payload *InitContractPayload) Encode() EncodedPayload {
 	buf = append(buf, payload.InitName.Value...)
 	buf = binary.BigEndian.AppendUint16(buf, uint16(len(payload.Parameter.Value)))
 	buf = append(buf, payload.Parameter.Value...)
-	return buf
+	return &RawPayload{Value: buf}
 }
 
 // Decode decodes bytes into InitContractPayload.
@@ -242,25 +232,20 @@ func (payload *InitContractPayload) Size() int {
 	return 44 + len(payload.InitName.Value) + len(payload.Parameter.Value)
 }
 
-func (*InitContractPayload) isPayload() {}
-
-// Ensure that RegisterDataPayload implements Payload.
-var _ Payload = (*RegisterDataPayload)(nil)
-
 // RegisterDataPayload registers the given data on the chain.
 type RegisterDataPayload struct {
 	// The data to register.
 	Data *RegisteredData
 }
 
-// Encode encodes Payload into EncodedPayload.
-func (payload *RegisterDataPayload) Encode() EncodedPayload {
+// Encode encodes Payload into RawPayload.
+func (payload *RegisterDataPayload) Encode() *RawPayload {
 	// Payload type byte + payload size.
 	buf := make([]byte, 0, payload.Size()+1)
 	buf = append(buf, byte(RegisterDataPayloadType))
 	buf = binary.BigEndian.AppendUint16(buf, uint16(len(payload.Data.Value)))
 	buf = append(buf, payload.Data.Value...)
-	return buf
+	return &RawPayload{Value: buf}
 }
 
 // Decode decodes bytes into RegisterDataPayload.
@@ -285,11 +270,6 @@ func (payload *RegisterDataPayload) Size() int {
 	return 2 + len(payload.Data.Value)
 }
 
-func (*RegisterDataPayload) isPayload() {}
-
-// Ensure that TransferPayload implements Payload.
-var _ Payload = (*TransferPayload)(nil)
-
 // TransferPayload transfers CCD to an account.
 type TransferPayload struct {
 	// Address to send to.
@@ -298,14 +278,14 @@ type TransferPayload struct {
 	Amount *Amount
 }
 
-// Encode encodes Payload into EncodedPayload.
-func (payload *TransferPayload) Encode() EncodedPayload {
+// Encode encodes Payload into RawPayload.
+func (payload *TransferPayload) Encode() *RawPayload {
 	// Payload type byte + payload size.
 	buf := make([]byte, 0, payload.Size()+1)
 	buf = append(buf, byte(TransferPayloadType))
 	buf = append(buf, payload.Receiver.Value[:]...)
 	buf = binary.BigEndian.AppendUint64(buf, payload.Amount.Value)
-	return buf
+	return &RawPayload{Value: buf}
 }
 
 // Decode decodes bytes into TransferPayload.
@@ -326,11 +306,6 @@ func (payload *TransferPayload) Size() int {
 	return 40
 }
 
-func (*TransferPayload) isPayload() {}
-
-// Ensure that TransferWithMemoPayload implements Payload.
-var _ Payload = (*TransferWithMemoPayload)(nil)
-
 // TransferWithMemoPayload payload of a transfer between two accounts with a memo.
 type TransferWithMemoPayload struct {
 	// Address to send to.
@@ -341,8 +316,8 @@ type TransferWithMemoPayload struct {
 	Amount *Amount
 }
 
-// Encode encodes Payload into EncodedPayload.
-func (payload *TransferWithMemoPayload) Encode() EncodedPayload {
+// Encode encodes Payload into RawPayload.
+func (payload *TransferWithMemoPayload) Encode() *RawPayload {
 	// Payload type byte + payload size.
 	buf := make([]byte, 0, payload.Size()+1)
 	buf = append(buf, byte(TransferPayloadType))
@@ -350,7 +325,7 @@ func (payload *TransferWithMemoPayload) Encode() EncodedPayload {
 	buf = binary.BigEndian.AppendUint16(buf, uint16(len(payload.Memo.Value)))
 	buf = append(buf, payload.Memo.Value...)
 	buf = binary.BigEndian.AppendUint64(buf, payload.Amount.Value)
-	return buf
+	return &RawPayload{Value: buf}
 }
 
 // Decode decodes bytes into TransferWithMemoPayload.
@@ -377,11 +352,6 @@ func (payload *TransferWithMemoPayload) Size() int {
 	return 42 + len(payload.Memo.Value)
 }
 
-func (*TransferWithMemoPayload) isPayload() {}
-
-// Ensure that UpdateContractPayload implements Payload.
-var _ Payload = (*UpdateContractPayload)(nil)
-
 // UpdateContractPayload updates a smart contract instance by invoking a specific function.
 type UpdateContractPayload struct {
 	// Send the given amount of CCD together with the message to the
@@ -395,8 +365,8 @@ type UpdateContractPayload struct {
 	Parameter *Parameter
 }
 
-// Encode encodes Payload into EncodedPayload.
-func (payload *UpdateContractPayload) Encode() EncodedPayload {
+// Encode encodes Payload into RawPayload.
+func (payload *UpdateContractPayload) Encode() *RawPayload {
 	// Payload type byte + payload size.
 	buf := make([]byte, 0, payload.Size()+1)
 	buf = append(buf, byte(UpdateContractPayloadType))
@@ -407,7 +377,7 @@ func (payload *UpdateContractPayload) Encode() EncodedPayload {
 	buf = append(buf, payload.ReceiveName.Value...)
 	buf = binary.BigEndian.AppendUint16(buf, uint16(len(payload.Parameter.Value)))
 	buf = append(buf, payload.Parameter.Value...)
-	return buf
+	return &RawPayload{Value: buf}
 }
 
 // Decode decodes bytes into UpdateContractPayload.
@@ -442,5 +412,3 @@ func (payload *UpdateContractPayload) Size() int {
 	// Receive name bytes + 2 bytes (Parameter size) + Parameter bytes.
 	return 28 + len(payload.ReceiveName.Value) + len(payload.Parameter.Value)
 }
-
-func (*UpdateContractPayload) isPayload() {}
