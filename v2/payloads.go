@@ -118,6 +118,7 @@ func (rawPayload RawPayload) Serialize() []byte {
 	return rawPayload.Value
 }
 
+// DeployModulePayload deploys a Wasm module with the given source.
 type DeployModulePayload struct {
 	DeployModule *VersionedModuleSource
 }
@@ -259,7 +260,7 @@ func (payload *RegisterDataPayload) Decode(source []byte) error {
 		return InvalidEncodedPayloadSize
 	}
 
-	copy(payload.Data.Value[:], source[2:])
+	payload.Data.Value = source[2:]
 
 	return nil
 }
@@ -340,7 +341,7 @@ func (payload *TransferWithMemoPayload) Decode(source []byte) error {
 		return InvalidEncodedPayloadSize
 	}
 
-	copy(payload.Memo.Value[:], source[34:34+memoSize])
+	payload.Memo.Value = source[34 : 34+memoSize]
 	payload.Amount.Value = binary.BigEndian.Uint64(source[34+memoSize:])
 
 	return nil

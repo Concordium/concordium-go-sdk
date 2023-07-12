@@ -315,7 +315,11 @@ type Energy struct {
 // An upper bound on the amount of energy to spend on a transaction. Transaction costs have two
 // components, one is based on the size of the transaction and the number of signatures, and then
 // there is a transaction specific one.
-type GivenEnergy interface {
+type GivenEnergy struct {
+	Energy isGivenEnergy
+}
+
+type isGivenEnergy interface {
 	isGivenEnergy()
 }
 
@@ -333,7 +337,11 @@ func (*AbsoluteEnergy) isGivenEnergy() {}
 func (*AddEnergy) isGivenEnergy()      {}
 
 // CredentialType describes type of credential.
-type CredentialType interface {
+type CredentialType struct {
+	Type isCredentialType
+}
+
+type isCredentialType interface {
 	isCredentialType()
 }
 
@@ -383,7 +391,7 @@ type VersionedModuleSource struct {
 	Module isVersionedModuleSource
 }
 
-// Size returns size of
+// Size returns size of module bytes.
 func (versionedModulePayload VersionedModuleSource) Size() int {
 	switch m := versionedModulePayload.Module.(type) {
 	case ModuleSourceV0:
@@ -417,6 +425,7 @@ type moduleVersion uint8
 const ModuleVersion0 moduleVersion = 0
 const ModuleVersion1 moduleVersion = 1
 
+// InitContract contains data needed to initialize a smart contract.
 type InitContract struct {
 	Payload *InitContractPayload
 }
@@ -441,6 +450,7 @@ type Parameter struct {
 	Value []byte
 }
 
+// UpdateContract updates a smart contract instance by invoking a specific function.
 type UpdateContract struct {
 	Payload *UpdateContractPayload
 }
@@ -457,6 +467,7 @@ type ReceiveName struct {
 	Value string
 }
 
+// Transfer transfers CCD to an account.
 type Transfer struct {
 	Payload *TransferPayload
 }
@@ -466,6 +477,7 @@ func (transfer Transfer) Encode() *RawPayload {
 	return transfer.Payload.Encode()
 }
 
+// TransferWithMemo payload of a transfer between two accounts with a memo.
 type TransferWithMemo struct {
 	Payload *TransferWithMemoPayload
 }
@@ -480,6 +492,7 @@ type Memo struct {
 	Value []byte
 }
 
+// RegisterData registers the given data on the chain.
 type RegisterData struct {
 	Payload *RegisterDataPayload
 }

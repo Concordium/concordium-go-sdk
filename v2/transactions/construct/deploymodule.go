@@ -11,10 +11,10 @@ func DeployModule(numSigs uint32, sender v2.AccountAddress, nonce v2.SequenceNum
 	module v2.VersionedModuleSource) *v2.PreAccountTransaction {
 	moduleSize := module.Size()
 	payload := &v2.AccountTransactionPayload{Payload: &v2.DeployModule{Payload: &v2.DeployModulePayload{DeployModule: &module}}}
-	energy := &v2.AddEnergy{
+	energy := &v2.GivenEnergy{Energy: &v2.AddEnergy{
 		NumSigs: numSigs,
 		Energy:  costs.DeployModuleCost(uint64(moduleSize)),
-	}
+	}}
 
 	return makeTransaction(sender, nonce, expiry, energy, payload)
 }

@@ -57,10 +57,10 @@ func (transactionBuilder *transactionBuilder) construct(countEnergyAmountFunc fu
 
 // makeTransaction returns PreAccountTransaction with computed energy amount and specific Payload.
 func makeTransaction(sender v2.AccountAddress, nonce v2.SequenceNumber, expiry v2.TransactionTime,
-	energy v2.GivenEnergy, payload *v2.AccountTransactionPayload) *v2.PreAccountTransaction {
+	energy *v2.GivenEnergy, payload *v2.AccountTransactionPayload) *v2.PreAccountTransaction {
 	builder := newTransactionBuilder(sender, nonce, expiry, payload)
 	cost := func(size uint64) *v2.Energy {
-		switch e := energy.(type) {
+		switch e := energy.Energy.(type) {
 		case *v2.AbsoluteEnergy:
 			return &v2.Energy{Value: e.Value}
 		case *v2.AddEnergy:

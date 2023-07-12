@@ -130,7 +130,7 @@ type Signature struct {
 	Value []byte
 }
 
-// signTransaction signs the Header and Payload, construct the transaction, and return it.
+// signTransaction signs the AccountTransactionHeader and AccountTransactionPayload, construct the transaction, and return it.
 func signTransaction(signer TransactionSigner, header *AccountTransactionHeader, payload *AccountTransactionPayload) (*AccountTransaction, error) {
 	hashToSign := ComputeTransactionSignHash(header, payload)
 	signature, err := signer.SignTransactionHash(hashToSign)
@@ -145,7 +145,7 @@ func signTransaction(signer TransactionSigner, header *AccountTransactionHeader,
 	}, nil
 }
 
-// ComputeTransactionSignHash computes the transaction sign hash from an RawPayload and Header.
+// ComputeTransactionSignHash computes the transaction sign hash from an AccountTransactionHeader and AccountTransactionPayload.
 func ComputeTransactionSignHash(header *AccountTransactionHeader, payload *AccountTransactionPayload) *TransactionHash {
 	encodedPayload := payload.Payload.Encode()
 	buf := make([]byte, 0, int(TransactionHeaderSize)+len(encodedPayload.Value))

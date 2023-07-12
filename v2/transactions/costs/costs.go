@@ -88,7 +88,7 @@ func DeployModuleCost(moduleSize uint64) v2.Energy {
 // DeployCredential returns additional cost of deploying a credential
 // of the given type and with the given number of keys.
 func DeployCredential(credentialType v2.CredentialType, numKeys uint16) v2.Energy {
-	switch credentialType.(type) {
+	switch credentialType.Type.(type) {
 	case v2.CredentialTypeInitial:
 		return v2.Energy{Value: 1000 + 100*uint64(numKeys)}
 	case v2.CredentialTypeNormal:
@@ -115,7 +115,7 @@ func UpdateCredentialsVariable(numCredentialsBefore uint16, numKeys []uint16) v2
 	// quite a bit of space per credential.
 	energy := 500 * uint64(numCredentialsBefore)
 	for _, key := range numKeys {
-		energy += DeployCredential(v2.CredentialTypeNormal{}, key).Value
+		energy += DeployCredential(v2.CredentialType{Type: v2.CredentialTypeNormal{}}, key).Value
 	}
 	return v2.Energy{Value: energy}
 }
