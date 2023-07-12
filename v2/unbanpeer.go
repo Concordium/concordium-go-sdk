@@ -8,7 +8,7 @@ import (
 
 // UnbanPeer unban the banned peer. Returns a GRPC error if the action failed.
 func (c *Client) UnbanPeer(ctx context.Context, req *pb.BannedPeer) (err error) {
-	_, err = c.grpcClient.UnbanPeer(ctx, req)
+	_, err = c.GrpcClient.UnbanPeer(ctx, req)
 	if err != nil {
 		return err
 	}

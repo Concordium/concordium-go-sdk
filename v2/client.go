@@ -14,7 +14,7 @@ type Config struct {
 
 // Client provides grpc connection with node.
 type Client struct {
-	grpcClient pb.QueriesClient
+	GrpcClient pb.QueriesClient
 	ClientConn *grpc.ClientConn
 	config     Config
 }
@@ -31,7 +31,7 @@ func NewClient(config Config) (_ *Client, err error) {
 
 	client := pb.NewQueriesClient(conn)
 
-	return &Client{grpcClient: client, ClientConn: conn, config: config}, nil
+	return &Client{GrpcClient: client, ClientConn: conn, config: config}, nil
 }
 
 // Close closes client connection.

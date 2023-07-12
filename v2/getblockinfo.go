@@ -2,16 +2,14 @@ package v2
 
 import (
 	"context"
-
-	"github.com/BoostyLabs/concordium-go-sdk/v2/pb"
 )
 
 // GetBlockInfo get information, such as height, timings, and transaction counts for the given block.
-func (c *Client) GetBlockInfo(ctx context.Context, req *pb.BlockHashInput) (_ *pb.BlockInfo, err error) {
-	blockInfo, err := c.grpcClient.GetBlockInfo(ctx, req)
+func (c *Client) GetBlockInfo(ctx context.Context, req isBlockHashInput) (_ *BlockInfo, err error) {
+	blockInfo, err := c.GrpcClient.GetBlockInfo(ctx, convertBlockHashInput(req))
 	if err != nil {
-		return &pb.BlockInfo{}, err
+		return &BlockInfo{}, err
 	}
 
-	return blockInfo, nil
+	return convertBlockInfo(blockInfo), nil
 }

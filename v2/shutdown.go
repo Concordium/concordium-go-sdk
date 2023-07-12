@@ -8,7 +8,7 @@ import (
 
 // Shutdown shut down the node. Return a GRPC error if the shutdown failed.
 func (c *Client) Shutdown(ctx context.Context) (err error) {
-	_, err = c.grpcClient.Shutdown(ctx, new(pb.Empty))
+	_, err = c.GrpcClient.Shutdown(ctx, new(pb.Empty))
 	if err != nil {
 		return err
 	}

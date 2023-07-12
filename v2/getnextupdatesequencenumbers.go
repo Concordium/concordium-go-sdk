@@ -7,8 +7,8 @@ import (
 )
 
 // GetNextUpdateSequenceNumbers get next available sequence numbers for updating chain parameters after a given block.
-func (c *Client) GetNextUpdateSequenceNumbers(ctx context.Context, req *pb.BlockHashInput) (_ *pb.NextUpdateSequenceNumbers, err error) {
-	nextUpdateSequenceNumbers, err := c.grpcClient.GetNextUpdateSequenceNumbers(ctx, req)
+func (c *Client) GetNextUpdateSequenceNumbers(ctx context.Context, req isBlockHashInput) (_ *pb.NextUpdateSequenceNumbers, err error) {
+	nextUpdateSequenceNumbers, err := c.GrpcClient.GetNextUpdateSequenceNumbers(ctx, convertBlockHashInput(req))
 	if err != nil {
 		return &pb.NextUpdateSequenceNumbers{}, err
 	}

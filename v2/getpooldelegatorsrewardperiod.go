@@ -11,7 +11,7 @@ import (
 // this endpoint returns the fixed delegators contributing stake in the reward period containing the given block.
 // The stream will end when all the delegators has been returned.
 func (c *Client) GetPoolDelegatorsRewardPeriod(ctx context.Context, req *pb.GetPoolDelegatorsRequest) (_ pb.Queries_GetPoolDelegatorsRewardPeriodClient, err error) {
-	stream, err := c.grpcClient.GetPoolDelegatorsRewardPeriod(ctx, req)
+	stream, err := c.GrpcClient.GetPoolDelegatorsRewardPeriod(ctx, req)
 	if err != nil {
 		return nil, err
 	}

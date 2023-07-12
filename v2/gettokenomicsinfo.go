@@ -7,8 +7,8 @@ import (
 )
 
 // GetTokenomicsInfo get information about tokenomics at the end of a given block.
-func (c *Client) GetTokenomicsInfo(ctx context.Context, req *pb.BlockHashInput) (_ *pb.TokenomicsInfo, err error) {
-	tokenomicsInfo, err := c.grpcClient.GetTokenomicsInfo(ctx, req)
+func (c *Client) GetTokenomicsInfo(ctx context.Context, req isBlockHashInput) (_ *pb.TokenomicsInfo, err error) {
+	tokenomicsInfo, err := c.GrpcClient.GetTokenomicsInfo(ctx, convertBlockHashInput(req))
 	if err != nil {
 		return &pb.TokenomicsInfo{}, err
 	}
