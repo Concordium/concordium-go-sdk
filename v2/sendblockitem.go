@@ -17,8 +17,8 @@ func (c *Client) SendBlockItem(ctx context.Context, req *pb.SendBlockItemRequest
 		return &TransactionHash{}, err
 	}
 
-	var res *TransactionHash
+	var res TransactionHash
 	copy(res.Value[:], txHash.Value)
 
-	return res, nil
+	return &res, nil
 }
