@@ -396,7 +396,11 @@ func (versionedModulePayload VersionedModuleSource) Size() int {
 	switch m := versionedModulePayload.Module.(type) {
 	case ModuleSourceV0:
 		return len(m.Value)
+	case *ModuleSourceV0:
+		return len(m.Value)
 	case ModuleSourceV1:
+		return len(m.Value)
+	case *ModuleSourceV1:
 		return len(m.Value)
 	}
 	return 0
