@@ -28,5 +28,5 @@ func (c *Client) GetBlockItems(ctx context.Context, req isBlockHashInput) (_ []*
 		blockItems = append(blockItems, blockItem)
 	}
 
-	return convertBlockItems(blockItems), nil
+	return ConvertBlockItems(blockItems), nil
 }

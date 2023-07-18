@@ -567,7 +567,7 @@ type isUpdateInstructionPayload interface {
 
 func (RawPayload) isUpdateInstructionPayload() {}
 
-func convertBlockItems(input []*pb.BlockItem) []*BlockItem {
+func ConvertBlockItems(input []*pb.BlockItem) []*BlockItem {
 	var result []*BlockItem
 
 	for _, v := range input {
@@ -721,9 +721,9 @@ func convertBlockItems(input []*pb.BlockItem) []*BlockItem {
 				Payload: &payload,
 			}
 		case *pb.BlockItem_UpdateInstruction:
-			var signatureMap SignatureMap
+			signatureMap := make(map[uint32]*Signature)
 			for i, v := range k.UpdateInstruction.Signatures.Signatures {
-				signatureMap.Signatures[i] = &Signature{
+				signatureMap[i] = &Signature{
 					Value: v.Value,
 				}
 			}
@@ -738,7 +738,7 @@ func convertBlockItems(input []*pb.BlockItem) []*BlockItem {
 			}
 
 			blockItem.BlockItem = &UpdateInstruction{
-				Signatures: &signatureMap,
+				Signatures: &SignatureMap{Signatures: signatureMap},
 				Header: &UpdateInstructionHeader{
 					SequenceNumber: &UpdateSequenceNumber{
 						Value: k.UpdateInstruction.Header.SequenceNumber.Value,
