@@ -11,15 +11,36 @@ import (
 
 func TestPayloads(t *testing.T) {
 	receiver := v2.AccountAddressFromBytes(bytes.Repeat([]byte{1}, 32))
-	amount := &v2.Amount{Value: 100000}
-	memo := &v2.Memo{Value: []byte{1, 2, 3, 4, 5, 6}}
-	initName := &v2.InitName{Value: "some_name"}
-	contractAddress := &v2.ContractAddress{Index: 1234567890, Subindex: 0}
-	receiveName := &v2.ReceiveName{Value: "some_name"}
-	parameter := &v2.Parameter{Value: bytes.Repeat([]byte{3}, 48)}
-	registerData := &v2.RegisteredData{Value: []byte{1, 2, 3, 4, 5, 6, 7, 8, 8, 7, 6, 5, 4, 3, 2, 1}}
-	deployModule0 := &v2.VersionedModuleSource{Module: &v2.ModuleSourceV0{Value: bytes.Repeat([]byte{0}, 64)}}
-	deployModule1 := &v2.VersionedModuleSource{Module: &v2.ModuleSourceV1{Value: bytes.Repeat([]byte{1}, 64)}}
+	amount := &v2.Amount{
+		Value: 100000,
+	}
+	memo := &v2.Memo{
+		Value: []byte{1, 2, 3, 4, 5, 6},
+	}
+	initName := &v2.InitName{
+		Value: "some_name",
+	}
+	contractAddress := &v2.ContractAddress{
+		Index:    1234567890,
+		Subindex: 0,
+	}
+	receiveName := &v2.ReceiveName{
+		Value: "some_name",
+	}
+	parameter := &v2.Parameter{
+		Value: bytes.Repeat([]byte{3}, 48),
+	}
+	registerData := &v2.RegisteredData{
+		Value: []byte{1, 2, 3, 4, 5, 6, 7, 8, 8, 7, 6, 5, 4, 3, 2, 1},
+	}
+	deployModule0 := &v2.VersionedModuleSource{
+		Module: &v2.ModuleSourceV0{
+			Value: bytes.Repeat([]byte{0}, 64),
+		}}
+	deployModule1 := &v2.VersionedModuleSource{
+		Module: &v2.ModuleSourceV1{
+			Value: bytes.Repeat([]byte{1}, 64),
+		}}
 	moduleRef := new(v2.ModuleRef)
 	copy(moduleRef.Value[:], bytes.Repeat([]byte{1, 2}, 16))
 
