@@ -24,8 +24,8 @@ func (simpleSigner *SimpleSigner) SignTransactionHash(hashToSign *TransactionHas
 	signature := make([]byte, 0, ed25519.SignatureSize)
 	signature = append(signature, ed25519.Sign(simpleSigner.privateKey, hashToSign.Value[:])...)
 
-	externalMap := make(map[uint32]*AccountSignatureMap, 1)
-	internalMap := make(map[uint32]*Signature, 1)
+	externalMap := make(map[uint8]*AccountSignatureMap, 1)
+	internalMap := make(map[uint8]*Signature, 1)
 	internalMap[0] = &Signature{Value: signature}
 	externalMap[0] = &AccountSignatureMap{Signatures: internalMap}
 
