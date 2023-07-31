@@ -115,14 +115,14 @@ func (AccountTransaction) isBlockItem() {}
 
 // AccountTransactionSignature transaction signature.
 type AccountTransactionSignature struct {
-	Signatures map[uint32]*AccountSignatureMap
+	Signatures map[uint8]*AccountSignatureMap
 }
 
 // AccountSignatureMap wrapper for a map from indexes to signatures.
 // Needed because protobuf doesn't allow nested maps directly.
 // The keys in the SignatureMap must not exceed 2^8.
 type AccountSignatureMap struct {
-	Signatures map[uint32]*Signature
+	Signatures map[uint8]*Signature
 }
 
 // Signature a single signature. Used when sending block items to a node with `SendBlockItem`.

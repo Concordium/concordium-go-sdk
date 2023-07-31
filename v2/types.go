@@ -29,7 +29,7 @@ type AccountKeys struct {
 // SignatureThreshold threshold for the number of signatures required.
 // The values of this type must maintain the property that they are not 0.
 type SignatureThreshold struct {
-	Value []uint8
+	Value uint8
 }
 
 // AccountAddress an address of an account.
@@ -164,7 +164,7 @@ func (m *ModuleRef) Hex() string {
 	return hex.EncodeToString(m.Value[:])
 }
 
-// BlockInfo the response for GetBlockInfo.
+// BlockInfo information about given block, contains height, timings, transaction count, state, etc.
 type BlockInfo struct {
 	Hash                   *BlockHash
 	Height                 *AbsoluteBlockHeight
@@ -185,7 +185,7 @@ type BlockInfo struct {
 	ProtocolVersion        ProtocolVersion
 }
 
-// ProtocolVersion he different versions of the protocol.
+// ProtocolVersion the different versions of the protocol.
 type ProtocolVersion struct {
 	Value int32
 }
@@ -238,6 +238,11 @@ func convertBlockInfo(b *pb.BlockInfo) *BlockInfo {
 	copy(parentBlock.Value[:], b.ParentBlock.Value)
 	copy(lastFinalizedBlock.Value[:], b.LastFinalizedBlock.Value)
 
+	var slotTime uint64
+	if b.SlotTime != nil {
+		slotTime = b.SlotTime.Value
+	}
+
 	return &BlockInfo{
 		Hash: &hash,
 		Height: &AbsoluteBlockHeight{
@@ -261,7 +266,7 @@ func convertBlockInfo(b *pb.BlockInfo) *BlockInfo {
 			Value: b.SlotNumber.Value,
 		},
 		SlotTime: &Timestamp{
-			Value: b.SlotTime.Value,
+			Value: slotTime,
 		},
 		Baker: &BakerId{
 			Value: b.Baker.Value,
@@ -579,18 +584,18 @@ func ConvertBlockItems(input []*pb.BlockItem) []*BlockItem {
 
 		switch k := v.BlockItem.(type) {
 		case *pb.BlockItem_AccountTransaction:
-			signaturesMap := make(map[uint32]*AccountSignatureMap)
+			signaturesMap := make(map[uint8]*AccountSignatureMap)
 
 			for i, v := range k.AccountTransaction.Signature.Signatures {
-				signatures := make(map[uint32]*Signature)
+				signatures := make(map[uint8]*Signature)
 
 				for j, k := range v.Signatures {
-					signatures[j] = &Signature{
+					signatures[uint8(j)] = &Signature{
 						Value: k.Value,
 					}
 				}
 
-				signaturesMap[i] = &AccountSignatureMap{
+				signaturesMap[uint8(i)] = &AccountSignatureMap{
 					Signatures: signatures,
 				}
 			}
