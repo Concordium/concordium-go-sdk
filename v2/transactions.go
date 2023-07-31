@@ -1,10 +1,12 @@
 package v2
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"github.com/BoostyLabs/concordium-go-sdk/v2/pb"
 )
 
 // TransactionHeaderSize describes size of a transaction Header. This is currently always 60 Bytes.
@@ -111,7 +113,34 @@ type AccountTransaction struct {
 	Payload   *AccountTransactionPayload
 }
 
-func (AccountTransaction) isBlockItem() {}
+func (*AccountTransaction) isBlockItem() {}
+
+// Send sends BlockItem with AccountTransaction using provided Client and returns TransactionHash.
+func (accountTransaction *AccountTransaction) Send(ctx context.Context, client *Client) (*TransactionHash, error) {
+	signaturesMap := make(map[uint32]*pb.AccountSignatureMap, len(accountTransaction.Signature.Signatures))
+	for extKey, signatureMap := range accountTransaction.Signature.Signatures {
+		signatures := make(map[uint32]*pb.Signature, len(signatureMap.Signatures))
+		for innKey, signature := range signatureMap.Signatures {
+			signatures[uint32(innKey)] = &pb.Signature{Value: signature.Value}
+		}
+		signaturesMap[uint32(extKey)] = &pb.AccountSignatureMap{Signatures: signatures}
+	}
+
+	return client.SendBlockItem(ctx, &pb.SendBlockItemRequest{
+		BlockItem: &pb.SendBlockItemRequest_AccountTransaction{AccountTransaction: &pb.AccountTransaction{
+			Signature: &pb.AccountTransactionSignature{Signatures: signaturesMap},
+			Header: &pb.AccountTransactionHeader{
+				Sender:         &pb.AccountAddress{Value: accountTransaction.Header.Sender.Value[:]},
+				SequenceNumber: &pb.SequenceNumber{Value: accountTransaction.Header.SequenceNumber.Value},
+				EnergyAmount:   &pb.Energy{Value: accountTransaction.Header.EnergyAmount.Value},
+				Expiry:         &pb.TransactionTime{Value: accountTransaction.Header.Expiry.Value},
+			},
+			Payload: &pb.AccountTransactionPayload{Payload: &pb.AccountTransactionPayload_RawPayload{
+				RawPayload: accountTransaction.Payload.Payload.Encode().Value,
+			}},
+		}},
+	})
+}
 
 // AccountTransactionSignature transaction signature.
 type AccountTransactionSignature struct {

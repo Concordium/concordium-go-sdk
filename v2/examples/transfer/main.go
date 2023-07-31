@@ -52,8 +52,15 @@ func main() {
 		log.Fatalf("failed to decode receiver, err: %v", err)
 	}
 
+	ctx := context.Background()
+	senderAddr := v2.AccountAddressFromBytes(sender)
+	sequenceNumber, err := client.GetNextAccountSequenceNumber(ctx, &senderAddr)
+	if err != nil {
+		log.Fatalf("failed to get next sender sequnce number, err: %v", err)
+	}
+
 	nonce := v2.SequenceNumber{
-		Value: 1,
+		Value: sequenceNumber.SequenceNumber.Value,
 	}
 	expiry := v2.TransactionTime{
 		Value: uint64(time.Now().Add(time.Hour).UTC().Unix()),
@@ -66,7 +73,7 @@ func main() {
 
 	accountTx, err := send.Transfer(
 		signer,
-		v2.AccountAddressFromBytes(sender),
+		senderAddr,
 		nonce,
 		expiry,
 		v2.AccountAddressFromBytes(receiver),
@@ -76,31 +83,7 @@ func main() {
 		log.Fatalf("failed to costruct account transfer, err: %v", err)
 	}
 
-	signature := &pb.AccountTransactionSignature{Signatures: map[uint32]*pb.AccountSignatureMap{0: {Signatures: map[uint32]*pb.Signature{
-		0: {Value: accountTx.Signature.Signatures[0].Signatures[0].Value},
-	}}}}
-
-	txHash, err := client.SendBlockItem(context.Background(), &pb.SendBlockItemRequest{
-		BlockItem: &pb.SendBlockItemRequest_AccountTransaction{
-			AccountTransaction: &pb.AccountTransaction{
-				Signature: signature, Header: &pb.AccountTransactionHeader{
-					Sender: &pb.AccountAddress{
-						Value: accountTx.Header.Sender.Value[:],
-					}, SequenceNumber: &pb.SequenceNumber{
-						Value: accountTx.Header.SequenceNumber.Value,
-					},
-					EnergyAmount: &pb.Energy{
-						Value: accountTx.Header.EnergyAmount.Value,
-					}, Expiry: &pb.TransactionTime{
-						Value: accountTx.Header.Expiry.Value,
-					},
-				},
-				Payload: &pb.AccountTransactionPayload{
-					Payload: &pb.AccountTransactionPayload_RawPayload{
-						RawPayload: accountTx.Payload.Payload.Encode().Value,
-					}},
-			},
-		}})
+	txHash, err := accountTx.Send(ctx, client)
 	if err != nil {
 		log.Fatalf("failed to send block item, err: %v", err)
 	}
@@ -109,7 +92,7 @@ func main() {
 	// wait till transaction status turns Finalized
 	time.Sleep(25 * time.Second)
 
-	status, err := client.GetBlockItemStatus(context.Background(), *txHash)
+	status, err := client.GetBlockItemStatus(ctx, *txHash)
 	if err != nil {
 		log.Fatalf("failed to get block item status, err: %v", err)
 	}
@@ -120,7 +103,7 @@ func main() {
 		copy(bh[:], v.Finalized.Outcome.BlockHash.Value)
 
 		// verify that transaction exists on block
-		items, err := client.GetBlockItems(context.Background(), v2.BlockHashInputGiven{
+		items, err := client.GetBlockItems(ctx, v2.BlockHashInputGiven{
 			Given: v2.BlockHash{
 				Value: bh,
 			}})
