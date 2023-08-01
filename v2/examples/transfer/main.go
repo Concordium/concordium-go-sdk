@@ -64,12 +64,22 @@ func main() {
 
 	signer := v2.NewSimpleSigner(privateKey)
 
+	senderAccount, err := v2.AccountAddressFromBytes(sender)
+	if err != nil {
+		log.Fatalf("failed to receive account from bytes, err: %v", err)
+	}
+
+	receiverAccount, err := v2.AccountAddressFromBytes(receiver)
+	if err != nil {
+		log.Fatalf("failed to receive account from bytes, err: %v", err)
+	}
+
 	accountTx, err := send.Transfer(
 		signer,
-		v2.AccountAddressFromBytes(sender),
+		senderAccount,
 		nonce,
 		expiry,
-		v2.AccountAddressFromBytes(receiver),
+		receiverAccount,
 		amount,
 	)
 	if err != nil {

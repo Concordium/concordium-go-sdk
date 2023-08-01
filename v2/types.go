@@ -2,6 +2,7 @@ package v2
 
 import (
 	"encoding/hex"
+	"errors"
 
 	"github.com/BoostyLabs/concordium-go-sdk/v2/pb"
 	"github.com/btcsuite/btcutil/base58"
@@ -43,18 +44,24 @@ func (a *AccountAddress) ToBase58() string {
 }
 
 // AccountAddressFromString decodes string to account.
-func AccountAddressFromString(s string) AccountAddress {
-	return AccountAddressFromBytes(base58.Decode(s))
+func AccountAddressFromString(s string) (AccountAddress, error) {
+	b, _, err := base58.CheckDecode(s)
+	if err != nil {
+		return AccountAddress{}, err
+	}
+
+	return AccountAddressFromBytes(b)
 }
 
 // AccountAddressFromBytes creates account address from given bytes.
-func AccountAddressFromBytes(b []byte) AccountAddress {
-	var accountAddress AccountAddress
-	if len(b) > AccountAddressLength {
-		b = b[:AccountAddressLength]
+func AccountAddressFromBytes(b []byte) (AccountAddress, error) {
+	if len(b) != 32 {
+		return AccountAddress{}, errors.New("account address must be exactly 32 bytes")
 	}
+
+	var accountAddress AccountAddress
 	copy(accountAddress.Value[AccountAddressLength-len(b):], b)
-	return accountAddress
+	return accountAddress, nil
 }
 
 // BlockHash hash of a block. This is always 32 bytes long.

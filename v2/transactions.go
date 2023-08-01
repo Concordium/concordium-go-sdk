@@ -66,7 +66,10 @@ func (preAccountTransaction *PreAccountTransaction) Deserialize(source []byte) (
 		return errors.New("could not deserialize PreAccountTransaction: invalid length")
 	}
 
-	sender := AccountAddressFromBytes(source[:32])
+	sender, err := AccountAddressFromBytes(source[:32])
+	if err != nil {
+		return errors.New(fmt.Sprintf("could not receive address from bytes: %v", err))
+	}
 	preAccountTransaction.Header = &AccountTransactionHeader{
 		Sender:         &sender,
 		SequenceNumber: &SequenceNumber{Value: binary.BigEndian.Uint64(source[32:40])},
