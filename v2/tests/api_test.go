@@ -333,7 +333,7 @@ func TestExamples(t *testing.T) {
 			Given: blockHash,
 		})
 		require.NoError(t, err)
-		require.Nil(t, blockTransactionEvents)
+		require.NotNil(t, blockTransactionEvents)
 	})
 
 	t.Run("GetBlockSpecialEvents", func(t *testing.T) {
@@ -345,7 +345,7 @@ func TestExamples(t *testing.T) {
 	t.Run("GetBlockPendingUpdates", func(t *testing.T) {
 		blockPendingUpdates, err := client.GetBlockPendingUpdates(context.Background(), v2.BlockHashInputBest{})
 		require.NoError(t, err)
-		require.Nil(t, blockPendingUpdates)
+		require.NotNil(t, blockPendingUpdates)
 	})
 
 	t.Run("GetNextUpdateSequenceNumbers", func(t *testing.T) {

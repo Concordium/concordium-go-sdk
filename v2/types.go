@@ -33,10 +33,16 @@ type SignatureThreshold struct {
 	Value uint8
 }
 
+type isAddress interface {
+	isAddress()
+}
+
 // AccountAddress an address of an account.
 type AccountAddress struct {
 	Value [AccountAddressLength]byte
 }
+
+func (a *AccountAddress) isAddress() {}
 
 // ToBase58 encodes account address to string.
 func (a *AccountAddress) ToBase58() string {
@@ -298,6 +304,8 @@ type ContractAddress struct {
 	Index    uint64
 	Subindex uint64
 }
+
+func (c *ContractAddress) isAddress() {}
 
 // BlockItem is account transaction or credential deployment or update instruction item.
 type BlockItem struct {
