@@ -5,9 +5,10 @@ import (
 	"math/rand"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/BoostyLabs/concordium-go-sdk/v2"
 	"github.com/BoostyLabs/concordium-go-sdk/v2/pb"
-	"github.com/stretchr/testify/require"
 )
 
 func TestConvertBlockItems(t *testing.T) {

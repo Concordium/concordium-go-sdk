@@ -131,6 +131,10 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, states)
 
+		state, err := states.Recv()
+		require.NoError(t, err)
+		require.NotNil(t, state)
+
 		valueAtKey, err := client.InstanceStateLookup(context.Background(), &pb.InstanceStateLookupRequest{
 			BlockHash: &pb.BlockHashInput{
 				BlockHashInput: &pb.BlockHashInput_Best{}},
@@ -138,7 +142,7 @@ func TestExamples(t *testing.T) {
 				Index:    instanceList[0].Index,
 				Subindex: instanceList[0].Subindex,
 			},
-			Key: states[0].Key,
+			Key: state.Key,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, valueAtKey)
@@ -183,11 +187,15 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, bakerList)
 
+		baker, err := bakerList.Recv()
+		require.NoError(t, err)
+		require.NotNil(t, baker)
+
 		poolInfo, err := client.GetPoolInfo(context.Background(), &pb.PoolInfoRequest{
 			BlockHash: &pb.BlockHashInput{
 				BlockHashInput: &pb.BlockHashInput_Best{},
 			},
-			Baker: bakerList[0],
+			Baker: baker,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, poolInfo)
@@ -230,11 +238,15 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, bakerList)
 
+		baker, err := bakerList.Recv()
+		require.NoError(t, err)
+		require.NotNil(t, baker)
+
 		poolDelegators, err := client.GetPoolDelegators(context.Background(), &pb.GetPoolDelegatorsRequest{
 			BlockHash: &pb.BlockHashInput{
 				BlockHashInput: &pb.BlockHashInput_Best{},
 			},
-			Baker: bakerList[0],
+			Baker: baker,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, poolDelegators)
@@ -245,11 +257,15 @@ func TestExamples(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, bakerList)
 
+		baker, err := bakerList.Recv()
+		require.NoError(t, err)
+		require.NotNil(t, baker)
+
 		poolDelegatorsRewardPeriod, err := client.GetPoolDelegatorsRewardPeriod(context.Background(), &pb.GetPoolDelegatorsRequest{
 			BlockHash: &pb.BlockHashInput{
 				BlockHashInput: &pb.BlockHashInput_Best{},
 			},
-			Baker: bakerList[0],
+			Baker: baker,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, poolDelegatorsRewardPeriod)
@@ -317,7 +333,7 @@ func TestExamples(t *testing.T) {
 			Given: blockHash,
 		})
 		require.NoError(t, err)
-		require.Nil(t, blockTransactionEvents)
+		require.NotNil(t, blockTransactionEvents)
 	})
 
 	t.Run("GetBlockSpecialEvents", func(t *testing.T) {
@@ -329,7 +345,7 @@ func TestExamples(t *testing.T) {
 	t.Run("GetBlockPendingUpdates", func(t *testing.T) {
 		blockPendingUpdates, err := client.GetBlockPendingUpdates(context.Background(), v2.BlockHashInputBest{})
 		require.NoError(t, err)
-		require.Nil(t, blockPendingUpdates)
+		require.NotNil(t, blockPendingUpdates)
 	})
 
 	t.Run("GetNextUpdateSequenceNumbers", func(t *testing.T) {

@@ -2,6 +2,7 @@ package v2
 
 import (
 	"encoding/hex"
+	"errors"
 
 	"github.com/BoostyLabs/concordium-go-sdk/v2/pb"
 	"github.com/btcsuite/btcutil/base58"
@@ -32,10 +33,16 @@ type SignatureThreshold struct {
 	Value uint8
 }
 
+type isAddress interface {
+	isAddress()
+}
+
 // AccountAddress an address of an account.
 type AccountAddress struct {
 	Value [AccountAddressLength]byte
 }
+
+func (a *AccountAddress) isAddress() {}
 
 // ToBase58 encodes account address to string.
 func (a *AccountAddress) ToBase58() string {
@@ -43,18 +50,24 @@ func (a *AccountAddress) ToBase58() string {
 }
 
 // AccountAddressFromString decodes string to account.
-func AccountAddressFromString(s string) AccountAddress {
-	return AccountAddressFromBytes(base58.Decode(s))
+func AccountAddressFromString(s string) (AccountAddress, error) {
+	b, _, err := base58.CheckDecode(s)
+	if err != nil {
+		return AccountAddress{}, err
+	}
+
+	return AccountAddressFromBytes(b)
 }
 
 // AccountAddressFromBytes creates account address from given bytes.
-func AccountAddressFromBytes(b []byte) AccountAddress {
-	var accountAddress AccountAddress
-	if len(b) > AccountAddressLength {
-		b = b[:AccountAddressLength]
+func AccountAddressFromBytes(b []byte) (AccountAddress, error) {
+	if len(b) != 32 {
+		return AccountAddress{}, errors.New("account address must be exactly 32 bytes")
 	}
+
+	var accountAddress AccountAddress
 	copy(accountAddress.Value[AccountAddressLength-len(b):], b)
-	return accountAddress
+	return accountAddress, nil
 }
 
 // BlockHash hash of a block. This is always 32 bytes long.
@@ -291,6 +304,8 @@ type ContractAddress struct {
 	Index    uint64
 	Subindex uint64
 }
+
+func (c *ContractAddress) isAddress() {}
 
 // BlockItem is account transaction or credential deployment or update instruction item.
 type BlockItem struct {
