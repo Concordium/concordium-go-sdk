@@ -4,10 +4,11 @@ import (
 	"context"
 	"encoding/hex"
 	"fmt"
+	"log"
+
 	"github.com/caarlos0/env/v6"
 	"github.com/joho/godotenv"
 	_ "github.com/joho/godotenv/autoload"
-	"log"
 
 	"github.com/BoostyLabs/concordium-go-sdk/v2"
 )
