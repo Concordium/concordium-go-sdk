@@ -10,7 +10,8 @@ import (
 )
 
 func TestPayloads(t *testing.T) {
-	receiver := v2.AccountAddressFromBytes(bytes.Repeat([]byte{1}, 32))
+	receiver, err := v2.AccountAddressFromBytes(bytes.Repeat([]byte{1}, 32))
+	require.NoError(t, err)
 	amount := &v2.Amount{
 		Value: 100000,
 	}

@@ -11,14 +11,12 @@ import (
 	"github.com/BoostyLabs/concordium-go-sdk/v2"
 	"github.com/BoostyLabs/concordium-go-sdk/v2/pb"
 	"github.com/BoostyLabs/concordium-go-sdk/v2/transactions/send"
-	"github.com/btcsuite/btcutil/base58"
 )
 
 // for this example we need to pass signKey, verifyKey and 2 wallet pubkeys - sender and receiver, sender need to have funds to transfer. note: accounts must be on test network.
 // sending block item + verify that transaction exists in block.
 // to run this example write in terminal in directory of main.go file "go run main.go *signKey* *verifyKey* *senderPubKey* *receiverPubKey*".
 // signKey and verifyKey are keys you can download after creating your wallet and copy from file, pubkey you can check in wallet accounts.
-// for repeating test nonce (SequenceNumber) need to be incremented by 1 each run.
 func main() {
 	args := os.Args
 	if len(args) < 5 {
@@ -42,19 +40,18 @@ func main() {
 		log.Fatalf("failed to create new client, err: %v", err)
 	}
 
-	sender, _, err := base58.CheckDecode(senderPubKey)
+	sender, err := v2.AccountAddressFromString(senderPubKey)
 	if err != nil {
 		log.Fatalf("failed to decode sender, err: %v", err)
 	}
 
-	receiver, _, err := base58.CheckDecode(receiverPubKey)
+	receiver, err := v2.AccountAddressFromString(receiverPubKey)
 	if err != nil {
 		log.Fatalf("failed to decode receiver, err: %v", err)
 	}
 
 	ctx := context.Background()
-	senderAddr := v2.AccountAddressFromBytes(sender)
-	sequenceNumber, err := client.GetNextAccountSequenceNumber(ctx, &senderAddr)
+	sequenceNumber, err := client.GetNextAccountSequenceNumber(ctx, &sender)
 	if err != nil {
 		log.Fatalf("failed to get next sender sequnce number, err: %v", err)
 	}
@@ -73,10 +70,10 @@ func main() {
 
 	accountTx, err := send.Transfer(
 		signer,
-		senderAddr,
+		sender,
 		nonce,
 		expiry,
-		v2.AccountAddressFromBytes(receiver),
+		receiver,
 		amount,
 	)
 	if err != nil {
@@ -113,8 +110,12 @@ func main() {
 		fmt.Println("block item hash:", items[0].Hash.Hex())
 
 		// compare transaction hash value
-		if items[0].Hash.Value != txHash.Value {
-			log.Fatalf("tx hash not match expected")
+		for _, item := range items {
+			if item.Hash.Value == txHash.Value {
+				return
+			}
 		}
+
+		log.Fatalf("tx hash not match expected")
 	}
 }
