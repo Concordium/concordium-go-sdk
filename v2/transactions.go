@@ -6,6 +6,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
+
 	"github.com/BoostyLabs/concordium-go-sdk/v2/pb"
 )
 

@@ -12,7 +12,7 @@ func (c *Client) InvokeInstance(ctx context.Context, payload UpdateContractPaylo
 
 	switch k := address.(type) {
 	case *AccountAddress:
-		var accountAddress []byte
+		accountAddress := make([]byte, AccountAddressLength)
 		copy(accountAddress, k.Value[:])
 		pbAddress.Type = &pb.Address_Account{
 			Account: &pb.AccountAddress{
