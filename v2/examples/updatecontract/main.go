@@ -80,7 +80,12 @@ func main() {
 		Value: params.MaxEnergyAmount,
 	}
 
-	signer := v2.NewSimpleSigner(privateKey)
+	keyPair, err := v2.NewKeyPairFromSignKeyAndVerifyKey(privateKey[:32], privateKey[32:])
+	if err != nil {
+		log.Fatalf("failed to create key pair, err: %v", err)
+	}
+
+	senderWallet := v2.NewWalletAccount(sender, *keyPair)
 
 	parameter, err := hex.DecodeString(params.Parameter)
 	if err != nil {
@@ -97,8 +102,8 @@ func main() {
 		Parameter:   &v2.Parameter{Value: parameter},
 	}
 	accountTx, err := send.UpdateContract(
-		signer,
-		sender,
+		senderWallet,
+		*senderWallet.Address,
 		nonce,
 		expiry,
 		updateContractPayload,

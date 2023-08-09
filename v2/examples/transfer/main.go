@@ -66,11 +66,16 @@ func main() {
 		Value: 10,
 	}
 
-	signer := v2.NewSimpleSigner(privateKey)
+	keyPair, err := v2.NewKeyPairFromSignKeyAndVerifyKey(privateKey[:32], privateKey[32:])
+	if err != nil {
+		log.Fatalf("failed to create key pair, err: %v", err)
+	}
+
+	senderWallet := v2.NewWalletAccount(sender, *keyPair)
 
 	accountTx, err := send.Transfer(
-		signer,
-		sender,
+		senderWallet,
+		*senderWallet.Address,
 		nonce,
 		expiry,
 		receiver,
