@@ -205,7 +205,7 @@ func NewKeyPairFromSignKey(signKey []byte) (*KeyPair, error) {
 }
 
 // NewKeyPairFromSignKeyAndVerifyKey creates new KeyPair from `singKey` and `verifyKey.
-// You can find these keys in `Private Key` export file in fields `signKey` and `verifyKey` (keys are in hex encoding).
+// You can find these keys in export file in fields `signKey` and `verifyKey` (keys are in hex encoding).
 func NewKeyPairFromSignKeyAndVerifyKey(signKey, verifyKey []byte) (*KeyPair, error) {
 	if signKey == nil || len(signKey) != ed25519.SeedSize {
 		return nil, errors.New("sign key should be " + strconv.Itoa(ed25519.SeedSize) + " bytes long")
