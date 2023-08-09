@@ -107,52 +107,40 @@ type ExactSizeTransactionSigner interface {
 
 #### One key signature
 
-For signature with only one private key you can use `SimpleSigner` struct.
-To create `SimpleSigner` just call `NewSimpleSigner` from
-`github.com/BoostyLabs/concordium-go-sdk/v2` packet with your private key.
+For signature with only one private key you can use `WalletAccount` struct.
+To create `WalletAccount` with one private key just call `NewWalletAccount`
+with account address and key pair. To create `WalletAccount` with one or more
+keys, you can add key pair to existing `WalletAccount` using method `AddKeyPair`
+of call `NewWalletAccountFromFile` to read credentials from `<account_address>.export` file.
 
 ### Examples
 
-#### Transfer transaction with transfer payload (construct)
+#### Transfer transaction with transfer payload (using construct)
 
 ```go
 package main
 
 import (
 	"context"
-	"encoding/hex"
 	"fmt"
 	"log"
 	"time"
 
-	"github.com/btcsuite/btcutil/base58"
-
 	"github.com/BoostyLabs/concordium-go-sdk/v2"
-	"github.com/BoostyLabs/concordium-go-sdk/v2/pb"
 	"github.com/BoostyLabs/concordium-go-sdk/v2/transactions/construct"
 )
 
 func main() {
-	privateKey, err := hex.DecodeString("YOUR_PRIVATE_KEY_IN_HEX_ENCODING")
+	pathToExportFile := "PATH_TO_YOUR_EXPORT_FILE"
+	walletAccount, err := v2.NewWalletAccountFromFile(pathToExportFile)
 	if err != nil {
-		log.Fatalf("couldn't get private key, err: %v", err)
+		log.Fatalf("couldn't create wallet account, err: %v", err)
 	}
 
-	signer := v2.NewSimpleSigner(privateKey)
-
-	sender, _, err := base58.CheckDecode("ALICE_ADDRESS_IN_BASE58_CHECK")
-	if err != nil {
-		log.Fatalf("couldn't decode sender address, err: %v", err)
-	}
-
-	receiver, _, err := base58.CheckDecode("ROB_ADDRESS_IN_BASE58_CHECK")
+	receiver, err := v2.AccountAddressFromString("RECEIVER_ADDRESS_IN_BASE58_CHECK")
 	if err != nil {
 		log.Fatalf("couldn't decode receiver address, err: %v", err)
 	}
-
-	nonce := v2.SequenceNumber{Value: 1}
-	expiry := v2.TransactionTime{Value: uint64(time.Now().Add(time.Hour).UTC().Unix())}
-	amount := v2.Amount{Value: 100} // 100 micro CCD.
 
 	ctx := context.Background()
 	client, err := v2.NewClient(v2.Config{NodeAddress: "node.testnet.concordium.com:20000"})
@@ -160,42 +148,30 @@ func main() {
 		log.Fatalf("couldn't create node client, err: %v", err)
 	}
 
+	sequenceNumber, err := client.GetNextAccountSequenceNumber(ctx, walletAccount.Address)
+	if err != nil {
+		log.Fatalf("failed to get next sender sequnce number, err: %v", err)
+	}
+
+	nonce := v2.SequenceNumber{Value: sequenceNumber.SequenceNumber.Value}
+	expiry := v2.TransactionTime{Value: uint64(time.Now().Add(time.Hour).UTC().Unix())}
+	amount := v2.Amount{Value: 100} // 100 micro CCD.
+
 	preAccountTransaction := construct.Transfer(
-		signer.NumberOfKeys(),
-		v2.AccountAddressFromBytes(sender),
+		walletAccount.NumberOfKeys(),
+		*walletAccount.Address,
 		nonce,
 		expiry,
-		v2.AccountAddressFromBytes(receiver),
+		receiver,
 		amount,
 	)
 
-	accountTransaction, err := preAccountTransaction.Sign(signer)
+	accountTransaction, err := preAccountTransaction.Sign(walletAccount)
 	if err != nil {
 		log.Fatalf("couldn't sign transction, err: %v", err)
 	}
 
-	txHash, err := client.SendBlockItem(ctx, &pb.SendBlockItemRequest{
-		BlockItem: &pb.SendBlockItemRequest_AccountTransaction{
-			AccountTransaction: &pb.AccountTransaction{
-				Signature: &pb.AccountTransactionSignature{Signatures: map[uint32]*pb.AccountSignatureMap{
-					0: {Signatures: map[uint32]*pb.Signature{
-						0: {Value: accountTransaction.Signature.Signatures[0].Signatures[0].Value},
-					}}}},
-				Header: &pb.AccountTransactionHeader{
-					Sender:         &pb.AccountAddress{Value: accountTransaction.Header.Sender.Value[:]},
-					SequenceNumber: &pb.SequenceNumber{Value: accountTransaction.Header.SequenceNumber.Value},
-					EnergyAmount:   &pb.Energy{Value: accountTransaction.Header.EnergyAmount.Value},
-					Expiry:         &pb.TransactionTime{Value: accountTransaction.Header.Expiry.Value},
-				},
-				Payload: &pb.AccountTransactionPayload{Payload: &pb.AccountTransactionPayload_Transfer{
-					Transfer: &pb.TransferPayload{
-						Amount:   &pb.Amount{Value: amount.Value},
-						Receiver: &pb.AccountAddress{Value: receiver},
-					},
-				}},
-			},
-		},
-	})
+	txHash, err := accountTransaction.Send(ctx, client)
 	if err != nil {
 		log.Fatalf("couldn't send block item, err: %v", err)
 	}
@@ -203,46 +179,32 @@ func main() {
 }
 ```
 
-#### Transfer transaction with transfer payload (send)
+#### Transfer transaction with transfer payload (using send)
 
 ```go
 package main
 
 import (
 	"context"
-	"encoding/hex"
 	"fmt"
 	"log"
 	"time"
 
-	"github.com/btcsuite/btcutil/base58"
-
 	"github.com/BoostyLabs/concordium-go-sdk/v2"
-	"github.com/BoostyLabs/concordium-go-sdk/v2/pb"
 	"github.com/BoostyLabs/concordium-go-sdk/v2/transactions/send"
 )
 
 func main() {
-	privateKey, err := hex.DecodeString("YOUR_PRIVATE_KEY_IN_HEX_ENCODING")
+	pathToExportFile := "PATH_TO_YOUR_EXPORT_FILE"
+	walletAccount, err := v2.NewWalletAccountFromFile(pathToExportFile)
 	if err != nil {
-		log.Fatalf("couldn't get private key, err: %v", err)
+		log.Fatalf("couldn't create wallet account, err: %v", err)
 	}
 
-	signer := v2.NewSimpleSigner(privateKey)
-
-	sender, _, err := base58.CheckDecode("ALICE_ADDRESS_IN_BASE58_CHECK")
-	if err != nil {
-		log.Fatalf("couldn't decode sender address, err: %v", err)
-	}
-
-	receiver, _, err := base58.CheckDecode("ROB_ADDRESS_IN_BASE58_CHECK")
+	receiver, err := v2.AccountAddressFromString("RECEIVER_ADDRESS_IN_BASE58_CHECK")
 	if err != nil {
 		log.Fatalf("couldn't decode receiver address, err: %v", err)
 	}
-
-	nonce := v2.SequenceNumber{Value: 1}
-	expiry := v2.TransactionTime{Value: uint64(time.Now().Add(time.Hour).UTC().Unix())}
-	amount := v2.Amount{Value: 100} // 100 micro CCD.
 
 	ctx := context.Background()
 	client, err := v2.NewClient(v2.Config{NodeAddress: "node.testnet.concordium.com:20000"})
@@ -250,130 +212,34 @@ func main() {
 		log.Fatalf("couldn't create node client, err: %v", err)
 	}
 
-	accountTransaction, err := send.Transfer(
-		signer,
-		v2.AccountAddressFromBytes(sender),
-		nonce,
-		expiry,
-		v2.AccountAddressFromBytes(receiver),
-		amount,
-	)
+	sequenceNumber, err := client.GetNextAccountSequenceNumber(ctx, walletAccount.Address)
 	if err != nil {
-		log.Fatalf("couldn't build account transction, err: %v", err)
+		log.Fatalf("failed to get next sender sequnce number, err: %v", err)
 	}
 
-	txHash, err := client.SendBlockItem(ctx, &pb.SendBlockItemRequest{
-		BlockItem: &pb.SendBlockItemRequest_AccountTransaction{
-			AccountTransaction: &pb.AccountTransaction{
-				Signature: &pb.AccountTransactionSignature{Signatures: map[uint32]*pb.AccountSignatureMap{
-					0: {Signatures: map[uint32]*pb.Signature{
-						0: {Value: accountTransaction.Signature.Signatures[0].Signatures[0].Value},
-					}}}},
-				Header: &pb.AccountTransactionHeader{
-					Sender:         &pb.AccountAddress{Value: accountTransaction.Header.Sender.Value[:]},
-					SequenceNumber: &pb.SequenceNumber{Value: accountTransaction.Header.SequenceNumber.Value},
-					EnergyAmount:   &pb.Energy{Value: accountTransaction.Header.EnergyAmount.Value},
-					Expiry:         &pb.TransactionTime{Value: accountTransaction.Header.Expiry.Value},
-				},
-				Payload: &pb.AccountTransactionPayload{Payload: &pb.AccountTransactionPayload_Transfer{
-					Transfer: &pb.TransferPayload{
-						Amount:   &pb.Amount{Value: amount.Value},
-						Receiver: &pb.AccountAddress{Value: receiver},
-					},
-				}},
-			},
-		},
-	})
-	if err != nil {
-		log.Fatalf("couldn't send block item, err: %v", err)
-	}
-	fmt.Printf("Success! Transaction hash: %s", txHash.Hex())
-}
-```
-
-#### Transfer transaction with raw payload (send)
-
-```go
-package main
-
-import (
-	"context"
-	"encoding/hex"
-	"fmt"
-	"log"
-	"time"
-
-	"github.com/btcsuite/btcutil/base58"
-
-	"github.com/BoostyLabs/concordium-go-sdk/v2"
-	"github.com/BoostyLabs/concordium-go-sdk/v2/pb"
-	"github.com/BoostyLabs/concordium-go-sdk/v2/transactions/send"
-)
-
-func main() {
-	privateKey, err := hex.DecodeString("YOUR_PRIVATE_KEY_IN_HEX_ENCODING")
-	if err != nil {
-		log.Fatalf("couldn't get private key, err: %v", err)
-	}
-
-	signer := v2.NewSimpleSigner(privateKey)
-
-	sender, _, err := base58.CheckDecode("ALICE_ADDRESS_IN_BASE58_CHECK")
-	if err != nil {
-		log.Fatalf("couldn't decode sender address, err: %v", err)
-	}
-
-	receiver, _, err := base58.CheckDecode("ROB_ADDRESS_IN_BASE58_CHECK")
-	if err != nil {
-		log.Fatalf("couldn't decode receiver address, err: %v", err)
-	}
-
-	nonce := v2.SequenceNumber{Value: 1}
+	nonce := v2.SequenceNumber{Value: sequenceNumber.SequenceNumber.Value}
 	expiry := v2.TransactionTime{Value: uint64(time.Now().Add(time.Hour).UTC().Unix())}
 	amount := v2.Amount{Value: 100} // 100 micro CCD.
 
-	ctx := context.Background()
-	client, err := v2.NewClient(v2.Config{NodeAddress: "node.testnet.concordium.com:20000"})
-	if err != nil {
-		log.Fatalf("couldn't create node client, err: %v", err)
-	}
-
 	accountTransaction, err := send.Transfer(
-		signer,
-		v2.AccountAddressFromBytes(sender),
+		walletAccount,
+		*walletAccount.Address,
 		nonce,
 		expiry,
-		v2.AccountAddressFromBytes(receiver),
+		receiver,
 		amount,
 	)
 	if err != nil {
 		log.Fatalf("couldn't build account transction, err: %v", err)
 	}
 
-	txHash, err := client.SendBlockItem(ctx, &pb.SendBlockItemRequest{
-		BlockItem: &pb.SendBlockItemRequest_AccountTransaction{
-			AccountTransaction: &pb.AccountTransaction{
-				Signature: &pb.AccountTransactionSignature{Signatures: map[uint32]*pb.AccountSignatureMap{
-					0: {Signatures: map[uint32]*pb.Signature{
-						0: {Value: accountTransaction.Signature.Signatures[0].Signatures[0].Value},
-					}}}},
-				Header: &pb.AccountTransactionHeader{
-					Sender:         &pb.AccountAddress{Value: accountTransaction.Header.Sender.Value[:]},
-					SequenceNumber: &pb.SequenceNumber{Value: accountTransaction.Header.SequenceNumber.Value},
-					EnergyAmount:   &pb.Energy{Value: accountTransaction.Header.EnergyAmount.Value},
-					Expiry:         &pb.TransactionTime{Value: accountTransaction.Header.Expiry.Value},
-				},
-				Payload: &pb.AccountTransactionPayload{Payload: &pb.AccountTransactionPayload_RawPayload{
-					RawPayload: accountTransaction.Payload.Payload.Encode().Value,
-				}},
-			},
-		},
-	})
+	txHash, err := accountTransaction.Send(ctx, client)
 	if err != nil {
 		log.Fatalf("couldn't send block item, err: %v", err)
 	}
 	fmt.Printf("Success! Transaction hash: %s", txHash.Hex())
 }
+
 ```
 
 ## RPC

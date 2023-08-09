@@ -99,7 +99,7 @@ func (preAccountTransaction *PreAccountTransaction) Deserialize(source []byte) (
 
 // TransactionSigner is an interface for signing transactions.
 type TransactionSigner interface {
-	// SignTransactionHash signs transaction hash and returns signatures in TransactionSignature type.
+	// SignTransactionHash signs transaction hash and returns signatures in AccountTransactionSignature type.
 	SignTransactionHash(hashToSign *TransactionHash) (*AccountTransactionSignature, error)
 }
 

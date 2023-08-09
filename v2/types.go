@@ -1,8 +1,12 @@
 package v2
 
 import (
+	"crypto/ed25519"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
+	"os"
+	"strconv"
 
 	"github.com/BoostyLabs/concordium-go-sdk/v2/pb"
 	"github.com/btcsuite/btcutil/base58"
@@ -19,12 +23,221 @@ const (
 // This structure implements TransactionSigner and ExactSizeTransactionSigner, so it may be used for sending transactions.
 // This structure does not have the encryption key for sending encrypted transfers, it only contains keys for signing transactions.
 type WalletAccount struct {
-	Address AccountAddress
-	Keys    AccountKeys
+	Address *AccountAddress
+	Keys    *AccountKeys
+}
+
+// NewWalletAccount created new WalletAccount from AccountAddress and one KeyPair.
+func NewWalletAccount(accountAddress AccountAddress, keyPair KeyPair) *WalletAccount {
+	keyPairs := make(map[KeyIndex]*KeyPair, 1)
+	keyPairs[0] = &keyPair
+
+	accountKeys := make(map[CredentialIndex]*CredentialData, 1)
+	accountKeys[0] = &CredentialData{
+		Keys:      keyPairs,
+		Threshold: SignatureThreshold{Value: 1},
+	}
+
+	return &WalletAccount{
+		Address: &accountAddress,
+		Keys: &AccountKeys{
+			Keys:      accountKeys,
+			Threshold: AccountThreshold{Value: 1},
+		},
+	}
+}
+
+// NewWalletAccountFromFile created new WalletAccount from `<account_address>.export` file.
+func NewWalletAccountFromFile(pathToFile string) (*WalletAccount, error) {
+	data := struct {
+		Value struct {
+			AccountKeys struct {
+				Keys map[string]struct {
+					Keys map[string]struct {
+						SingKey   string `json:"signKey"`
+						VerifyKey string `json:"verifyKey"`
+					} `json:"keys"`
+					Threshold int `json:"threshold"`
+				} `json:"keys"`
+				Threshold int `json:"threshold"`
+			} `json:"accountKeys"`
+			Address string `json:"address"`
+		} `json:"value"`
+	}{}
+
+	file, err := os.ReadFile(pathToFile)
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(file, &data)
+	if err != nil {
+		return nil, err
+	}
+
+	accountAddress, err := AccountAddressFromString(data.Value.Address)
+	if err != nil {
+		return nil, err
+	}
+
+	credentialData := make(map[CredentialIndex]*CredentialData, data.Value.AccountKeys.Threshold)
+	for credIndex := 0; credIndex < data.Value.AccountKeys.Threshold; credIndex++ {
+		keyPairs := make(map[KeyIndex]*KeyPair, data.Value.AccountKeys.Keys[strconv.Itoa(credIndex)].Threshold)
+
+		credKeys := data.Value.AccountKeys.Keys[strconv.Itoa(credIndex)]
+		for keyIndex := 0; keyIndex < credKeys.Threshold; keyIndex++ {
+			keyPair := credKeys.Keys[strconv.Itoa(keyIndex)]
+
+			singKey, err := hex.DecodeString(keyPair.SingKey)
+			if err != nil {
+				return nil, err
+			}
+
+			verifyKey, err := hex.DecodeString(keyPair.VerifyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			keyPairs[KeyIndex(keyIndex)], err = NewKeyPairFromSignKeyAndVerifyKey(singKey, verifyKey)
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		credentialData[CredentialIndex(credIndex)] = &CredentialData{
+			Keys:      keyPairs,
+			Threshold: SignatureThreshold{Value: uint8(len(keyPairs))},
+		}
+	}
+
+	return &WalletAccount{
+		Address: &accountAddress,
+		Keys: &AccountKeys{
+			Keys:      credentialData,
+			Threshold: AccountThreshold{Value: uint8(len(credentialData))},
+		},
+	}, nil
+}
+
+// AddKeyPair adds KeyPair to WalletAccount and updates threshold fields.
+func (walletAccount *WalletAccount) AddKeyPair(pair KeyPair) {
+	keyPairs := walletAccount.Keys.Keys[CredentialIndex(walletAccount.Keys.Threshold.Value-1)]
+	keyPairs.Keys[KeyIndex(keyPairs.Threshold.Value)] = &pair
+	keyPairs.Threshold.Value++
+	walletAccount.Keys.Keys[CredentialIndex(walletAccount.Keys.Threshold.Value-1)] = keyPairs
+}
+
+// SignTransactionHash returns signed TransactionHash.
+func (walletAccount *WalletAccount) SignTransactionHash(hashToSign *TransactionHash) (*AccountTransactionSignature, error) {
+	if walletAccount.Address == nil || walletAccount.Keys == nil {
+		return nil, errors.New("'AccountAddress' or 'Keys' field is not initialized or empty")
+	}
+	if walletAccount.Keys.Keys == nil || len(walletAccount.Keys.Keys) == 0 {
+		return nil, errors.New("'WalletAccount.Keys' is not initialized or empty")
+	}
+
+	signaturesMap := make(map[uint8]*AccountSignatureMap, int(walletAccount.Keys.Threshold.Value))
+	for credIdx, credData := range walletAccount.Keys.Keys {
+		if credData.Keys == nil || len(credData.Keys) == 0 {
+			return nil, errors.New("'WalletAccount.Keys.Keys[ " + strconv.Itoa(int(credIdx)) + "].Keys' is not initialized or empty")
+		}
+
+		signatures := make(map[uint8]*Signature, int(credData.Threshold.Value))
+		for keyIdx, keyPair := range credData.Keys {
+			signature := keyPair.Sign(hashToSign.Value[:])
+			signatures[uint8(keyIdx)] = &signature
+		}
+
+		signaturesMap[uint8(credIdx)] = &AccountSignatureMap{Signatures: signatures}
+	}
+
+	return &AccountTransactionSignature{Signatures: signaturesMap}, nil
+}
+
+// NumberOfKeys returns number of signing keys.
+func (walletAccount *WalletAccount) NumberOfKeys() uint32 {
+	var sum uint32 = 0
+	for _, credData := range walletAccount.Keys.Keys {
+		sum += uint32(len(credData.Keys))
+	}
+
+	return sum
 }
 
 // AccountKeys all account keys indexed by credentials.
 type AccountKeys struct {
+	Keys      map[CredentialIndex]*CredentialData
+	Threshold AccountThreshold
+}
+
+// CredentialIndex describes index of the credential that is to be used.
+type CredentialIndex uint8
+
+// CredentialData describes credential data needed by the account holder to generate proofs to deploy
+// the credential object. This contains all the keys on the credential at the moment of its deployment.
+// If this creates the account then the account starts with exactly these keys.
+type CredentialData struct {
+	Keys      map[KeyIndex]*KeyPair
+	Threshold SignatureThreshold
+}
+
+// KeyIndex describes index of an account key that is to be used.
+type KeyIndex uint8
+
+// KeyPair describes ed25519 key pair.
+type KeyPair struct {
+	// secret describes `signKey`.
+	secret ed25519.PrivateKey
+	// public describes `verifyKey`.
+	public ed25519.PublicKey
+}
+
+// NewKeyPairFromSignKey creates new KeyPair from `singKey`.
+// You can find this key in `Private Key` field in wallet settings -> `export private key` (key is in hex encoding),
+// or copy from export file from filed `signKey` (key is in hex encoding).
+func NewKeyPairFromSignKey(signKey []byte) (*KeyPair, error) {
+	if signKey == nil || len(signKey) != ed25519.SeedSize {
+		return nil, errors.New("sign key should be " + strconv.Itoa(ed25519.SeedSize) + " bytes long")
+	}
+
+	privateKey := ed25519.NewKeyFromSeed(signKey)
+	return &KeyPair{secret: privateKey.Seed(), public: privateKey.Public().(ed25519.PublicKey)}, nil
+}
+
+// NewKeyPairFromSignKeyAndVerifyKey creates new KeyPair from `singKey` and `verifyKey.
+// You can find these keys in export file in fields `signKey` and `verifyKey` (keys are in hex encoding).
+func NewKeyPairFromSignKeyAndVerifyKey(signKey, verifyKey []byte) (*KeyPair, error) {
+	if signKey == nil || len(signKey) != ed25519.SeedSize {
+		return nil, errors.New("sign key should be " + strconv.Itoa(ed25519.SeedSize) + " bytes long")
+	}
+
+	if verifyKey == nil || len(verifyKey) != ed25519.PublicKeySize {
+		return nil, errors.New("verify key should be " + strconv.Itoa(ed25519.PublicKeySize) + " bytes long")
+	}
+
+	return &KeyPair{secret: signKey, public: verifyKey}, nil
+}
+
+// Secret returns `signKey`.
+func (keyPair *KeyPair) Secret() ed25519.PrivateKey {
+	return keyPair.secret
+}
+
+// Public return `verifyKey`.
+func (keyPair *KeyPair) Public() ed25519.PublicKey {
+	return keyPair.public
+}
+
+// Sign signs the message with private key and returns a signature.
+func (keyPair *KeyPair) Sign(msg []byte) Signature {
+	privateKey := append(keyPair.Secret(), keyPair.Public()...)
+	return Signature{Value: ed25519.Sign(privateKey, msg)}
+}
+
+// AccountThreshold describes the minimum number of credentials that need to sign any transaction coming
+// from an associated account. The values of this type must maintain the property that they are not 0.
+type AccountThreshold struct {
+	Value uint8
 }
 
 // SignatureThreshold threshold for the number of signatures required.
