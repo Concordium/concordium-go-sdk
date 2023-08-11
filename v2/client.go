@@ -18,7 +18,7 @@ type Config struct {
 	NodeAddress string `env:"NODE_ADDRESS"`
 	CA          struct {
 		Enabled               bool   `env:"CA_ENABLED" envDefault:"false"`
-		InsecureSkipVerify    bool   `env:"INSECURE_SKIP_VERIFY" envDefault:"false"`
+		InsecureSkipVerify    bool   `env:"CA_INSECURE_SKIP_VERIFY" envDefault:"false"`
 		CACertificatePath     string `env:"CA_CA_CERTIFICATE_PATH" envDefault:""`
 		ClientCertificatePath string `env:"CA_CLIENT_CERTIFICATE_PATH" envDefault:""`
 		ClientCertificateKey  string `env:"CA_CLIENT_CERTIFICATE_KEY_PATH" envDefault:""`
