@@ -23,18 +23,22 @@ The Client is constructed using the new method.
 ```go
 // NewClient creates new concordium grpc client.
 func NewClient(config Config) (_ *Client, err error) {
-	// creating grpc connection, using node address
-	conn, err := grpc.Dial(
-		config.NodeAddress,
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	)
-	if err != nil {
-		return nil, err
-	}
-	
-	client := pb.NewQueriesClient(conn)
-
-	return &Client{grpcClient: client, ClientConn: conn, config: config}, nil
+    creds, err := loadTLSCredentials(config)
+    if err != nil {
+        return nil, err
+    }
+    
+    conn, err := grpc.Dial(
+        config.NodeAddress,
+        grpc.WithTransportCredentials(creds),
+    )
+    if err != nil {
+        return nil, err
+    }
+    
+    client := pb.NewQueriesClient(conn)
+    
+    return &Client{GrpcClient: client, ClientConn: conn, config: config}, nil
 }
 ```
 
