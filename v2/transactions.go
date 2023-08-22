@@ -7,7 +7,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/BoostyLabs/concordium-go-sdk/v2/pb"
+	"github.com/Concordium/concordium-go-sdk/v2/pb"
 )
 
 // TransactionHeaderSize describes size of a transaction Header. This is currently always 60 Bytes.

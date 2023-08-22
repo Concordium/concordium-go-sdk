@@ -8,9 +8,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/BoostyLabs/concordium-go-sdk/v2"
-	"github.com/BoostyLabs/concordium-go-sdk/v2/pb"
-	"github.com/BoostyLabs/concordium-go-sdk/v2/transactions/send"
+	"github.com/Concordium/concordium-go-sdk/v2"
+	"github.com/Concordium/concordium-go-sdk/v2/pb"
+	"github.com/Concordium/concordium-go-sdk/v2/transactions/send"
 )
 
 // for this example we need to pass signKey, verifyKey and 2 wallet pubkeys - sender and receiver, sender need to have funds to transfer. note: accounts must be on test network.

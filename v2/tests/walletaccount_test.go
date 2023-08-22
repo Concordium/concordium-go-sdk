@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/BoostyLabs/concordium-go-sdk/v2"
+	"github.com/Concordium/concordium-go-sdk/v2"
 )
 
 func TestWalletAccountKeyPair(t *testing.T) {

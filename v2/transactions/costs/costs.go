@@ -1,6 +1,6 @@
 package costs
 
-import "github.com/BoostyLabs/concordium-go-sdk/v2"
+import "github.com/Concordium/concordium-go-sdk/v2"
 
 const (
 	// A is the constant for NRG assignment. This scales the effect of the number of signatures on the energy.

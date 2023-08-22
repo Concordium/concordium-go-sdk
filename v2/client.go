@@ -3,7 +3,7 @@ package v2
 import (
 	"crypto/tls"
 	"crypto/x509"
-	"github.com/BoostyLabs/concordium-go-sdk/v2/pb"
+	"github.com/Concordium/concordium-go-sdk/v2/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"

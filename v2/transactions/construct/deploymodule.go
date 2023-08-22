@@ -1,8 +1,8 @@
 package construct
 
 import (
-	"github.com/BoostyLabs/concordium-go-sdk/v2"
-	"github.com/BoostyLabs/concordium-go-sdk/v2/transactions/costs"
+	"github.com/Concordium/concordium-go-sdk/v2"
+	"github.com/Concordium/concordium-go-sdk/v2/transactions/costs"
 )
 
 // DeployModule deploys the given Wasm module. The module is given

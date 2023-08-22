@@ -3,7 +3,7 @@ package v2
 import (
 	"context"
 
-	"github.com/BoostyLabs/concordium-go-sdk/v2/pb"
+	"github.com/Concordium/concordium-go-sdk/v2/pb"
 )
 
 // GetInstanceState get the exact state of a specific contract instance, streamed as a list of key-value pairs.

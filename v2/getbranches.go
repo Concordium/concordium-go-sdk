@@ -3,7 +3,7 @@ package v2
 import (
 	"context"
 
-	"github.com/BoostyLabs/concordium-go-sdk/v2/pb"
+	"github.com/Concordium/concordium-go-sdk/v2/pb"
 )
 
 // GetBranches get the current branches of blocks starting from and including the last finalized block.

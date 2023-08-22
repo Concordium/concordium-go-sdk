@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/BoostyLabs/concordium-go-sdk/v2"
-	"github.com/BoostyLabs/concordium-go-sdk/v2/pb"
+	"github.com/Concordium/concordium-go-sdk/v2"
+	"github.com/Concordium/concordium-go-sdk/v2/pb"
 )
 
 // in this example we receive and print 3 blocks in base58 format.

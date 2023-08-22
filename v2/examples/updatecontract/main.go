@@ -11,9 +11,9 @@ import (
 	"github.com/joho/godotenv"
 	_ "github.com/joho/godotenv/autoload"
 
-	"github.com/BoostyLabs/concordium-go-sdk/v2"
-	"github.com/BoostyLabs/concordium-go-sdk/v2/pb"
-	"github.com/BoostyLabs/concordium-go-sdk/v2/transactions/send"
+	"github.com/Concordium/concordium-go-sdk/v2"
+	"github.com/Concordium/concordium-go-sdk/v2/pb"
+	"github.com/Concordium/concordium-go-sdk/v2/transactions/send"
 )
 
 type updateParams struct {

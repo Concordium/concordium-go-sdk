@@ -3,7 +3,7 @@ package v2
 import (
 	"context"
 
-	"github.com/BoostyLabs/concordium-go-sdk/v2/pb"
+	"github.com/Concordium/concordium-go-sdk/v2/pb"
 )
 
 // GetAncestors get a stream of ancestors for the provided block.

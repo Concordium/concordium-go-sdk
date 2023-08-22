@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/BoostyLabs/concordium-go-sdk/v2"
-	"github.com/BoostyLabs/concordium-go-sdk/v2/pb"
+	"github.com/Concordium/concordium-go-sdk/v2"
+	"github.com/Concordium/concordium-go-sdk/v2/pb"
 	"github.com/stretchr/testify/require"
 )
 

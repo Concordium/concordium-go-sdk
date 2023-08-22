@@ -10,7 +10,7 @@ import (
 	"github.com/joho/godotenv"
 	_ "github.com/joho/godotenv/autoload"
 
-	"github.com/BoostyLabs/concordium-go-sdk/v2"
+	"github.com/Concordium/concordium-go-sdk/v2"
 )
 
 type invokeInstanceParams struct {

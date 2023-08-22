@@ -1,7 +1,7 @@
 package construct
 
 import (
-	"github.com/BoostyLabs/concordium-go-sdk/v2"
+	"github.com/Concordium/concordium-go-sdk/v2"
 )
 
 // UpdateContract updates a smart contract instance, giving it the given amount of energy

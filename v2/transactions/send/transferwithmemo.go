@@ -1,8 +1,8 @@
 package send
 
 import (
-	"github.com/BoostyLabs/concordium-go-sdk/v2"
-	"github.com/BoostyLabs/concordium-go-sdk/v2/transactions/construct"
+	"github.com/Concordium/concordium-go-sdk/v2"
+	"github.com/Concordium/concordium-go-sdk/v2/transactions/construct"
 )
 
 // TransferWithMemo constructs a transfer transaction with a memo.

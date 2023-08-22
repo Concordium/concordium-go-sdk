@@ -8,7 +8,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/BoostyLabs/concordium-go-sdk/v2/pb"
+	"github.com/Concordium/concordium-go-sdk/v2/pb"
 	"github.com/btcsuite/btcutil/base58"
 )
 

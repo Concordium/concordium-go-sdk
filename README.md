@@ -1,6 +1,6 @@
 <h1 align="center">Concordium Go SDK</h1>
 <div align="center">
-	<img alt="GitHub go.mod Go version" src="https://img.shields.io/github/go-mod/go-version/BoostyLabs/concordium-go-sdk">
+	<img alt="GitHub go.mod Go version" src="https://img.shields.io/github/go-mod/go-version/Concordium/concordium-go-sdk">
 </div>
 
 
@@ -10,7 +10,7 @@
 ### Installing
 
 ```sh
-go get -v github.com/BoostyLabs/concordium-go-sdk
+go get -v github.com/Concordium/concordium-go-sdk
 ```
 
 ### Basic usage
@@ -54,7 +54,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/BoostyLabs/concordium-go-sdk/v2"
+	"github.com/Concordium/concordium-go-sdk/v2"
 )
 
 // in this example we receive and print node info.
@@ -80,7 +80,7 @@ These wrappers handle encoding, setting energy costs when those are fixed for tr
 
 #### Construct
 
-Functions from `github.com/BoostyLabs/concordium-go-sdk/v2/transactions/construct` packet build PreAccountTransaction.
+Functions from `github.com/Concordium/concordium-go-sdk/v2/transactions/construct` packet build PreAccountTransaction.
 
 PreAccountTransaction is an AccountTransaction without signatures. To get signed transaction you can use `PreAccountTransaction.Sign(TransactionSigner)`
 with transmitted implementation of `TransactionSigner` interface.
@@ -95,7 +95,7 @@ type TransactionSigner interface {
 
 #### Send
 
-Functions from `github.com/BoostyLabs/concordium-go-sdk/v2/transactions/send` packet build AccountTransaction.
+Functions from `github.com/Concordium/concordium-go-sdk/v2/transactions/send` packet build AccountTransaction.
 
 AccountTransaction already have signatures, but the first parameter in constructing functions from `send` packet must implement
 `ExactSizeTransactionSigner` interface.
@@ -130,8 +130,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/BoostyLabs/concordium-go-sdk/v2"
-	"github.com/BoostyLabs/concordium-go-sdk/v2/transactions/construct"
+	"github.com/Concordium/concordium-go-sdk/v2"
+	"github.com/Concordium/concordium-go-sdk/v2/transactions/construct"
 )
 
 func main() {
@@ -194,8 +194,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/BoostyLabs/concordium-go-sdk/v2"
-	"github.com/BoostyLabs/concordium-go-sdk/v2/transactions/send"
+	"github.com/Concordium/concordium-go-sdk/v2"
+	"github.com/Concordium/concordium-go-sdk/v2/transactions/send"
 )
 
 func main() {

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/BoostyLabs/concordium-go-sdk/v2"
+	"github.com/Concordium/concordium-go-sdk/v2"
 )
 
 // in this example we receive and print all accounts in base58 format that we received from specific block but absolute height.
