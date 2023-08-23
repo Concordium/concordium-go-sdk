@@ -464,9 +464,12 @@ func convertBlockInfo(b *pb.BlockInfo) *BlockInfo {
 	copy(parentBlock.Value[:], b.ParentBlock.Value)
 	copy(lastFinalizedBlock.Value[:], b.LastFinalizedBlock.Value)
 
-	var slotTime uint64
+	var slotTime, slotNumber uint64
 	if b.SlotTime != nil {
 		slotTime = b.SlotTime.Value
+	}
+	if b.SlotNumber != nil {
+		slotNumber = b.SlotNumber.Value
 	}
 
 	return &BlockInfo{
@@ -489,7 +492,7 @@ func convertBlockInfo(b *pb.BlockInfo) *BlockInfo {
 			Value: b.ArriveTime.Value,
 		},
 		SlotNumber: &Slot{
-			Value: b.SlotNumber.Value,
+			Value: slotNumber,
 		},
 		SlotTime: &Timestamp{
 			Value: slotTime,
