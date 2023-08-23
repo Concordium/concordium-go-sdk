@@ -15,63 +15,10 @@ go get -v github.com/Concordium/concordium-go-sdk
 
 ### Basic usage
 
-The core structure of the SDK is the Client which maintains a connection to the node and supports querying the node and sending messages to it. 
-This client is cheaply clonable.
+The core structure of the SDK is the Client which maintains a connection to the
+node and supports querying the node and sending messages to it.
 
-The Client is constructed using the new method.
-
-```go
-// NewClient creates new concordium grpc client.
-func NewClient(config Config) (_ *Client, err error) {
-    creds, err := loadTLSCredentials(config)
-    if err != nil {
-        return nil, err
-    }
-    
-    conn, err := grpc.Dial(
-        config.NodeAddress,
-        grpc.WithTransportCredentials(creds),
-    )
-    if err != nil {
-        return nil, err
-    }
-    
-    client := pb.NewQueriesClient(conn)
-    
-    return &Client{GrpcClient: client, ClientConn: conn, config: config}, nil
-}
-```
-
-### Example
-
-#### Get Node Info
-
-```go
-package main
-
-import (
-	"context"
-	"fmt"
-	"log"
-
-	"github.com/Concordium/concordium-go-sdk/v2"
-)
-
-// in this example we receive and print node info.
-func main() {
-	client, err := v2.NewClient(v2.Config{NodeAddress: "node.testnet.concordium.com:20000"})
-
-	// sending empty context, can also use any other context instead.
-	resp, err := client.GetNodeInfo(context.TODO())
-	if err != nil {
-		log.Fatalf("failed to get node info, err: %v", err)
-	}
-
-	fmt.Println("node info: ", resp.String())
-}
-
-
-```
+See examples in [`v2/examples/`](v2/examples) for example usage.
 
 ### Transaction constructor
 
@@ -252,4 +199,4 @@ All interfaces of rpc follow the [concordium protocol docs](https://developer.co
 
 ### More Example
 
-for more examples, follow `v2/examples/` folder, or in `v2/tests/`
+For more examples, follow `v2/examples/` folder, or in `v2/tests/`
