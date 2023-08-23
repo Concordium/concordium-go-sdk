@@ -1,0 +1,41 @@
+on:
+  # Trigger the workflow on push or pull request,
+  # but only for the main branch
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+name: Fmt
+
+jobs:
+  gofmt:
+    name: Format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Format sources
+        run: |
+           test -z $(gofmt -s -l .)
+
+  build-examples:
+    name: Build all examples
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Build all examples
+        run: |
+            for example in $(ls v2/examples/*/*.go); do
+                if ! $(go build $example); then
+                    exit 1
+                fi
+            done
+
+
