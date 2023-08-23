@@ -1,6 +1,6 @@
 module github.com/Concordium/concordium-go-sdk
 
-go 1.18
+go 1.19
 
 require (
 	github.com/btcsuite/btcutil v1.0.2
