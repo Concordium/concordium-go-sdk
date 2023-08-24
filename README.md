@@ -22,15 +22,15 @@ See examples in [`v2/examples/`](v2/examples) for example usage.
 
 ### Transaction constructor
 
-There are two helping packets with high level wrappers for making transactions with minimal user input.
-These wrappers handle encoding, setting energy costs when those are fixed for transaction.
+There are two helping packets with high-level wrappers for making transactions with minimal user input.
+These wrappers handle encoding, setting energy costs when those are fixed for the transaction.
 
 #### Construct
 
 Functions from `github.com/Concordium/concordium-go-sdk/v2/transactions/construct` packet build PreAccountTransaction.
 
-PreAccountTransaction is an AccountTransaction without signatures. To get signed transaction you can use `PreAccountTransaction.Sign(TransactionSigner)`
-with transmitted implementation of `TransactionSigner` interface.
+PreAccountTransaction is an AccountTransaction without signatures. To get a signed transaction you can use `PreAccountTransaction.Sign(TransactionSigner)`
+with the transmitted implementation of the `TransactionSigner` interface.
 
 ```go
 // TransactionSigner is an interface for signing transactions.
@@ -44,7 +44,7 @@ type TransactionSigner interface {
 
 Functions from `github.com/Concordium/concordium-go-sdk/v2/transactions/send` packet build AccountTransaction.
 
-AccountTransaction already have signatures, but the first parameter in constructing functions from `send` packet must implement
+AccountTransaction already has signatures, but the first parameter in constructing functions from `send` packet must implement the
 `ExactSizeTransactionSigner` interface.
 
 ```go
@@ -58,11 +58,11 @@ type ExactSizeTransactionSigner interface {
 
 #### One key signature
 
-For signature with only one private key you can use `WalletAccount` struct.
+For signature with only one private key, you can use the `WalletAccount` struct.
 To create `WalletAccount` with one private key just call `NewWalletAccount`
-with account address and key pair. To create `WalletAccount` with one or more
-keys, you can add key pair to existing `WalletAccount` using method `AddKeyPair`
-of call `NewWalletAccountFromFile` to read credentials from `<account_address>.export` file.
+with the account address and key pair. To create `WalletAccount` with one or more
+keys, you can add a key pair to the existing `WalletAccount` using the method `AddKeyPair`
+of call `NewWalletAccountFromFile` to read credentials from the `<account_address>.export` file.
 
 ### Examples
 
@@ -195,8 +195,8 @@ func main() {
 
 ## RPC
 
-All interfaces of rpc follow the [concordium protocol docs](https://developer.concordium.software/concordium-grpc-api/#v2%2fconcordium%2fservice.proto).
+All RPC interfaces follow the [concordium protocol docs](https://developer.concordium.software/concordium-grpc-api/#v2%2fconcordium%2fservice.proto).
 
-### More Example
+### More Examples
 
-For more examples, follow `v2/examples/` folder, or in `v2/tests/`
+For more examples, see the `v2/examples/` or `v2/tests/` folders. 
