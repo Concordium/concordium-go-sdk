@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/Concordium/concordium-go-sdk/v2"
+	v2 "github.com/Concordium/concordium-go-sdk/v2"
 	"github.com/Concordium/concordium-go-sdk/v2/pb"
 	"github.com/stretchr/testify/require"
 )

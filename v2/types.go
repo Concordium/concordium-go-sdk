@@ -995,3 +995,59 @@ func ConvertBlockItems(input []*pb.BlockItem) []*BlockItem {
 
 	return result
 }
+
+// A chain epoch.
+type Epoch struct {
+	Value uint64
+}
+
+// Input to queries which take an epoch as a parameter.
+type isEpochRequest interface {
+	isEpochRequest()
+}
+
+// Query for the epoch of a specified block.
+type EpochRequestBlockHash struct {
+	// The block to query at.
+	BlockHash isBlockHashInput
+}
+
+func (EpochRequestBlockHash) isEpochRequest() {}
+
+// Request an epoch by number at a given genesis index.
+type EpochRequestRelativeEpoch struct {
+	// The genesis index to query at. The query is restricted to this genesis idex, and
+	// will not return results for other indices even if the epoch number is out of bounds.
+	GenesisIndex GenesisIndex
+	// The epoch number to query at.
+	Epoch Epoch
+}
+
+func (EpochRequestRelativeEpoch) isEpochRequest() {}
+
+func convertEpochRequest(req isEpochRequest) (_ *pb.EpochRequest) {
+	var res *pb.EpochRequest
+	switch v := req.(type) {
+	case EpochRequestBlockHash:
+		res = &pb.EpochRequest{
+			EpochRequestInput: &pb.EpochRequest_BlockHash{
+				BlockHash: convertBlockHashInput(v.BlockHash),
+			},
+		}
+	case EpochRequestRelativeEpoch:
+		res = &pb.EpochRequest{
+			EpochRequestInput: &pb.EpochRequest_RelativeEpoch_{
+				RelativeEpoch: &pb.EpochRequest_RelativeEpoch{
+					GenesisIndex: &pb.GenesisIndex{
+						Value: v.GenesisIndex.Value,
+					},
+					Epoch: &pb.Epoch{
+						Value: v.Epoch.Value,
+					},
+				},
+			},
+		}
+	}
+
+	return res
+}
