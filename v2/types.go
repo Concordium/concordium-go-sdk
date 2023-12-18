@@ -288,6 +288,19 @@ type BlockHash struct {
 	Value [BlockHashLength]byte
 }
 
+func BlockHashFromBytes(b []byte) (BlockHash, error) {
+	if len(b) != BlockHashLength {
+		return BlockHash{}, errors.New("BlockHash must be excactly 32 bytes")
+	}
+	var blockHash BlockHash
+	copy(blockHash.Value[:], b)
+	return blockHash, nil
+}
+
+func parseBlockHash(h *pb.BlockHash) (BlockHash, error) {
+	return BlockHashFromBytes(h.Value)
+}
+
 // Hex encodes block hash to base16 string.
 func (b *BlockHash) Hex() string {
 	return hex.EncodeToString(b.Value[:])

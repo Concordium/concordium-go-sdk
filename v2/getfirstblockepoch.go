@@ -2,8 +2,6 @@ package v2
 
 import (
 	"context"
-
-	"github.com/Concordium/concordium-go-sdk/v2/pb"
 )
 
 // GetFirstBlockEpoch retrieves the block hash of the first finalized block in a specified epoch.
@@ -16,11 +14,16 @@ import (
 //   - `UNIMPLEMENTED` if the endpoint is disabled on the node.
 //
 // This endpoint is only supported for protocol version 6 and onwards.
-func (c *Client) GetFirstBlockEpoch(ctx context.Context, req isEpochRequest) (_ *pb.BlockHash, err error) {
+func (c *Client) GetFirstBlockEpoch(ctx context.Context, req isEpochRequest) (_ BlockHash, err error) {
 	resp, err := c.GrpcClient.GetFirstBlockEpoch(ctx, convertEpochRequest(req))
 	if err != nil {
-		return nil, err
+		return BlockHash{}, err
 	}
 
-	return resp, nil
+	res, err := parseBlockHash(resp)
+	if err != nil {
+		return BlockHash{}, err
+	}
+
+	return res, nil
 }
