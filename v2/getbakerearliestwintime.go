@@ -20,11 +20,11 @@ import (
 // Note that in some circumstances the returned timestamp can be in the past, especially at the end of an epoch.
 //
 // This endpoint is only supported for protocol version 6 and onwards.
-func (c *Client) GetBakerEarliestWinTime(ctx context.Context, req *pb.BakerId) (_ *pb.Timestamp, err error) {
+func (c *Client) GetBakerEarliestWinTime(ctx context.Context, req *pb.BakerId) (_ Timestamp, err error) {
 	timestamp, err := c.GrpcClient.GetBakerEarliestWinTime(ctx, req)
 	if err != nil {
-		return &pb.Timestamp{}, err
+		return Timestamp{}, err
 	}
 
-	return timestamp, nil
+	return parseTimestamp(timestamp), nil
 }

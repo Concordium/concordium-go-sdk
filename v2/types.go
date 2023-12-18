@@ -288,6 +288,7 @@ type BlockHash struct {
 	Value [BlockHashLength]byte
 }
 
+// BlockHashFromBytes creates a BlockHash from given []byte. Length of given []byte must be excactly 32 bytes.
 func BlockHashFromBytes(b []byte) (BlockHash, error) {
 	if len(b) != BlockHashLength {
 		return BlockHash{}, errors.New("BlockHash must be excactly 32 bytes")
@@ -297,6 +298,7 @@ func BlockHashFromBytes(b []byte) (BlockHash, error) {
 	return blockHash, nil
 }
 
+// Parses *pb.BlockHash to BlockHash
 func parseBlockHash(h *pb.BlockHash) (BlockHash, error) {
 	return BlockHashFromBytes(h.Value)
 }
@@ -447,6 +449,11 @@ type Slot struct {
 // Timestamp unix timestamp in milliseconds.
 type Timestamp struct {
 	Value uint64
+}
+
+// Parses *pb.Timestamp to Timestamp
+func parseTimestamp(t *pb.Timestamp) Timestamp {
+	return Timestamp{Value: t.Value}
 }
 
 // GenesisIndex the number of chain restarts via a protocol update. An effected
