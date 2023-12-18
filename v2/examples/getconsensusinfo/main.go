@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/Concordium/concordium-go-sdk/v2"
+	v2 "github.com/Concordium/concordium-go-sdk/v2"
 )
 
 // in this example we receive and print consensus info.
