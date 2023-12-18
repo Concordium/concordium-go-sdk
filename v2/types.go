@@ -1163,7 +1163,11 @@ func parseBakerInfo(b *pb.BakerInfo) BakerInfo {
 	electionKey := parseBakerElectionVerifyKey(b.ElectionKey)
 	signatureKey := parseBakerSignatureVerifyKey(b.SignatureKey)
 	aggregationKey := parseBakerAggregationVerifyKey(b.AggregationKey)
-	return BakerInfo{BakerId: bakerId, ElectionKey: electionKey, SignatureKey: signatureKey, AggregationKey: aggregationKey}
+	return BakerInfo{
+		BakerId:        bakerId,
+		ElectionKey:    electionKey,
+		SignatureKey:   signatureKey,
+		AggregationKey: aggregationKey}
 
 }
 
@@ -1256,4 +1260,46 @@ func parseAmountFraction(a *pb.AmountFraction) (AmountFraction, error) {
 		return AmountFraction{}, errors.New("Error parsing AmountFraction: " + err.Error())
 	}
 	return res, nil
+}
+
+// Return type of GetWinningBakersEpoch. Parses the returned *pb.WinningBaker to WinningBaker when Recv() is called.
+type WinningBakerStream struct {
+	stream pb.Queries_GetWinningBakersEpochClient
+}
+
+// Recv retrieves the next WinningBaker.
+func (s *WinningBakerStream) Recv() (WinningBaker, error) {
+	info, err := s.stream.Recv()
+	if err != nil {
+		return WinningBaker{}, err
+	}
+	return parseWinningBaker(info), nil
+}
+
+// Details of which baker won the lottery in a given round in consensus version 1.
+type WinningBaker struct {
+	// The round number.
+	Round Round
+	// The baker that won the round.
+	Winner BakerId
+	// True if the baker produced a block in this round on the finalized chain, and false otherwise.
+	Present bool
+}
+
+func parseWinningBaker(w *pb.WinningBaker) WinningBaker {
+	return WinningBaker{
+		Round:   parseRound(w.Round),
+		Winner:  parseBakerId(w.Winner),
+		Present: w.Present,
+	}
+}
+
+// A round.
+type Round struct {
+	Value uint64
+}
+
+// Parses *pb.Round to Round.
+func parseRound(r *pb.Round) Round {
+	return Round{Value: r.Value}
 }

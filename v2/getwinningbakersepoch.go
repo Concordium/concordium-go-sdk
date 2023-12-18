@@ -2,8 +2,6 @@ package v2
 
 import (
 	"context"
-
-	"github.com/Concordium/concordium-go-sdk/v2/pb"
 )
 
 // GetWinningBakersEpoch retrieves the list of bakers that won the lottery in a particular historical epoch
@@ -21,11 +19,11 @@ import (
 //   - `UNIMPLEMENTED` if the endpoint is disabled on the node.
 //
 // This endpoint is only supported for protocol version 6 and onwards.
-func (c *Client) GetWinningBakersEpoch(ctx context.Context, req isEpochRequest) (_ pb.Queries_GetWinningBakersEpochClient, err error) {
+func (c *Client) GetWinningBakersEpoch(ctx context.Context, req isEpochRequest) (_ WinningBakerStream, err error) {
 	stream, err := c.GrpcClient.GetWinningBakersEpoch(ctx, convertEpochRequest(req))
 	if err != nil {
-		return nil, err
+		return WinningBakerStream{}, err
 	}
 
-	return stream, nil
+	return WinningBakerStream{stream: stream}, nil
 }
