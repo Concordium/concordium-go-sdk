@@ -17,6 +17,7 @@ const (
 	BlockHashLength       = 32
 	TransactionHashLength = 32
 	ModuleRefLength       = 32
+	hundredThousand       = 100000
 )
 
 // WalletAccount an account imported from one of the supported export formats.
@@ -441,6 +442,11 @@ type BakerId struct {
 	Value uint64
 }
 
+// Parses *pb.BakerId to BakerId
+func parseBakerId(b *pb.BakerId) BakerId {
+	return BakerId{Value: b.Value}
+}
+
 // Slot a number representing a slot for baking a block.
 type Slot struct {
 	Value uint64
@@ -703,6 +709,10 @@ type InitName struct {
 // Amount an amount of microCCD.
 type Amount struct {
 	Value uint64
+}
+
+func parseAmount(a *pb.Amount) Amount {
+	return Amount{Value: a.Value}
 }
 
 // Parameter to a smart contract initialization or invocation.
@@ -1070,4 +1080,180 @@ func convertEpochRequest(req isEpochRequest) (_ *pb.EpochRequest) {
 	}
 
 	return res
+}
+
+// Return type of GetBakersRewardPeriod. Parses the returned *pb.BakerRewardPeriodInfo to BakerRewardPeriodInfo when Recv() is called.
+type BakerRewardPeriodInfoStream struct {
+	stream pb.Queries_GetBakersRewardPeriodClient
+}
+
+// Recv retrieves the next BakerRewardPeriodInfo.
+func (s *BakerRewardPeriodInfoStream) Recv() (BakerRewardPeriodInfo, error) {
+	info, err := s.stream.Recv()
+	if err != nil {
+		return BakerRewardPeriodInfo{}, err
+	}
+	return parseBakerRewardPeriodInfo(info)
+}
+
+// Information about a particular baker with respect to the current reward period.
+type BakerRewardPeriodInfo struct {
+
+	// The baker id and public keys for the baker.
+	Baker BakerInfo
+
+	// The effective stake of the baker for the consensus protocol.
+	// The returned amount accounts for delegation, capital bounds and leverage bounds.
+	EffectiveStake Amount
+
+	// The effective commission rate for the baker that applies for the reward period.
+	CommissionRates CommissionRates
+
+	// The amount staked by the baker itself.
+	EquityCapital Amount
+
+	// The total amount of capital delegated to this baker pool.
+	DelegatedCapital Amount
+
+	// Whether the baker is a finalizer or not.
+	IsFinalizer bool
+}
+
+// Parses *pb.BakerRewardPeriodInfo to BakerRewardPeriodInfo
+func parseBakerRewardPeriodInfo(b *pb.BakerRewardPeriodInfo) (BakerRewardPeriodInfo, error) {
+	baker := parseBakerInfo(b.GetBaker())
+	effectiveStake := parseAmount(b.GetEffectiveStake())
+	CommissionRates, err := parseCommissionRates(b.CommissionRates)
+	if err != nil {
+		return BakerRewardPeriodInfo{}, err
+	}
+	equityCapital := parseAmount(b.EquityCapital)
+	delegatedCapital := parseAmount(b.DelegatedCapital)
+	isFinalizer := b.IsFinalizer
+	return BakerRewardPeriodInfo{
+		Baker:            baker,
+		EffectiveStake:   effectiveStake,
+		CommissionRates:  CommissionRates,
+		EquityCapital:    equityCapital,
+		DelegatedCapital: delegatedCapital,
+		IsFinalizer:      isFinalizer,
+	}, nil
+}
+
+// Information about a baker.
+type BakerInfo struct {
+
+	// Identity of the baker. This is actually the account index of the account controlling the baker.
+	BakerId BakerId
+
+	// Baker's public key used to check whether they won the lottery or not.
+	ElectionKey BakerElectionVerifyKey
+
+	// Baker's public key used to check that they are indeed the ones who produced the block.
+	SignatureKey BakerSignatureVerifyKey
+
+	// Baker's public key used to check signatures on finalization records.
+	// This is only used if the baker has sufficient stake to participate in finalization.
+	AggregationKey BakerAggregationVerifyKey
+}
+
+// Parses *pb.BakerInfo to BakerInfo
+func parseBakerInfo(b *pb.BakerInfo) BakerInfo {
+	bakerId := parseBakerId(b.BakerId)
+	electionKey := parseBakerElectionVerifyKey(b.ElectionKey)
+	signatureKey := parseBakerSignatureVerifyKey(b.SignatureKey)
+	aggregationKey := parseBakerAggregationVerifyKey(b.AggregationKey)
+	return BakerInfo{BakerId: bakerId, ElectionKey: electionKey, SignatureKey: signatureKey, AggregationKey: aggregationKey}
+
+}
+
+// Baker's public key used to check whether they won the lottery or not.
+type BakerElectionVerifyKey struct {
+	Value []byte
+}
+
+// Parses *pb.BakerElectionVerifyKey to BakerElectionVerifyKey
+func parseBakerElectionVerifyKey(k *pb.BakerElectionVerifyKey) BakerElectionVerifyKey {
+	return BakerElectionVerifyKey{Value: k.Value}
+}
+
+// Baker's public key used to check that they are indeed the ones who produced the block.
+type BakerSignatureVerifyKey struct {
+	Value []byte
+}
+
+// Parses *pb.BakerSignatureVerifyKey to BakerSignatureVerifyKey
+func parseBakerSignatureVerifyKey(k *pb.BakerSignatureVerifyKey) BakerSignatureVerifyKey {
+	return BakerSignatureVerifyKey{Value: k.Value}
+}
+
+// Baker's public key used to check signatures on finalization records.
+// This is only used if the baker has sufficient stake to participate in finalization.
+type BakerAggregationVerifyKey struct {
+	Value []byte
+}
+
+// Parses *pb.BakerAggregationVerifyKey to BakerAggregationVerifyKey
+func parseBakerAggregationVerifyKey(k *pb.BakerAggregationVerifyKey) BakerAggregationVerifyKey {
+	return BakerAggregationVerifyKey{Value: k.Value}
+}
+
+// Distribution of the rewards for the particular pool.
+type CommissionRates struct {
+
+	// Fraction of finalization rewards charged by the pool owner.
+	Finalization AmountFraction
+
+	// Fraction of baking rewards charged by the pool owner.
+	Baking AmountFraction
+
+	// Fraction of transaction rewards charged by the pool owner.
+	Transaction AmountFraction
+}
+
+// Parses *pb.CommissionRates to *CommissionRates.
+func parseCommissionRates(cr *pb.CommissionRates) (CommissionRates, error) {
+	finalization, err := parseAmountFraction(cr.Finalization)
+	if err != nil {
+		return CommissionRates{}, errors.New("Error parsing CommissionRates: " + err.Error())
+	}
+
+	baking, err := parseAmountFraction(cr.Baking)
+	if err != nil {
+		return CommissionRates{}, errors.New("Error parsing CommissionRates: " + err.Error())
+	}
+
+	transaction, err := parseAmountFraction(cr.Transaction)
+	if err != nil {
+		return CommissionRates{}, errors.New("Error parsing CommissionRates: " + err.Error())
+	}
+	return CommissionRates{Finalization: finalization, Baking: baking, Transaction: transaction}, nil
+}
+
+// A fraction of an amount with a precision of 1/100_000
+type AmountFraction struct {
+	// Must not exceed 100_000
+	partsPerHundredThousand uint32
+}
+
+// GetValue returns the value of the AmountFraction, e.g. 'partsPerHundredThousand/100_000'.
+func (a *AmountFraction) GetValue() uint32 {
+	return a.partsPerHundredThousand / hundredThousand
+}
+
+// AmountFractionFromUInt32 constructs an AmountFraction from a uint32 value. The value must not exceed 100_000.
+func AmountFractionFromUInt32(value uint32) (AmountFraction, error) {
+	if value > hundredThousand {
+		return AmountFraction{}, errors.New("PartsPerHundredThousand must not exceed 100_000")
+	}
+	return AmountFraction{partsPerHundredThousand: value}, nil
+}
+
+// Parses *pb.AmountFraction to AmountFraction.
+func parseAmountFraction(a *pb.AmountFraction) (AmountFraction, error) {
+	res, err := AmountFractionFromUInt32(a.PartsPerHundredThousand)
+	if err != nil {
+		return AmountFraction{}, errors.New("Error parsing AmountFraction: " + err.Error())
+	}
+	return res, nil
 }
