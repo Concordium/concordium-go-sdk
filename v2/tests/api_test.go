@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/Concordium/concordium-go-sdk/v2"
+	v2 "github.com/Concordium/concordium-go-sdk/v2"
 	"github.com/Concordium/concordium-go-sdk/v2/pb"
 	"github.com/stretchr/testify/require"
 )
@@ -465,5 +465,49 @@ func TestExamples(t *testing.T) {
 		blockItems, err := client.GetBlockItems(context.Background(), v2.BlockHashInputBest{})
 		require.NoError(t, err)
 		require.Nil(t, blockItems)
+	})
+
+	t.Run("GetFirstBlockEpoch", func(t *testing.T) {
+		blochHash, err := client.GetFirstBlockEpoch(context.Background(), v2.EpochRequestRelativeEpoch{
+			GenesisIndex: v2.GenesisIndex{Value: 3},
+			Epoch:        v2.Epoch{Value: 5},
+		})
+		require.NoError(t, err)
+		require.NotNil(t, blochHash)
+	})
+
+	t.Run("GetWinningBakersEpoch", func(t *testing.T) {
+		winningBakerStream, err := client.GetWinningBakersEpoch(context.Background(), v2.EpochRequestRelativeEpoch{
+			GenesisIndex: v2.GenesisIndex{Value: 3},
+			Epoch:        v2.Epoch{Value: 5},
+		})
+		require.NoError(t, err)
+		require.NotNil(t, winningBakerStream)
+
+		winningBaker, err := winningBakerStream.Recv()
+		require.NoError(t, err)
+		require.NotNil(t, winningBaker)
+	})
+
+	t.Run("GetBlockCertificates", func(t *testing.T) {
+		certificate, err := client.GetBlockCertificates(context.Background(), v2.BlockHashInputBest{})
+		require.NoError(t, err)
+		require.NotNil(t, certificate)
+	})
+
+	t.Run("GetBakersRewardPeriod", func(t *testing.T) {
+		bakerRewardPeriodInfoStream, err := client.GetBakersRewardPeriod(context.Background(), v2.BlockHashInputBest{})
+		require.NoError(t, err)
+		require.NotNil(t, bakerRewardPeriodInfoStream)
+
+		bakerRewardPeriodInfo, err := bakerRewardPeriodInfoStream.Recv()
+		require.NoError(t, err)
+		require.NotNil(t, bakerRewardPeriodInfo)
+	})
+
+	t.Run("GetBakerEarliestWintime", func(t *testing.T) {
+		timestamp, err := client.GetBakerEarliestWinTime(context.Background(), &pb.BakerId{Value: 1})
+		require.NoError(t, err)
+		require.NotNil(t, timestamp)
 	})
 }
