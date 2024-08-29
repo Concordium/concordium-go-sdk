@@ -6,10 +6,10 @@ import (
 )
 
 var (
-	// InvalidPayloadType indicated that payload type is invalid.
-	InvalidPayloadType = errors.New("invalid payload type")
-	// InvalidRawPayloadSize indicated that raw payload size is invalid.
-	InvalidRawPayloadSize = errors.New("invalid raw payload size")
+	// ErrInvalidPayloadType indicated that payload type is invalid.
+	ErrInvalidPayloadType = errors.New("invalid payload type")
+	// ErrInvalidRawPayloadSize indicated that raw payload size is invalid.
+	ErrInvalidRawPayloadSize = errors.New("invalid raw payload size")
 )
 
 const PayloadTypeSize = 1
@@ -48,13 +48,13 @@ func GetPayloadType(payload AccountTransactionPayload) (PayloadType, error) {
 	case *TransferWithMemo:
 		return TransferWithMemoPayloadType, nil
 	}
-	return 0xff, InvalidPayloadType
+	return 0xff, ErrInvalidPayloadType
 }
 
 // decode parses specific Payload from bytes.
 func decode(payloadBytes []byte) (payload *AccountTransactionPayload, err error) {
 	if len(payloadBytes) <= 1 {
-		return nil, InvalidRawPayloadSize
+		return nil, ErrInvalidRawPayloadSize
 	}
 
 	payload = new(AccountTransactionPayload)
@@ -112,7 +112,7 @@ func (rawPayload RawPayload) Size() PayloadSize {
 // This also checks that all data is used, i.e., that there are no remaining trailing bytes.
 func (rawPayload RawPayload) Decode() (*AccountTransactionPayload, error) {
 	if rawPayload.Value == nil {
-		return &AccountTransactionPayload{}, InvalidRawPayloadSize
+		return &AccountTransactionPayload{}, ErrInvalidRawPayloadSize
 	}
 	return decode(rawPayload.Value)
 }
@@ -159,13 +159,13 @@ func (payload *DeployModulePayload) Encode() *RawPayload {
 // Decode decodes bytes into DeployModulePayload.
 func (payload *DeployModulePayload) Decode(source []byte) error {
 	if len(source) <= 5 {
-		return InvalidRawPayloadSize
+		return ErrInvalidRawPayloadSize
 	}
 
 	version := moduleVersion(source[:1][0])
 	moduleSize := binary.BigEndian.Uint32(source[1:5])
 	if len(source) != int(moduleSize+5) {
-		return InvalidRawPayloadSize
+		return ErrInvalidRawPayloadSize
 	}
 
 	module := make([]byte, 0, moduleSize)
@@ -220,7 +220,7 @@ func (payload *InitContractPayload) Encode() *RawPayload {
 // Decode decodes bytes into InitContractPayload.
 func (payload *InitContractPayload) Decode(source []byte) error {
 	if len(source) <= 42 {
-		return InvalidRawPayloadSize
+		return ErrInvalidRawPayloadSize
 	}
 
 	payload.Amount = &Amount{Value: binary.BigEndian.Uint64(source[:8])}
@@ -232,14 +232,14 @@ func (payload *InitContractPayload) Decode(source []byte) error {
 
 	initNameSize := binary.BigEndian.Uint16(source[40:42])
 	if len(source) <= int(initNameSize+44) {
-		return InvalidRawPayloadSize
+		return ErrInvalidRawPayloadSize
 	}
 
 	payload.InitName = &InitName{Value: string(source[42 : 42+initNameSize])}
 
 	parameterSize := binary.BigEndian.Uint16(source[42+initNameSize : initNameSize+44])
 	if len(source) != int(initNameSize+parameterSize+44) {
-		return InvalidRawPayloadSize
+		return ErrInvalidRawPayloadSize
 	}
 
 	payload.Parameter = &Parameter{Value: source[44+initNameSize:]}
@@ -279,12 +279,12 @@ func (payload *RegisterDataPayload) Encode() *RawPayload {
 // Decode decodes bytes into RegisterDataPayload.
 func (payload *RegisterDataPayload) Decode(source []byte) error {
 	if len(source) <= 2 {
-		return InvalidRawPayloadSize
+		return ErrInvalidRawPayloadSize
 	}
 
 	registerDataSize := binary.BigEndian.Uint16(source[:2])
 	if len(source) != int(registerDataSize+2) {
-		return InvalidRawPayloadSize
+		return ErrInvalidRawPayloadSize
 	}
 
 	payload.Data = &RegisteredData{Value: source[2:]}
@@ -323,7 +323,7 @@ func (payload *TransferPayload) Encode() *RawPayload {
 // Decode decodes bytes into TransferPayload.
 func (payload *TransferPayload) Decode(source []byte) error {
 	if len(source) != payload.Size() {
-		return InvalidRawPayloadSize
+		return ErrInvalidRawPayloadSize
 	}
 
 	if payload.Receiver == nil {
@@ -373,7 +373,7 @@ func (payload *TransferWithMemoPayload) Encode() *RawPayload {
 // Decode decodes bytes into TransferWithMemoPayload.
 func (payload *TransferWithMemoPayload) Decode(source []byte) error {
 	if len(source) <= 34 {
-		return InvalidRawPayloadSize
+		return ErrInvalidRawPayloadSize
 	}
 
 	if payload.Receiver == nil {
@@ -383,7 +383,7 @@ func (payload *TransferWithMemoPayload) Decode(source []byte) error {
 
 	memoSize := binary.BigEndian.Uint16(source[32:34])
 	if len(source) != int(42+memoSize) {
-		return InvalidRawPayloadSize
+		return ErrInvalidRawPayloadSize
 	}
 
 	payload.Memo = &Memo{Value: source[34 : 34+memoSize]}
@@ -439,7 +439,7 @@ func (payload *UpdateContractPayload) Encode() *RawPayload {
 // Decode decodes bytes into UpdateContractPayload.
 func (payload *UpdateContractPayload) Decode(source []byte) error {
 	if len(source) <= 26 {
-		return InvalidRawPayloadSize
+		return ErrInvalidRawPayloadSize
 	}
 
 	payload.Amount = &Amount{Value: binary.BigEndian.Uint64(source[:8])}
@@ -452,14 +452,14 @@ func (payload *UpdateContractPayload) Decode(source []byte) error {
 
 	receiveNameSize := binary.BigEndian.Uint16(source[24:26])
 	if len(source) <= int(receiveNameSize+28) {
-		return InvalidRawPayloadSize
+		return ErrInvalidRawPayloadSize
 	}
 
 	payload.ReceiveName = &ReceiveName{Value: string(source[26 : 26+receiveNameSize])}
 
 	parameterSize := binary.BigEndian.Uint16(source[26+receiveNameSize : receiveNameSize+28])
 	if len(source) != int(receiveNameSize+parameterSize+28) {
-		return InvalidRawPayloadSize
+		return ErrInvalidRawPayloadSize
 	}
 
 	payload.Parameter = &Parameter{Value: source[28+receiveNameSize:]}

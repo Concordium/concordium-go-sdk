@@ -17,7 +17,7 @@ func (c *Client) GetInstanceList(ctx context.Context, req isBlockHashInput) (_ [
 
 	var contractAddresses []*pb.ContractAddress
 
-	for err == nil {
+	for {
 		contractAddress, err := stream.Recv()
 		if err != nil {
 			if err.Error() == "EOF" {

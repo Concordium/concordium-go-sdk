@@ -15,7 +15,7 @@ func (c *Client) GetAccountList(ctx context.Context, req isBlockHashInput) (_ []
 
 	var accounts []*pb.AccountAddress
 
-	for err == nil {
+	for {
 		account, err := stream.Recv()
 		if err != nil {
 			if err.Error() == "EOF" {
