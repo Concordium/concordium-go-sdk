@@ -16,7 +16,7 @@ func (c *Client) GetModuleList(ctx context.Context, req isBlockHashInput) (_ []*
 
 	var moduleRefs []*pb.ModuleRef
 
-	for err == nil {
+	for {
 		moduleRef, err := stream.Recv()
 		if err != nil {
 			if err.Error() == "EOF" {

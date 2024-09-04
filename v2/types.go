@@ -133,13 +133,13 @@ func (walletAccount *WalletAccount) SignTransactionHash(hashToSign *TransactionH
 	if walletAccount.Address == nil || walletAccount.Keys == nil {
 		return nil, errors.New("'AccountAddress' or 'Keys' field is not initialized or empty")
 	}
-	if walletAccount.Keys.Keys == nil || len(walletAccount.Keys.Keys) == 0 {
+	if len(walletAccount.Keys.Keys) == 0 {
 		return nil, errors.New("'WalletAccount.Keys' is not initialized or empty")
 	}
 
 	signaturesMap := make(map[uint8]*AccountSignatureMap, int(walletAccount.Keys.Threshold.Value))
 	for credIdx, credData := range walletAccount.Keys.Keys {
-		if credData.Keys == nil || len(credData.Keys) == 0 {
+		if len(credData.Keys) == 0 {
 			return nil, errors.New("'WalletAccount.Keys.Keys[ " + strconv.Itoa(int(credIdx)) + "].Keys' is not initialized or empty")
 		}
 

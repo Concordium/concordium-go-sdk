@@ -15,7 +15,7 @@ func (c *Client) GetBlockItems(ctx context.Context, req isBlockHashInput) (_ []*
 
 	var blockItems []*pb.BlockItem
 
-	for err == nil {
+	for {
 		blockItem, err := stream.Recv()
 		if err != nil {
 			if err.Error() == "EOF" {

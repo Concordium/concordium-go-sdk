@@ -3,8 +3,6 @@
 	<img alt="GitHub go.mod Go version" src="https://img.shields.io/github/go-mod/go-version/Concordium/concordium-go-sdk">
 </div>
 
-
-
 ## Getting Started
 
 ### Installing
@@ -199,4 +197,27 @@ All RPC interfaces follow the [concordium protocol docs](https://developer.conco
 
 ### More Examples
 
-For more examples, see the `v2/examples/` or `v2/tests/` folders. 
+For more examples, see the `v2/examples/` or `v2/tests/` folders.
+
+## Building
+
+To update the generated protobuf files, ensure that you have the GRPC API repository pulled down:
+```bash
+git submodule update --init --recursive
+```
+Then ensure that you have the prerequisite tooling installed for protobuf. First install the Protobuf compiler, then install the Go and Go GRPC protobuf plugins:
+```bash
+go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+```
+Be sure to add `~/go/bin` to your path, where these executables are installed.
+
+Then, to generate the protobuf files, run the following command:
+
+```
+protoc --go_out=./v2 --go-grpc_out=./v2 --proto_path=concordium-grpc-api concordium-grpc-api/v2/concordium/*.proto
+```
+Now, you should be able to easily build the project:
+```
+go build ./v2
+```

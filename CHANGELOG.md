@@ -2,6 +2,8 @@
 
 ## Unreleased changes
 
+- Added support for protocol version 7.
+
 ## 0.2.0
 
 - Added support for GRPC V2 `GetWinningBakersEpoch` for getting a list of bakers that won the lottery in a particular historical epoch. Only available when querying a node with version at least 6.1.

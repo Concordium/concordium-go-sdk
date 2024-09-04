@@ -71,7 +71,7 @@ func (preAccountTransaction *PreAccountTransaction) Deserialize(source []byte) (
 
 	sender, err := AccountAddressFromBytes(source[:32])
 	if err != nil {
-		return errors.New(fmt.Sprintf("could not receive address from bytes: %v", err))
+		return fmt.Errorf("could not receive address from bytes: %v", err)
 	}
 	preAccountTransaction.Header = &AccountTransactionHeader{
 		Sender:         &sender,
@@ -88,7 +88,7 @@ func (preAccountTransaction *PreAccountTransaction) Deserialize(source []byte) (
 	preAccountTransaction.Encoded.Value = source[TransactionHeaderSize:]
 	preAccountTransaction.Payload, err = preAccountTransaction.Encoded.Decode()
 	if err != nil {
-		return errors.New(fmt.Sprintf("could not decode Encoded Payload: %v", err))
+		return fmt.Errorf("could not decode Encoded Payload: %v", err)
 	}
 
 	preAccountTransaction.HashToSign = ComputeTransactionSignHash(preAccountTransaction.Header,

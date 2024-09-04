@@ -17,7 +17,7 @@ func (c *Client) GetAccountNonFinalizedTransactions(ctx context.Context, req *Ac
 
 	var transactionHashes []*pb.TransactionHash
 
-	for err == nil {
+	for {
 		transactionHash, err := stream.Recv()
 		if err != nil {
 			if err.Error() == "EOF" {

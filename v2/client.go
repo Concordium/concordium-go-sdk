@@ -3,6 +3,7 @@ package v2
 import (
 	"crypto/tls"
 	"crypto/x509"
+
 	"github.com/Concordium/concordium-go-sdk/v2/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -25,7 +26,7 @@ type Client struct {
 // NewClient creates new concordium grpc client.
 func NewClient(config Config) (_ *Client, err error) {
 	if config.TlsCredentials != nil {
-		conn, err := grpc.Dial(
+		conn, err := grpc.NewClient(
 			config.NodeAddress,
 			grpc.WithTransportCredentials(config.TlsCredentials),
 		)
@@ -36,7 +37,7 @@ func NewClient(config Config) (_ *Client, err error) {
 
 		return &Client{GrpcClient: client, ClientConn: conn, config: config}, nil
 	} else {
-		conn, err := grpc.Dial(
+		conn, err := grpc.NewClient(
 			config.NodeAddress,
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
 		)

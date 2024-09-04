@@ -20,7 +20,7 @@ func (c *Client) GetAncestors(ctx context.Context, amount uint64, b isBlockHashI
 
 	var ancestorsBlockHashes []*pb.BlockHash
 
-	for err == nil {
+	for {
 		ancestorBlockHash, err := stream.Recv()
 		if err != nil {
 			if err.Error() == "EOF" {
