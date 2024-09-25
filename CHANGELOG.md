@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased changes
+## 0.3.0
 
 - Added support for protocol version 7.
 
