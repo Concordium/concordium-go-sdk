@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.0
+
+- Added support for protocol version 8.
+
 ## 0.3.0
 
 - Added support for protocol version 7.
