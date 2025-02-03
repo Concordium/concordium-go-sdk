@@ -289,14 +289,26 @@ type BlockHash struct {
 	Value [BlockHashLength]byte
 }
 
-// BlockHashFromBytes creates a BlockHash from given []byte. Length of given []byte must be excactly 32 bytes.
+// BlockHashFromBytes creates a BlockHash from given []byte. Length of given []byte must be exactly 32 bytes.
 func BlockHashFromBytes(b []byte) (BlockHash, error) {
 	if len(b) != BlockHashLength {
-		return BlockHash{}, errors.New("BlockHash must be excactly 32 bytes")
+		return BlockHash{}, errors.New("BlockHash must be exactly 32 bytes")
 	}
 	var blockHash BlockHash
 	copy(blockHash.Value[:], b)
 	return blockHash, nil
+}
+
+// BlockHashFromHex creates a BlockHash from a hex string. The length of the hex string must be exactly 64 characters.
+func BlockHashFromHex(s string) (BlockHash, error) {
+	if len(s) != BlockHashLength*2 {
+		return BlockHash{}, errors.New("BlockHash hex string must be exactly 64 characters")
+	}
+	bytes, err := hex.DecodeString(s)
+	if err != nil {
+		return BlockHash{}, err
+	}
+	return BlockHashFromBytes(bytes)
 }
 
 // Parses *pb.BlockHash to BlockHash
