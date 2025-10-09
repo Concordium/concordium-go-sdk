@@ -22,7 +22,9 @@ const (
 	Queries_GetBlocks_FullMethodName                          = "/concordium.v2.Queries/GetBlocks"
 	Queries_GetFinalizedBlocks_FullMethodName                 = "/concordium.v2.Queries/GetFinalizedBlocks"
 	Queries_GetAccountInfo_FullMethodName                     = "/concordium.v2.Queries/GetAccountInfo"
+	Queries_GetTokenInfo_FullMethodName                       = "/concordium.v2.Queries/GetTokenInfo"
 	Queries_GetAccountList_FullMethodName                     = "/concordium.v2.Queries/GetAccountList"
+	Queries_GetTokenList_FullMethodName                       = "/concordium.v2.Queries/GetTokenList"
 	Queries_GetModuleList_FullMethodName                      = "/concordium.v2.Queries/GetModuleList"
 	Queries_GetAncestors_FullMethodName                       = "/concordium.v2.Queries/GetAncestors"
 	Queries_GetModuleSource_FullMethodName                    = "/concordium.v2.Queries/GetModuleSource"
@@ -97,8 +99,13 @@ type QueriesClient interface {
 	GetFinalizedBlocks(ctx context.Context, in *Empty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[FinalizedBlockInfo], error)
 	// Retrieve the information about the given account in the given block.
 	GetAccountInfo(ctx context.Context, in *AccountInfoRequest, opts ...grpc.CallOption) (*AccountInfo, error)
+	// Retrieve the information about the given token in the given block.
+	GetTokenInfo(ctx context.Context, in *TokenInfoRequest, opts ...grpc.CallOption) (*TokenInfo, error)
 	// Retrieve the list of accounts that exist at the end of the given block.
 	GetAccountList(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (grpc.ServerStreamingClient[AccountAddress], error)
+	// Retrieve the list of protocol level tokens that exist at the end of the
+	// given block.
+	GetTokenList(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (grpc.ServerStreamingClient[TokenId], error)
 	// Get a list of all smart contract modules. The stream will end
 	// when all modules that exist in the state at the end of the given
 	// block have been returned.
@@ -431,6 +438,16 @@ func (c *queriesClient) GetAccountInfo(ctx context.Context, in *AccountInfoReque
 	return out, nil
 }
 
+func (c *queriesClient) GetTokenInfo(ctx context.Context, in *TokenInfoRequest, opts ...grpc.CallOption) (*TokenInfo, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TokenInfo)
+	err := c.cc.Invoke(ctx, Queries_GetTokenInfo_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *queriesClient) GetAccountList(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (grpc.ServerStreamingClient[AccountAddress], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[2], Queries_GetAccountList_FullMethodName, cOpts...)
@@ -450,9 +467,28 @@ func (c *queriesClient) GetAccountList(ctx context.Context, in *BlockHashInput, 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type Queries_GetAccountListClient = grpc.ServerStreamingClient[AccountAddress]
 
+func (c *queriesClient) GetTokenList(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (grpc.ServerStreamingClient[TokenId], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[3], Queries_GetTokenList_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[BlockHashInput, TokenId]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type Queries_GetTokenListClient = grpc.ServerStreamingClient[TokenId]
+
 func (c *queriesClient) GetModuleList(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ModuleRef], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[3], Queries_GetModuleList_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[4], Queries_GetModuleList_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -471,7 +507,7 @@ type Queries_GetModuleListClient = grpc.ServerStreamingClient[ModuleRef]
 
 func (c *queriesClient) GetAncestors(ctx context.Context, in *AncestorsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[BlockHash], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[4], Queries_GetAncestors_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[5], Queries_GetAncestors_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -500,7 +536,7 @@ func (c *queriesClient) GetModuleSource(ctx context.Context, in *ModuleSourceReq
 
 func (c *queriesClient) GetInstanceList(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ContractAddress], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[5], Queries_GetInstanceList_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[6], Queries_GetInstanceList_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -529,7 +565,7 @@ func (c *queriesClient) GetInstanceInfo(ctx context.Context, in *InstanceInfoReq
 
 func (c *queriesClient) GetInstanceState(ctx context.Context, in *InstanceInfoRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[InstanceStateKVPair], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[6], Queries_GetInstanceState_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[7], Queries_GetInstanceState_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -608,7 +644,7 @@ func (c *queriesClient) GetBlockInfo(ctx context.Context, in *BlockHashInput, op
 
 func (c *queriesClient) GetBakerList(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (grpc.ServerStreamingClient[BakerId], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[7], Queries_GetBakerList_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[8], Queries_GetBakerList_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -677,7 +713,7 @@ func (c *queriesClient) InvokeInstance(ctx context.Context, in *InvokeInstanceRe
 
 func (c *queriesClient) GetPoolDelegators(ctx context.Context, in *GetPoolDelegatorsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[DelegatorInfo], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[8], Queries_GetPoolDelegators_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[9], Queries_GetPoolDelegators_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -696,7 +732,7 @@ type Queries_GetPoolDelegatorsClient = grpc.ServerStreamingClient[DelegatorInfo]
 
 func (c *queriesClient) GetPoolDelegatorsRewardPeriod(ctx context.Context, in *GetPoolDelegatorsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[DelegatorRewardPeriodInfo], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[9], Queries_GetPoolDelegatorsRewardPeriod_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[10], Queries_GetPoolDelegatorsRewardPeriod_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -715,7 +751,7 @@ type Queries_GetPoolDelegatorsRewardPeriodClient = grpc.ServerStreamingClient[De
 
 func (c *queriesClient) GetPassiveDelegators(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (grpc.ServerStreamingClient[DelegatorInfo], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[10], Queries_GetPassiveDelegators_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[11], Queries_GetPassiveDelegators_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -734,7 +770,7 @@ type Queries_GetPassiveDelegatorsClient = grpc.ServerStreamingClient[DelegatorIn
 
 func (c *queriesClient) GetPassiveDelegatorsRewardPeriod(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (grpc.ServerStreamingClient[DelegatorRewardPeriodInfo], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[11], Queries_GetPassiveDelegatorsRewardPeriod_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[12], Queries_GetPassiveDelegatorsRewardPeriod_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -773,7 +809,7 @@ func (c *queriesClient) GetElectionInfo(ctx context.Context, in *BlockHashInput,
 
 func (c *queriesClient) GetIdentityProviders(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (grpc.ServerStreamingClient[IpInfo], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[12], Queries_GetIdentityProviders_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[13], Queries_GetIdentityProviders_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -792,7 +828,7 @@ type Queries_GetIdentityProvidersClient = grpc.ServerStreamingClient[IpInfo]
 
 func (c *queriesClient) GetAnonymityRevokers(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ArInfo], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[13], Queries_GetAnonymityRevokers_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[14], Queries_GetAnonymityRevokers_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -811,7 +847,7 @@ type Queries_GetAnonymityRevokersClient = grpc.ServerStreamingClient[ArInfo]
 
 func (c *queriesClient) GetAccountNonFinalizedTransactions(ctx context.Context, in *AccountAddress, opts ...grpc.CallOption) (grpc.ServerStreamingClient[TransactionHash], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[14], Queries_GetAccountNonFinalizedTransactions_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[15], Queries_GetAccountNonFinalizedTransactions_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -830,7 +866,7 @@ type Queries_GetAccountNonFinalizedTransactionsClient = grpc.ServerStreamingClie
 
 func (c *queriesClient) GetBlockTransactionEvents(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (grpc.ServerStreamingClient[BlockItemSummary], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[15], Queries_GetBlockTransactionEvents_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[16], Queries_GetBlockTransactionEvents_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -849,7 +885,7 @@ type Queries_GetBlockTransactionEventsClient = grpc.ServerStreamingClient[BlockI
 
 func (c *queriesClient) GetBlockSpecialEvents(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (grpc.ServerStreamingClient[BlockSpecialEvent], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[16], Queries_GetBlockSpecialEvents_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[17], Queries_GetBlockSpecialEvents_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -868,7 +904,7 @@ type Queries_GetBlockSpecialEventsClient = grpc.ServerStreamingClient[BlockSpeci
 
 func (c *queriesClient) GetBlockPendingUpdates(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (grpc.ServerStreamingClient[PendingUpdate], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[17], Queries_GetBlockPendingUpdates_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[18], Queries_GetBlockPendingUpdates_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -897,7 +933,7 @@ func (c *queriesClient) GetNextUpdateSequenceNumbers(ctx context.Context, in *Bl
 
 func (c *queriesClient) GetScheduledReleaseAccounts(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (grpc.ServerStreamingClient[AccountPending], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[18], Queries_GetScheduledReleaseAccounts_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[19], Queries_GetScheduledReleaseAccounts_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -916,7 +952,7 @@ type Queries_GetScheduledReleaseAccountsClient = grpc.ServerStreamingClient[Acco
 
 func (c *queriesClient) GetCooldownAccounts(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (grpc.ServerStreamingClient[AccountPending], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[19], Queries_GetCooldownAccounts_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[20], Queries_GetCooldownAccounts_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -935,7 +971,7 @@ type Queries_GetCooldownAccountsClient = grpc.ServerStreamingClient[AccountPendi
 
 func (c *queriesClient) GetPreCooldownAccounts(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (grpc.ServerStreamingClient[AccountIndex], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[20], Queries_GetPreCooldownAccounts_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[21], Queries_GetPreCooldownAccounts_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -954,7 +990,7 @@ type Queries_GetPreCooldownAccountsClient = grpc.ServerStreamingClient[AccountIn
 
 func (c *queriesClient) GetPrePreCooldownAccounts(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (grpc.ServerStreamingClient[AccountIndex], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[21], Queries_GetPrePreCooldownAccounts_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[22], Queries_GetPrePreCooldownAccounts_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1123,7 +1159,7 @@ func (c *queriesClient) GetBlockFinalizationSummary(ctx context.Context, in *Blo
 
 func (c *queriesClient) GetBlockItems(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (grpc.ServerStreamingClient[BlockItem], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[22], Queries_GetBlockItems_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[23], Queries_GetBlockItems_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1142,7 +1178,7 @@ type Queries_GetBlockItemsClient = grpc.ServerStreamingClient[BlockItem]
 
 func (c *queriesClient) GetBakersRewardPeriod(ctx context.Context, in *BlockHashInput, opts ...grpc.CallOption) (grpc.ServerStreamingClient[BakerRewardPeriodInfo], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[23], Queries_GetBakersRewardPeriod_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[24], Queries_GetBakersRewardPeriod_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1171,7 +1207,7 @@ func (c *queriesClient) GetBlockCertificates(ctx context.Context, in *BlockHashI
 
 func (c *queriesClient) GetWinningBakersEpoch(ctx context.Context, in *EpochRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[WinningBaker], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[24], Queries_GetWinningBakersEpoch_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[25], Queries_GetWinningBakersEpoch_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1210,7 +1246,7 @@ func (c *queriesClient) GetConsensusDetailedStatus(ctx context.Context, in *Cons
 
 func (c *queriesClient) DryRun(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[DryRunRequest, DryRunResponse], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[25], Queries_DryRun_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &Queries_ServiceDesc.Streams[26], Queries_DryRun_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1236,8 +1272,13 @@ type QueriesServer interface {
 	GetFinalizedBlocks(*Empty, grpc.ServerStreamingServer[FinalizedBlockInfo]) error
 	// Retrieve the information about the given account in the given block.
 	GetAccountInfo(context.Context, *AccountInfoRequest) (*AccountInfo, error)
+	// Retrieve the information about the given token in the given block.
+	GetTokenInfo(context.Context, *TokenInfoRequest) (*TokenInfo, error)
 	// Retrieve the list of accounts that exist at the end of the given block.
 	GetAccountList(*BlockHashInput, grpc.ServerStreamingServer[AccountAddress]) error
+	// Retrieve the list of protocol level tokens that exist at the end of the
+	// given block.
+	GetTokenList(*BlockHashInput, grpc.ServerStreamingServer[TokenId]) error
 	// Get a list of all smart contract modules. The stream will end
 	// when all modules that exist in the state at the end of the given
 	// block have been returned.
@@ -1531,8 +1572,14 @@ func (UnimplementedQueriesServer) GetFinalizedBlocks(*Empty, grpc.ServerStreamin
 func (UnimplementedQueriesServer) GetAccountInfo(context.Context, *AccountInfoRequest) (*AccountInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAccountInfo not implemented")
 }
+func (UnimplementedQueriesServer) GetTokenInfo(context.Context, *TokenInfoRequest) (*TokenInfo, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTokenInfo not implemented")
+}
 func (UnimplementedQueriesServer) GetAccountList(*BlockHashInput, grpc.ServerStreamingServer[AccountAddress]) error {
 	return status.Errorf(codes.Unimplemented, "method GetAccountList not implemented")
+}
+func (UnimplementedQueriesServer) GetTokenList(*BlockHashInput, grpc.ServerStreamingServer[TokenId]) error {
+	return status.Errorf(codes.Unimplemented, "method GetTokenList not implemented")
 }
 func (UnimplementedQueriesServer) GetModuleList(*BlockHashInput, grpc.ServerStreamingServer[ModuleRef]) error {
 	return status.Errorf(codes.Unimplemented, "method GetModuleList not implemented")
@@ -1766,6 +1813,24 @@ func _Queries_GetAccountInfo_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Queries_GetTokenInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TokenInfoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueriesServer).GetTokenInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Queries_GetTokenInfo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueriesServer).GetTokenInfo(ctx, req.(*TokenInfoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Queries_GetAccountList_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(BlockHashInput)
 	if err := stream.RecvMsg(m); err != nil {
@@ -1776,6 +1841,17 @@ func _Queries_GetAccountList_Handler(srv interface{}, stream grpc.ServerStream) 
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type Queries_GetAccountListServer = grpc.ServerStreamingServer[AccountAddress]
+
+func _Queries_GetTokenList_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(BlockHashInput)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(QueriesServer).GetTokenList(m, &grpc.GenericServerStream[BlockHashInput, TokenId]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type Queries_GetTokenListServer = grpc.ServerStreamingServer[TokenId]
 
 func _Queries_GetModuleList_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(BlockHashInput)
@@ -2650,6 +2726,10 @@ var Queries_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Queries_GetAccountInfo_Handler,
 		},
 		{
+			MethodName: "GetTokenInfo",
+			Handler:    _Queries_GetTokenInfo_Handler,
+		},
+		{
 			MethodName: "GetModuleSource",
 			Handler:    _Queries_GetModuleSource_Handler,
 		},
@@ -2800,6 +2880,11 @@ var Queries_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "GetAccountList",
 			Handler:       _Queries_GetAccountList_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "GetTokenList",
+			Handler:       _Queries_GetTokenList_Handler,
 			ServerStreams: true,
 		},
 		{

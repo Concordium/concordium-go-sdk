@@ -6,6 +6,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"github.com/fxamacker/cbor/v2"
 
 	"github.com/Concordium/concordium-go-sdk/v2/pb"
 )
@@ -144,6 +145,34 @@ func (accountTransaction *AccountTransaction) Send(ctx context.Context, client *
 			}},
 		}},
 	})
+}
+
+func (accountTransaction *AccountTransaction) Encode() ([]byte, error) {
+	if accountTransaction.Header == nil || accountTransaction.Payload == nil || accountTransaction.Signature == nil {
+		return nil, fmt.Errorf("invalid transaction: missing components")
+	}
+
+	// Serialize header
+	headerBytes := accountTransaction.Header.Serialize()
+
+	// Encode payload
+	payloadEncoded := accountTransaction.Payload.Payload.Encode()
+	if payloadEncoded == nil {
+		return nil, fmt.Errorf("failed to encode payload")
+	}
+
+	// Serialize signature — CBOR is not strictly required for DryRun,
+	// we just need the same format the node expects.
+	sigBytes, err := cbor.Marshal(accountTransaction.Signature)
+	if err != nil {
+		return nil, fmt.Errorf("failed to encode signature: %w", err)
+	}
+
+	// Final serialized transaction (header + payload + signature)
+	txBytes := append(headerBytes, payloadEncoded.Value...)
+	txBytes = append(txBytes, sigBytes...)
+
+	return txBytes, nil
 }
 
 // AccountTransactionSignature transaction signature.

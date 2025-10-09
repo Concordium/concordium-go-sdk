@@ -7,6 +7,7 @@ toolchain go1.23.0
 require (
 	github.com/btcsuite/btcutil v1.0.2
 	github.com/caarlos0/env/v6 v6.10.1
+	github.com/fxamacker/cbor/v2 v2.9.0
 	github.com/joho/godotenv v1.5.1
 	github.com/stretchr/testify v1.8.4
 	google.golang.org/grpc v1.66.0
@@ -16,6 +17,7 @@ require (
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/x448/float16 v0.8.4 // indirect
 	golang.org/x/net v0.26.0 // indirect
 	golang.org/x/sys v0.21.0 // indirect
 	golang.org/x/text v0.16.0 // indirect
