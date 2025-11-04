@@ -1,9 +1,10 @@
 package tests_test
 
 import (
-	v2 "github.com/Concordium/concordium-go-sdk/v2"
 	"reflect"
 	"testing"
+
+	v2 "github.com/Concordium/concordium-go-sdk/v2"
 
 	"github.com/fxamacker/cbor/v2"
 )
@@ -20,7 +21,7 @@ func TestTokenOperations_MarshalUnmarshal(t *testing.T) {
 				Transfer: v2.TokenTransfer{
 					Amount:    v2.TokenAmount{Value: 42},
 					Recipient: v2.CborTokenHolder{},
-					Memo:      v2.CborMemo{},
+					Memo:      &v2.CborMemo{},
 				},
 			},
 			new: func() v2.TokenOperation { return &v2.TransferOperation{} },

@@ -172,7 +172,7 @@ type TokenListUpdateDetails struct {
 type TokenTransfer struct {
 	Amount    TokenAmount
 	Recipient CborTokenHolder
-	Memo      CborMemo
+	Memo      *CborMemo `cbor:"Memo,omitempty"`
 }
 
 type CborTokenHolder struct {
@@ -180,8 +180,8 @@ type CborTokenHolder struct {
 }
 
 type CborHolderAccount struct {
-	CoinInfo *CoinInfo      `cbor:"1,omitempty" json:"coinInfo,omitempty"`
-	Address  AccountAddress `cbor:"3" json:"address"`
+	CoinInfo *CoinInfo      `cbor:"1,keyasint,omitempty"`
+	Address  AccountAddress `cbor:"3,keyasint"`
 }
 
 type CoinInfo uint64 // constant ccd 919

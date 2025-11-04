@@ -32,10 +32,14 @@ func (c *Client) GetAccountInfo(ctx context.Context, accId *pb.AccountIdentifier
 	}
 
 	for _, t := range resp.GetTokens() {
+		state := t.GetTokenAccountState().GetBalance()
 		token := AccountToken{
 			TokenID: TokenId{Value: t.GetTokenId().GetValue()},
 			State: TokenAccountState{
-				Balance: TokenAmount{Value: t.GetTokenAccountState().GetBalance().GetValue()},
+				Balance: TokenAmount{
+					Value:    state.GetValue(),
+					Decimals: uint8(state.GetDecimals()),
+				},
 			},
 		}
 

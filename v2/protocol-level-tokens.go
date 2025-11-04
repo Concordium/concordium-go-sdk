@@ -145,12 +145,19 @@ func (c *Client) GetTokenInfo(ctx context.Context, blockHash BlockHashInput, tok
 		return nil, fmt.Errorf("empty response from GetTokenInfo")
 	}
 
+	state := resp.GetTokenState()
+	tokenModuleRef := state.GetTokenModuleRef().GetValue()
+	decimals := state.GetDecimals()
+	totalSupply := state.GetTotalSupply().GetValue()
+	moduleState := state.GetModuleState().GetValue()
+
 	var tokenState *TokenState
 	if resp.TokenState != nil {
 		tokenState = &TokenState{
-			ModuleState: RawCBOR{
-				Bytes: resp.TokenState.ModuleState.Value,
-			},
+			TokenModuleRef: TokenModuleRef{Value: tokenModuleRef},
+			Decimals:       uint8(decimals),
+			TotalSupply:    TokenAmount{Value: totalSupply},
+			ModuleState:    RawCBOR{Bytes: moduleState},
 		}
 	}
 

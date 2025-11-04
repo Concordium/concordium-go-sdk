@@ -1,12 +1,13 @@
 package construct
 
 import (
-	v2 "github.com/Concordium/concordium-go-sdk/v2"
 	"github.com/fxamacker/cbor/v2"
+
+	v2 "github.com/Concordium/concordium-go-sdk/v2"
 )
 
 func TokenUpdateOperation(numSigs uint32, sender v2.AccountAddress, nonce v2.SequenceNumber, expiry v2.TransactionTime, tokenId v2.TokenId, operations v2.TokenOperations,
-) *v2.PreAccountTransaction {
+) (*v2.PreAccountTransaction, error) {
 	txEnergy := operations.TxnEnergy()
 	energy := &v2.GivenEnergy{Energy: &v2.AddEnergy{
 		NumSigs: numSigs,
@@ -14,14 +15,14 @@ func TokenUpdateOperation(numSigs uint32, sender v2.AccountAddress, nonce v2.Seq
 	}}
 	rawOps, err := MarshalTokenOperationsToCBORArray(operations)
 	if err != nil {
-		panic("failed to marshal operations: " + err.Error())
+		return &v2.PreAccountTransaction{}, err
 	}
 
 	payload := &v2.TokenUpdate{Payload: &v2.TokenOperationsPayload{
 		TokenId:    tokenId,
 		Operations: rawOps}}
 
-	return makeTransaction(sender, nonce, expiry, energy, &v2.AccountTransactionPayload{Payload: payload})
+	return makeTransaction(sender, nonce, expiry, energy, &v2.AccountTransactionPayload{Payload: payload}), nil
 }
 
 func MarshalTokenOperationsToCBORArray(ops v2.TokenOperations) (v2.RawCBOR, error) {
