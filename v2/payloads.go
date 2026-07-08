@@ -3,6 +3,7 @@ package v2
 import (
 	"encoding/binary"
 	"errors"
+	"sort"
 )
 
 var (
@@ -26,6 +27,8 @@ const (
 	UpdateContractPayloadType PayloadType = 2
 	// TransferPayloadType defines TransferPayload type byte.
 	TransferPayloadType PayloadType = 3
+	// UpdateCredentialKeysPayloadType defines UpdateCredentialKeysPayload type byte.
+	UpdateCredentialKeysPayloadType PayloadType = 13
 	// RegisterDataPayloadType defines RegisterDataPayload type byte.
 	RegisterDataPayloadType PayloadType = 21
 	// TransferWithMemoPayloadType defines TransferWithMemoPayload type byte.
@@ -45,6 +48,8 @@ func GetPayloadType(payload AccountTransactionPayload) (PayloadType, error) {
 		return UpdateContractPayloadType, nil
 	case *Transfer:
 		return TransferPayloadType, nil
+	case *UpdateCredentialKeys:
+		return UpdateCredentialKeysPayloadType, nil
 	case *RegisterData:
 		return RegisterDataPayloadType, nil
 	case *TransferWithMemo:
@@ -79,6 +84,10 @@ func decode(payloadBytes []byte) (payload *AccountTransactionPayload, err error)
 		transferPayload := new(TransferPayload)
 		err = transferPayload.Decode(payloadBytes[PayloadTypeSize:])
 		payload.Payload = Transfer{Payload: transferPayload}
+	case UpdateCredentialKeysPayloadType:
+		updateCredentialKeysPayload := new(UpdateCredentialKeysPayload)
+		err = updateCredentialKeysPayload.Decode(payloadBytes[PayloadTypeSize:])
+		payload.Payload = UpdateCredentialKeys{Payload: updateCredentialKeysPayload}
 	case RegisterDataPayloadType:
 		registerDataPayload := new(RegisterDataPayload)
 		err = registerDataPayload.Decode(payloadBytes[PayloadTypeSize:])
@@ -515,42 +524,44 @@ func (payload *TokenOperationsPayload) Size() int {
 	tokenBytes := []byte(payload.TokenId.Value)
 	cborBytes := payload.Operations.Bytes
 
-	return 2 + len(tokenBytes) + // TokenID length + TokenID
-		2 + len(cborBytes) // CBOR length + CBOR
+	return 1 + len(tokenBytes) + // TokenID length (u8) + TokenID
+		4 + len(cborBytes) // CBOR length (u32) + CBOR
 }
 
 func (payload *TokenOperationsPayload) Encode() *RawPayload {
 	tokenBytes := []byte(payload.TokenId.Value)
 	buf := make([]byte, 0, payload.Size()+1)
 	buf = append(buf, byte(TokenUpdatePayloadType))
-	buf = binary.BigEndian.AppendUint16(buf, uint16(len(tokenBytes)))
+	buf = append(buf, uint8(len(tokenBytes)))
 	buf = append(buf, tokenBytes...)
-	buf = binary.BigEndian.AppendUint16(buf, uint16(len(payload.Operations.Bytes)))
+	buf = binary.BigEndian.AppendUint32(buf, uint32(len(payload.Operations.Bytes)))
 	buf = append(buf, payload.Operations.Bytes...)
-
 	return &RawPayload{Value: buf}
 }
 
-// Decode decodes bytes into TokenOperationsPayload.
+// Decode decodes bytes into TokenOperationsPayload. The wire layout mirrors
+// Encode: a 1-byte TokenID length, the TokenID, a 4-byte big-endian operations
+// length, then the CBOR operations.
 func (payload *TokenOperationsPayload) Decode(source []byte) error {
-	if len(source) < 4 {
+	// Minimum: 1-byte TokenID length + 4-byte operations length.
+	if len(source) < 5 {
 		return ErrInvalidRawPayloadSize
 	}
 
-	// Read TokenID length.
-	tokenIDLen := binary.BigEndian.Uint16(source[:2])
-	if len(source) < int(2+tokenIDLen+2) {
+	// Read TokenID length (u8).
+	tokenIDLen := int(source[0])
+	if len(source) < 1+tokenIDLen+4 {
 		return ErrInvalidRawPayloadSize
 	}
 
 	// Read TokenID.
-	tokenBytes := source[2 : 2+tokenIDLen]
+	tokenBytes := source[1 : 1+tokenIDLen]
 	payload.TokenId = TokenId{Value: string(tokenBytes)}
 
-	// Read RawCBOR length.
-	cborStart := 2 + tokenIDLen
-	cborLen := binary.BigEndian.Uint16(source[cborStart : cborStart+2])
-	if len(source) != int(cborStart+2+cborLen) {
+	// Read RawCBOR length (u32 big-endian).
+	cborStart := 1 + tokenIDLen
+	cborLen := int(binary.BigEndian.Uint32(source[cborStart : cborStart+4]))
+	if len(source) != cborStart+4+cborLen {
 		return ErrInvalidRawPayloadSize
 	}
 
@@ -558,7 +569,106 @@ func (payload *TokenOperationsPayload) Decode(source []byte) error {
 	payload.Operations = RawCBOR{
 		Bytes: make([]byte, cborLen),
 	}
-	copy(payload.Operations.Bytes, source[cborStart+2:])
+	copy(payload.Operations.Bytes, source[cborStart+4:])
+
+	return nil
+}
+
+const (
+	// credentialRegistrationIDSize is the byte length of a CredentialRegistrationID
+	// (a compressed BLS12-381 G1 group element).
+	credentialRegistrationIDSize = 48
+	// ed25519PublicKeySize is the byte length of an Ed25519 public key.
+	ed25519PublicKeySize = 32
+)
+
+// UpdateCredentialKeysPayload updates the keys and signature threshold of an
+// existing credential. Wire layout (after the payload type byte):
+//
+//	credId    : 48 bytes
+//	numKeys   : u8
+//	  repeated, ascending key index:
+//	    keyIndex  : u8
+//	    schemeId  : u8   (Ed25519 = 0)
+//	    verifyKey : 32 bytes
+//	threshold : u8
+type UpdateCredentialKeysPayload struct {
+	CredID CredentialRegistrationID
+	Keys   CredentialPublicKeys
+}
+
+// Size returns the encoded payload size, excluding the payload type byte.
+func (payload *UpdateCredentialKeysPayload) Size() int {
+	// credId + numKeys(1) + threshold(1) + per-key (index 1 + scheme 1 + key).
+	size := len(payload.CredID.Value) + 1 + 1
+	for _, vk := range payload.Keys.Keys {
+		size += 1 + 1 + len(vk.Key)
+	}
+	return size
+}
+
+// Encode encodes the payload into a RawPayload. Keys are serialized in ascending
+// key-index order (Concordium serializes the key map ordered by index).
+func (payload *UpdateCredentialKeysPayload) Encode() *RawPayload {
+	buf := make([]byte, 0, payload.Size()+1)
+	buf = append(buf, byte(UpdateCredentialKeysPayloadType))
+	buf = append(buf, payload.CredID.Value...)
+	buf = append(buf, uint8(len(payload.Keys.Keys)))
+
+	indices := make([]int, 0, len(payload.Keys.Keys))
+	for idx := range payload.Keys.Keys {
+		indices = append(indices, int(idx))
+	}
+	sort.Ints(indices)
+	for _, idx := range indices {
+		vk := payload.Keys.Keys[KeyIndex(idx)]
+		buf = append(buf, byte(idx), byte(vk.Scheme))
+		buf = append(buf, vk.Key...)
+	}
+
+	buf = append(buf, payload.Keys.Threshold.Value)
+	return &RawPayload{Value: buf}
+}
+
+// Decode decodes bytes into an UpdateCredentialKeysPayload. Every key is assumed
+// to be Ed25519 (32 bytes), the only scheme currently defined.
+func (payload *UpdateCredentialKeysPayload) Decode(source []byte) error {
+	// credId + numKeys(1) + threshold(1).
+	if len(source) < credentialRegistrationIDSize+2 {
+		return ErrInvalidRawPayloadSize
+	}
+
+	offset := 0
+	credID := make([]byte, credentialRegistrationIDSize)
+	copy(credID, source[:credentialRegistrationIDSize])
+	payload.CredID = CredentialRegistrationID{Value: credID}
+	offset += credentialRegistrationIDSize
+
+	numKeys := int(source[offset])
+	offset++
+
+	keys := make(map[KeyIndex]VerifyKey, numKeys)
+	for i := 0; i < numKeys; i++ {
+		// keyIndex(1) + schemeId(1) + key(32).
+		if len(source) < offset+2+ed25519PublicKeySize {
+			return ErrInvalidRawPayloadSize
+		}
+		keyIndex := KeyIndex(source[offset])
+		scheme := SchemeID(source[offset+1])
+		key := make([]byte, ed25519PublicKeySize)
+		copy(key, source[offset+2:offset+2+ed25519PublicKeySize])
+		keys[keyIndex] = VerifyKey{Scheme: scheme, Key: key}
+		offset += 2 + ed25519PublicKeySize
+	}
+
+	// Exactly one threshold byte must remain.
+	if len(source) != offset+1 {
+		return ErrInvalidRawPayloadSize
+	}
+	payload.Keys = CredentialPublicKeys{
+		Keys:      keys,
+		Threshold: SignatureThreshold{Value: source[offset]},
+	}
 
 	return nil
 }

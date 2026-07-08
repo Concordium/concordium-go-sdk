@@ -15,6 +15,17 @@ type AccountInfo struct {
 	AccountAddress         AccountAddress
 	AvailableBalance       Amount
 	Tokens                 []AccountToken
+	// Credentials holds the account's credentials keyed by credential index,
+	// each with its registration id and current keys/threshold. Reading a
+	// credential's CredID is required to build an UpdateCredentialKeys transaction.
+	Credentials map[CredentialIndex]CredentialInfo
+}
+
+// CredentialInfo is the on-chain view of a single credential: its registration
+// id and the public keys + signature threshold currently set on it.
+type CredentialInfo struct {
+	CredID CredentialRegistrationID
+	Keys   CredentialPublicKeys
 }
 
 // AccountToken represents a token held by the account (PLT).

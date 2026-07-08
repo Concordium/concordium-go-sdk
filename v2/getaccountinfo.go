@@ -50,7 +50,44 @@ func (c *Client) GetAccountInfo(ctx context.Context, accId *pb.AccountIdentifier
 		info.Tokens = append(info.Tokens, token)
 	}
 
+	if creds := resp.GetCreds(); len(creds) > 0 {
+		info.Credentials = make(map[CredentialIndex]CredentialInfo, len(creds))
+		for idx, cred := range creds {
+			info.Credentials[CredentialIndex(idx)] = convertCredential(cred)
+		}
+	}
+
 	return info, nil
+}
+
+// convertCredential maps a pb.AccountCredential (initial or normal) into the
+// SDK's CredentialInfo. All account verify keys are Ed25519.
+func convertCredential(cred *pb.AccountCredential) CredentialInfo {
+	var (
+		credID *pb.CredentialRegistrationId
+		pbKeys *pb.CredentialPublicKeys
+	)
+	switch {
+	case cred.GetInitial() != nil:
+		credID = cred.GetInitial().GetCredId()
+		pbKeys = cred.GetInitial().GetKeys()
+	case cred.GetNormal() != nil:
+		credID = cred.GetNormal().GetCredId()
+		pbKeys = cred.GetNormal().GetKeys()
+	}
+
+	info := CredentialInfo{
+		CredID: CredentialRegistrationID{Value: credID.GetValue()},
+		Keys: CredentialPublicKeys{
+			Keys:      make(map[KeyIndex]VerifyKey, len(pbKeys.GetKeys())),
+			Threshold: SignatureThreshold{Value: uint8(pbKeys.GetThreshold().GetValue())},
+		},
+	}
+	for idx, vk := range pbKeys.GetKeys() {
+		info.Keys.Keys[KeyIndex(idx)] = VerifyKey{Scheme: SchemeEd25519, Key: vk.GetEd25519Key()}
+	}
+
+	return info
 }
 
 // convertEncryptedBalance maps pb.EncryptedBalance → AccountEncryptedAmount.

@@ -8,9 +8,10 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/Concordium/concordium-go-sdk/v2/pb"
 	"github.com/btcsuite/btcutil/base58"
 	"github.com/fxamacker/cbor/v2"
+
+	"github.com/Concordium/concordium-go-sdk/v2/pb"
 )
 
 const (
@@ -20,6 +21,7 @@ const (
 	ModuleRefLength       = 32
 	hundredThousand       = 100000
 	UpdateSignHashLength  = 32
+	AccountHolderTag      = 40307
 )
 
 // WalletAccount an account imported from one of the supported export formats.
@@ -187,6 +189,46 @@ type CredentialData struct {
 // KeyIndex describes index of an account key that is to be used.
 type KeyIndex uint8
 
+// SchemeID identifies the signature scheme of an account verify key.
+type SchemeID uint8
+
+// SchemeEd25519 is the Ed25519 signature scheme (the only scheme currently used
+// by Concordium account keys).
+const SchemeEd25519 SchemeID = 0
+
+// VerifyKey is a public account key together with its signature scheme.
+type VerifyKey struct {
+	Scheme SchemeID
+	// Key is the raw public key bytes (32 bytes for Ed25519).
+	Key []byte
+}
+
+// CredentialRegistrationID identifies a credential on an account. It is a
+// 48-byte compressed group element (BLS12-381 G1).
+type CredentialRegistrationID struct {
+	Value []byte
+}
+
+// CredentialPublicKeys holds the public keys of a single credential and the
+// number of them required to authorize a transaction (the credential's
+// signature threshold).
+type CredentialPublicKeys struct {
+	Keys      map[KeyIndex]VerifyKey
+	Threshold SignatureThreshold
+}
+
+// NewCredentialPublicKeysEd25519 builds a CredentialPublicKeys from a list of
+// raw Ed25519 public keys, assigning them key indices 0..len-1, and the given
+// signature threshold. This is the common shape for turning a single-key
+// account into an M-of-N multisig.
+func NewCredentialPublicKeysEd25519(pubkeys [][]byte, threshold uint8) CredentialPublicKeys {
+	keys := make(map[KeyIndex]VerifyKey, len(pubkeys))
+	for i, pk := range pubkeys {
+		keys[KeyIndex(i)] = VerifyKey{Scheme: SchemeEd25519, Key: pk}
+	}
+	return CredentialPublicKeys{Keys: keys, Threshold: SignatureThreshold{Value: threshold}}
+}
+
 // KeyPair describes ed25519 key pair.
 type KeyPair struct {
 	// secret describes `signKey`.
@@ -284,6 +326,14 @@ func (a *AccountAddress) isAddress() {}
 // ToBase58 encodes account address to string.
 func (a *AccountAddress) ToBase58() string {
 	return base58.CheckEncode(a.Value[:], 1)
+}
+
+func (a *AccountAddress) MarshalCBOR() ([]byte, error) {
+	enc, _ := cbor.EncOptions{}.EncMode()
+	return enc.Marshal(cbor.Tag{
+		Number:  AccountHolderTag, // Concordium account address tag
+		Content: a.Value[:],
+	})
 }
 
 // AccountAddressFromString decodes string to account.
@@ -809,6 +859,18 @@ func (tokenUpdate TokenUpdate) isUpdateInstructionPayload()  {}
 func (tokenUpdate TokenUpdate) isAccountTransactionPayload() {}
 func (tokenUpdate TokenUpdate) Encode() *RawPayload {
 	return tokenUpdate.Payload.Encode()
+}
+
+// UpdateCredentialKeys payload of a transaction that updates the keys and
+// signature threshold of an existing credential (e.g. turning a single-key
+// account into an M-of-N multisig).
+type UpdateCredentialKeys struct {
+	Payload *UpdateCredentialKeysPayload
+}
+
+func (UpdateCredentialKeys) isAccountTransactionPayload() {}
+func (updateCredentialKeys UpdateCredentialKeys) Encode() *RawPayload {
+	return updateCredentialKeys.Payload.Encode()
 }
 
 // Memo a memo which can be included as part of a transfer. Max size is 256 bytes.

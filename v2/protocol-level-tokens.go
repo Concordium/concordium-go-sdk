@@ -4,10 +4,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/Concordium/concordium-go-sdk/v2/pb"
-	"github.com/fxamacker/cbor/v2"
 	"io"
+
+	"github.com/fxamacker/cbor/v2"
+
+	"github.com/Concordium/concordium-go-sdk/v2/pb"
 )
+
+// Decimal Fraction Tag.
+const DecimalFractionTag = 4
 
 // TokenId Token ID: a unique symbol and identifier of a protocol level token.
 type TokenId struct {
@@ -24,6 +29,17 @@ type TokenModuleRef struct {
 type TokenAmount struct {
 	Value    uint64
 	Decimals uint8
+}
+
+func (ta *TokenAmount) MarshalCBOR() ([]byte, error) {
+	exponent := -int64(ta.Decimals)
+	mantissa := int64(ta.Value)
+
+	enc, _ := cbor.EncOptions{}.EncMode()
+	return enc.Marshal(cbor.Tag{
+		Number:  DecimalFractionTag,
+		Content: []int64{exponent, mantissa},
+	})
 }
 
 // TokenState Token state at the block level

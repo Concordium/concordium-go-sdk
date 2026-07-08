@@ -26,16 +26,16 @@ func TokenUpdateOperation(numSigs uint32, sender v2.AccountAddress, nonce v2.Seq
 }
 
 func MarshalTokenOperationsToCBORArray(ops v2.TokenOperations) (v2.RawCBOR, error) {
-	var encodedItems [][]byte
+	var rawItems []cbor.RawMessage
 	for _, op := range ops {
 		b, err := op.EncodeCBOR()
 		if err != nil {
 			return v2.RawCBOR{}, err
 		}
-		encodedItems = append(encodedItems, b)
+		rawItems = append(rawItems, b)
 	}
 
-	finalCBOR, err := cbor.Marshal(encodedItems)
+	finalCBOR, err := cbor.Marshal(rawItems)
 	if err != nil {
 		return v2.RawCBOR{}, err
 	}

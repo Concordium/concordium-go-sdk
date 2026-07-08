@@ -32,6 +32,10 @@ const (
 
 	// CCDCoinInfo 919 is the BIP-0044 SLIP coin type code for CCD.
 	CCDCoinInfo CoinInfo = 919
+	// CoinInfoTag CoinInfo Tag
+	CoinInfoTag uint64 = 40305
+	// EncodedCBORDataTag Encoded CBOR data tag
+	EncodedCBORDataTag = 24
 )
 
 // TokenOperations enum.
@@ -39,7 +43,7 @@ type TokenOperations []TokenOperation
 
 // TxnEnergy returns the total energy cost of all operations in the list.
 func (ops TokenOperations) TxnEnergy() *Energy {
-	total := uint64(0)
+	total := PltOperationsTransactions
 	for _, op := range ops {
 		if op != nil {
 			total += op.TxnEnergy().Value
@@ -163,20 +167,17 @@ func (op *UnknownOperation) EncodeCBOR() ([]byte, error) {
 }
 
 type TokenSupplyUpdateDetails struct {
-	Amount TokenAmount
-}
-type TokenPauseDetails struct{}
-type TokenListUpdateDetails struct {
-	Target CborTokenHolder
-}
-type TokenTransfer struct {
-	Amount    TokenAmount
-	Recipient CborTokenHolder
-	Memo      *CborMemo `cbor:"Memo,omitempty"`
+	Amount TokenAmount `cbor:"amount"`
 }
 
-type CborTokenHolder struct {
-	Account *CborHolderAccount `cbor:"account,omitempty" json:"account,omitempty"`
+type TokenPauseDetails struct{}
+type TokenListUpdateDetails struct {
+	Target CborHolderAccount
+}
+type TokenTransfer struct {
+	Amount    TokenAmount       `cbor:"amount"`
+	Recipient CborHolderAccount `cbor:"recipient"`
+	Memo      CborMemo          `cbor:"memo,omitempty"`
 }
 
 type CborHolderAccount struct {
@@ -184,9 +185,47 @@ type CborHolderAccount struct {
 	Address  AccountAddress `cbor:"3,keyasint"`
 }
 
+func (c CoinInfo) MarshalCBOR() ([]byte, error) {
+	enc, _ := cbor.EncOptions{}.EncMode()
+	return enc.Marshal(cbor.Tag{
+		Number: CoinInfoTag,
+		Content: map[uint64]uint16{
+			1: uint16(c),
+		},
+	})
+}
+func (h *CborHolderAccount) MarshalCBOR() ([]byte, error) {
+	m := make(map[any]any)
+	if h.CoinInfo != nil {
+		m[uint64(1)] = *h.CoinInfo
+	}
+	m[uint64(3)] = h.Address.Value[:]
+
+	enc, _ := cbor.EncOptions{}.EncMode()
+	return enc.Marshal(cbor.Tag{
+		Number:  AccountHolderTag,
+		Content: m,
+	})
+}
+
 type CoinInfo uint64 // constant ccd 919
 
 type CborMemo struct {
 	Raw  *Memo
 	Cbor *Memo
+}
+
+func (m *CborMemo) MarshalCBOR() ([]byte, error) {
+	if m.Raw == nil || m.Raw.Value == nil {
+		enc, _ := cbor.EncOptions{}.EncMode()
+		return enc.Marshal(cbor.Tag{
+			Number:  EncodedCBORDataTag,
+			Content: []byte{},
+		})
+	}
+	enc, _ := cbor.EncOptions{}.EncMode()
+	return enc.Marshal(cbor.Tag{
+		Number:  EncodedCBORDataTag,
+		Content: m.Raw.Value,
+	})
 }
